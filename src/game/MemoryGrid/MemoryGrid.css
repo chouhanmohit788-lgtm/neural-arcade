@@ -1,0 +1,786 @@
+.memory-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 30px 34px 60px;
+  color: #f5f7ff;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.memory-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+}
+
+.memory-back,
+.memory-reset {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 11px 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+
+  color: #778399;
+  background: rgba(255, 255, 255, 0.025);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.memory-back:hover {
+  color: #ff7200;
+  border-color: rgba(255, 106, 0, 0.2);
+}
+
+.memory-reset {
+  justify-self: end;
+  color: #ff7200;
+  border-color: rgba(255, 106, 0, 0.2);
+}
+
+.memory-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.memory-brand-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  color: #ff7200;
+
+  background: rgba(255, 106, 0, 0.08);
+  border: 1px solid rgba(255, 106, 0, 0.15);
+
+  box-shadow: 0 0 20px rgba(255, 106, 0, 0.07);
+}
+
+.memory-brand span {
+  color: #ff7200;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.memory-brand h1 {
+  margin: 4px 0 0;
+
+  font-size: 24px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.memory-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 30px;
+
+  margin-top: 35px;
+  padding: 28px;
+
+  border: 1px solid rgba(255, 106, 0, 0.12);
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 85% 50%,
+      rgba(255, 106, 0, 0.06),
+      transparent 35%
+    ),
+    rgba(9, 13, 23, 0.75);
+}
+
+.memory-kicker {
+  color: #ff7200;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.memory-info h2 {
+  margin: 9px 0 8px;
+
+  font-size: 31px;
+  letter-spacing: -0.8px;
+}
+
+.memory-info h2 strong {
+  color: #ff7200;
+}
+
+.memory-info p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #758198;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.difficulty-box {
+  min-width: 145px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  padding: 14px;
+
+  border: 1px solid rgba(255, 106, 0, 0.14);
+  border-radius: 10px;
+
+  background: rgba(255, 106, 0, 0.035);
+
+  text-align: right;
+}
+
+.difficulty-box span {
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+.difficulty-box strong {
+  color: #ff7200;
+
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   RULES
+========================= */
+
+.memory-rules {
+  margin-top: 18px;
+
+  padding: 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 15px;
+
+  background: rgba(8, 12, 21, 0.7);
+}
+
+.rule-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 15px;
+
+  color: #ff7200;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.rule {
+  display: flex;
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.rule span {
+  color: #ff7200;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.rule p {
+  margin: 0;
+
+  color: #6e7a90;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.memory-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.memory-stat {
+  min-height: 78px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+
+  background: rgba(8, 12, 21, 0.8);
+}
+
+.memory-stat span {
+  color: #59667d;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+.memory-stat strong {
+  margin-top: 7px;
+
+  color: #f4f6fb;
+
+  font-size: 18px;
+}
+
+/* =========================
+   XP
+========================= */
+
+.memory-xp {
+  margin-top: 18px;
+}
+
+.xp-header {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.3px;
+}
+
+.xp-header strong {
+  color: #ff7200;
+}
+
+.xp-track {
+  height: 5px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: #151b27;
+}
+
+.xp-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #ff6200,
+    #ff9b4a
+  );
+
+  box-shadow: 0 0 15px rgba(255, 106, 0, 0.4);
+
+  transition: width 0.35s ease;
+}
+
+/* =========================
+   GAME PANEL
+========================= */
+
+.memory-game-panel {
+  min-height: 480px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 20px;
+  padding: 35px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 106, 0, 0.04),
+      transparent 48%
+    ),
+    #080c14;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    );
+
+  background-size: 40px 40px;
+}
+
+/* =========================
+   START
+========================= */
+
+.memory-start {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+}
+
+.start-icon {
+  width: 85px;
+  height: 85px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 20px;
+
+  border: 1px solid rgba(255, 106, 0, 0.2);
+  border-radius: 50%;
+
+  color: #ff7200;
+
+  background: rgba(255, 106, 0, 0.06);
+
+  box-shadow: 0 0 35px rgba(255, 106, 0, 0.08);
+}
+
+.memory-start h3 {
+  margin: 0;
+
+  font-size: 23px;
+}
+
+.memory-start p {
+  margin: 8px 0 22px;
+
+  color: #69758a;
+
+  font-size: 12px;
+}
+
+/* =========================
+   START BUTTON
+========================= */
+
+.start-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 9px;
+
+  color: #080a0f;
+
+  background: #ff7200;
+
+  font-family: inherit;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  box-shadow: 0 0 25px rgba(255, 106, 0, 0.16);
+
+  transition: 0.2s ease;
+}
+
+.start-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 0 35px rgba(255, 106, 0, 0.28);
+}
+
+/* =========================
+   ACTIVE GAME
+========================= */
+
+.active-memory-game {
+  width: 100%;
+  max-width: 520px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.round-status {
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.round-status span {
+  color: #ff7200;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.round-status strong {
+  color: #707c91;
+
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+
+.memory-grid {
+  width: 100%;
+  max-width: 440px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 10px;
+}
+
+.memory-cell {
+  position: relative;
+
+  aspect-ratio: 1;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 10px;
+
+  background: #111722;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.12s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.memory-cell:hover {
+  transform: scale(1.025);
+
+  border-color: rgba(255, 106, 0, 0.25);
+}
+
+.memory-cell.glowing {
+  background: #ff7200;
+
+  border-color: #ffad68;
+
+  box-shadow:
+    0 0 18px rgba(255, 106, 0, 0.45),
+    inset 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.memory-cell.selected {
+  background: rgba(255, 106, 0, 0.12);
+
+  border-color: rgba(255, 106, 0, 0.3);
+}
+
+.memory-cell.correct {
+  background: #ff7200;
+
+  border-color: #ffb275;
+
+  box-shadow: 0 0 14px rgba(255, 106, 0, 0.25);
+}
+
+.memory-cell span {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #fff;
+
+  transform: translate(-50%, -50%);
+
+  box-shadow: 0 0 15px #fff;
+}
+
+.memory-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 20px;
+
+  color: #758198;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.memory-message span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #ff7200;
+
+  box-shadow: 0 0 8px #ff7200;
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+.memory-game-over {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+}
+
+.game-over-icon {
+  width: 78px;
+  height: 78px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 16px;
+
+  border: 1px solid rgba(255, 106, 0, 0.18);
+  border-radius: 50%;
+
+  color: #ff7200;
+
+  background: rgba(255, 106, 0, 0.06);
+}
+
+.memory-game-over > span {
+  color: #ff7200;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.memory-game-over h3 {
+  margin: 8px 0 20px;
+
+  font-size: 25px;
+}
+
+.game-over-stats {
+  display: flex;
+  gap: 30px;
+
+  margin-bottom: 24px;
+}
+
+.game-over-stats div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.game-over-stats small {
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.game-over-stats strong {
+  font-size: 19px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.memory-footer {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 15px;
+  padding: 12px 3px;
+
+  color: #4f5b70;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.memory-footer div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.memory-footer svg {
+  color: #ff7200;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .memory-header {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-brand {
+    justify-self: center;
+    order: -1;
+  }
+
+  .memory-back,
+  .memory-reset {
+    justify-self: center;
+  }
+
+  .rules-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .memory-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .memory-page {
+    padding: 20px 14px 45px;
+  }
+
+  .memory-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .difficulty-box {
+    width: 100%;
+    text-align: left;
+  }
+
+  .rules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .memory-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .memory-game-panel {
+    min-height: 400px;
+    padding: 20px;
+  }
+
+  .memory-grid {
+    gap: 7px;
+  }
+
+  .game-over-stats {
+    gap: 18px;
+  }
+
+  .memory-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

@@ -1,0 +1,864 @@
+.pattern-page {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 30px 34px 60px;
+  color: #f5f7ff;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.pattern-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+}
+
+.pattern-back,
+.pattern-reset {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 11px 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+
+  color: #778399;
+  background: rgba(255, 255, 255, 0.025);
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.pattern-back:hover {
+  color: #a970ff;
+  border-color: rgba(169, 112, 255, 0.2);
+}
+
+.pattern-reset {
+  justify-self: end;
+
+  color: #a970ff;
+
+  border-color: rgba(169, 112, 255, 0.2);
+}
+
+.pattern-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pattern-brand-icon {
+  width: 46px;
+  height: 46px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  color: #a970ff;
+
+  background: rgba(169, 112, 255, 0.08);
+
+  border: 1px solid rgba(169, 112, 255, 0.16);
+
+  box-shadow:
+    0 0 20px rgba(169, 112, 255, 0.07);
+}
+
+.pattern-brand span {
+  color: #a970ff;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.pattern-brand h1 {
+  margin: 4px 0 0;
+
+  font-size: 24px;
+  font-weight: 900;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.pattern-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 30px;
+
+  margin-top: 35px;
+  padding: 28px;
+
+  border: 1px solid rgba(169, 112, 255, 0.12);
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 85% 50%,
+      rgba(169, 112, 255, 0.06),
+      transparent 35%
+    ),
+    rgba(9, 13, 23, 0.75);
+}
+
+.pattern-kicker {
+  color: #a970ff;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.pattern-info h2 {
+  margin: 9px 0 8px;
+
+  font-size: 31px;
+  letter-spacing: -0.8px;
+}
+
+.pattern-info h2 strong {
+  color: #a970ff;
+}
+
+.pattern-info p {
+  max-width: 650px;
+
+  margin: 0;
+
+  color: #758198;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.pattern-difficulty {
+  min-width: 145px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 7px;
+
+  padding: 14px;
+
+  border: 1px solid rgba(169, 112, 255, 0.14);
+  border-radius: 10px;
+
+  background: rgba(169, 112, 255, 0.035);
+
+  text-align: right;
+}
+
+.pattern-difficulty span {
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+.pattern-difficulty strong {
+  color: #a970ff;
+
+  font-size: 12px;
+
+  letter-spacing: 1px;
+}
+
+/* =========================
+   RULES
+========================= */
+
+.pattern-rules {
+  margin-top: 18px;
+
+  padding: 20px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 15px;
+
+  background: rgba(8, 12, 21, 0.7);
+}
+
+.pattern-rule-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-bottom: 15px;
+
+  color: #a970ff;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.pattern-rules-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 12px;
+}
+
+.pattern-rule {
+  display: flex;
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.pattern-rule span {
+  color: #a970ff;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.pattern-rule p {
+  margin: 0;
+
+  color: #6e7a90;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.pattern-stats {
+  display: grid;
+
+  grid-template-columns: repeat(6, 1fr);
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.pattern-stat {
+  min-height: 78px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 12px;
+
+  background: rgba(8, 12, 21, 0.8);
+}
+
+.pattern-stat span {
+  color: #59667d;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: 1.2px;
+}
+
+.pattern-stat strong {
+  margin-top: 7px;
+
+  color: #f4f6fb;
+
+  font-size: 18px;
+}
+
+/* =========================
+   XP
+========================= */
+
+.pattern-xp {
+  margin-top: 18px;
+}
+
+.pattern-xp-header {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.3px;
+}
+
+.pattern-xp-header strong {
+  color: #a970ff;
+}
+
+.pattern-xp-track {
+  height: 5px;
+
+  overflow: hidden;
+
+  border-radius: 20px;
+
+  background: #151b27;
+}
+
+.pattern-xp-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: linear-gradient(
+    90deg,
+    #7544d0,
+    #b88aff
+  );
+
+  box-shadow:
+    0 0 15px rgba(169, 112, 255, 0.35);
+
+  transition: width 0.35s ease;
+}
+
+/* =========================
+   GAME PANEL
+========================= */
+
+.pattern-game-panel {
+  min-height: 480px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-top: 20px;
+  padding: 35px;
+
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: 20px;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(169, 112, 255, 0.04),
+      transparent 48%
+    ),
+    #080c14;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    );
+
+  background-size: 40px 40px;
+}
+
+/* =========================
+   START
+========================= */
+
+.pattern-start {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+}
+
+.pattern-start-icon {
+  width: 85px;
+  height: 85px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 20px;
+
+  border: 1px solid rgba(169, 112, 255, 0.2);
+  border-radius: 50%;
+
+  color: #a970ff;
+
+  background: rgba(169, 112, 255, 0.06);
+
+  box-shadow:
+    0 0 35px rgba(169, 112, 255, 0.08);
+}
+
+.pattern-start h3 {
+  margin: 0;
+
+  font-size: 23px;
+}
+
+.pattern-start p {
+  margin: 8px 0 22px;
+
+  color: #69758a;
+
+  font-size: 12px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.pattern-start-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 13px 20px;
+
+  border: none;
+  border-radius: 9px;
+
+  color: #0c0712;
+
+  background: #a970ff;
+
+  font-family: inherit;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 0 25px rgba(169, 112, 255, 0.16);
+
+  transition: 0.2s ease;
+}
+
+.pattern-start-button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 35px rgba(169, 112, 255, 0.28);
+}
+
+/* =========================
+   ACTIVE GAME
+========================= */
+
+.active-pattern {
+  width: 100%;
+  max-width: 750px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pattern-round {
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 13px;
+}
+
+.pattern-round span {
+  color: #a970ff;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+.pattern-round strong {
+  color: #69758a;
+
+  font-size: 9px;
+
+  letter-spacing: 1.5px;
+}
+
+/* =========================
+   TIMER
+========================= */
+
+.pattern-timer {
+  width: 100%;
+  height: 4px;
+
+  overflow: hidden;
+
+  margin-bottom: 35px;
+
+  border-radius: 20px;
+
+  background: #171c28;
+}
+
+.pattern-timer-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: #a970ff;
+
+  box-shadow:
+    0 0 12px rgba(169, 112, 255, 0.5);
+
+  transition: width 1s linear;
+}
+
+/* =========================
+   SEQUENCE
+========================= */
+
+.sequence {
+  display: flex;
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.sequence-number {
+  width: 82px;
+  height: 82px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 13px;
+
+  color: #f3f5fa;
+
+  background: #111722;
+
+  font-size: 22px;
+  font-weight: 900;
+
+  box-shadow:
+    inset 0 0 20px rgba(255, 255, 255, 0.01);
+}
+
+.sequence-number.missing {
+  color: #a970ff;
+
+  border-color: rgba(169, 112, 255, 0.35);
+
+  background: rgba(169, 112, 255, 0.08);
+
+  box-shadow:
+    0 0 25px rgba(169, 112, 255, 0.08);
+}
+
+.pattern-question {
+  margin-top: 27px;
+  margin-bottom: 15px;
+
+  color: #68748a;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 1.8px;
+}
+
+/* =========================
+   OPTIONS
+========================= */
+
+.pattern-options {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+.pattern-options button {
+  min-width: 105px;
+
+  padding: 14px 22px;
+
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 9px;
+
+  color: #e0e4ec;
+
+  background: #111722;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.18s ease;
+}
+
+.pattern-options button:hover {
+  color: #a970ff;
+
+  border-color: rgba(169, 112, 255, 0.35);
+
+  background: rgba(169, 112, 255, 0.08);
+
+  transform: translateY(-2px);
+}
+
+.pattern-live-message {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 22px;
+
+  color: #748096;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.pattern-live-message span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #a970ff;
+
+  box-shadow: 0 0 9px #a970ff;
+}
+
+/* =========================
+   GAME OVER
+========================= */
+
+.pattern-game-over {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  text-align: center;
+}
+
+.pattern-over-icon {
+  width: 78px;
+  height: 78px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 16px;
+
+  border: 1px solid rgba(169, 112, 255, 0.18);
+  border-radius: 50%;
+
+  color: #a970ff;
+
+  background: rgba(169, 112, 255, 0.06);
+}
+
+.pattern-game-over > span {
+  color: #a970ff;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
+}
+
+.pattern-game-over h3 {
+  margin: 8px 0 20px;
+
+  font-size: 28px;
+}
+
+.pattern-over-stats {
+  display: flex;
+
+  gap: 30px;
+
+  margin-bottom: 24px;
+}
+
+.pattern-over-stats div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+}
+
+.pattern-over-stats small {
+  color: #59667d;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.pattern-over-stats strong {
+  font-size: 19px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.pattern-footer {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 15px;
+  padding: 12px 3px;
+
+  color: #4f5b70;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+.pattern-footer div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pattern-footer svg {
+  color: #a970ff;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .pattern-header {
+    grid-template-columns: 1fr;
+  }
+
+  .pattern-brand {
+    justify-self: center;
+    order: -1;
+  }
+
+  .pattern-back,
+  .pattern-reset {
+    justify-self: center;
+  }
+
+  .pattern-rules-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pattern-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .pattern-page {
+    padding: 20px 14px 45px;
+  }
+
+  .pattern-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pattern-difficulty {
+    width: 100%;
+    text-align: left;
+  }
+
+  .pattern-rules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pattern-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .pattern-game-panel {
+    min-height: 400px;
+    padding: 20px;
+  }
+
+  .sequence {
+    gap: 6px;
+  }
+
+  .sequence-number {
+    width: 62px;
+    height: 62px;
+    font-size: 18px;
+  }
+
+  .pattern-options button {
+    min-width: 85px;
+  }
+
+  .pattern-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

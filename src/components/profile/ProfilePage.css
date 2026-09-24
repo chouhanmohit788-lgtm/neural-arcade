@@ -1,0 +1,462 @@
+/* =========================================================
+   PROFILE PAGE
+========================================================= */
+
+.profile-page {
+  min-height: 100%;
+  padding: 38px 42px 60px;
+  color: #f7f9fc;
+  background:
+    radial-gradient(circle at 80% 0%, rgba(139, 92, 246, .09), transparent 30%),
+    radial-gradient(circle at 10% 70%, rgba(255, 121, 0, .055), transparent 34%);
+}
+
+.profile-hero,
+.profile-stats,
+.profile-grid,
+.profile-games,
+.profile-achievement-banner {
+  width: 100%;
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 25px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(14,20,31,.96), rgba(7,11,18,.98));
+  box-shadow: 0 25px 70px rgba(0,0,0,.18);
+}
+
+.profile-avatar {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 88px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7900, #7c3aed);
+  box-shadow: 0 0 35px rgba(255,121,0,.16);
+}
+
+.profile-identity {
+  flex: 1;
+}
+
+.profile-identity > span,
+.profile-card-title span,
+.profile-level span {
+  color: #647287;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.8px;
+}
+
+.profile-identity h1 {
+  margin: 6px 0 5px;
+  font-size: clamp(25px, 4vw, 40px);
+  letter-spacing: -.8px;
+}
+
+.profile-identity p {
+  margin: 0;
+  color: #8290a2;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .8px;
+}
+
+.profile-level {
+  min-width: 125px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid rgba(0,217,255,.15);
+  border-radius: 12px;
+  background: rgba(0,217,255,.035);
+}
+
+.profile-level strong {
+  display: block;
+  margin: 3px 0;
+  color: #00d9ff;
+  font-size: 30px;
+}
+
+.profile-level small {
+  color: #69788b;
+  font-size: 8px;
+}
+
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 16px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.profile-stat {
+  min-height: 105px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-right: 1px solid rgba(255,255,255,.06);
+  background: rgba(255,255,255,.018);
+}
+
+.profile-stat:last-child {
+  border-right: 0;
+}
+
+.profile-stat svg {
+  width: 17px;
+  color: #ff7900;
+}
+
+.profile-stat span {
+  color: #5f6e81;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+}
+
+.profile-stat strong {
+  color: #fff;
+  font-size: 19px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.profile-card {
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 15px;
+  background: rgba(7,12,20,.82);
+}
+
+.profile-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.profile-card-title h2 {
+  margin: 5px 0 0;
+  font-size: 17px;
+  letter-spacing: .2px;
+}
+
+.profile-card-title > svg {
+  color: #00d9ff;
+}
+
+.profile-info-list {
+  display: grid;
+  gap: 0;
+}
+
+.profile-info-list > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 13px 0;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+
+.profile-info-list span {
+  color: #58677a;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.profile-info-list strong {
+  color: #dce2eb;
+  font-size: 10px;
+  text-align: right;
+}
+
+.online-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #63f5c3 !important;
+}
+
+.online-text i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #63f5c3;
+  box-shadow: 0 0 9px rgba(99,245,195,.8);
+}
+
+.profile-progress-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 28px 0 9px;
+}
+
+.profile-progress-value strong {
+  color: #00d9ff;
+  font-size: 30px;
+}
+
+.profile-progress-value span {
+  color: #68778a;
+  font-size: 9px;
+}
+
+.profile-progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(255,255,255,.06);
+}
+
+.profile-progress-track > div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8b5cf6, #00d9ff);
+  box-shadow: 0 0 15px rgba(0,217,255,.25);
+}
+
+.profile-milestones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  color: #667589;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.profile-milestones span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.profile-milestones svg:first-child {
+  color: #a78bfa;
+}
+
+.profile-milestones svg:last-child {
+  color: #ff7900;
+}
+
+.profile-games {
+  margin-top: 16px;
+}
+
+.profile-game-list {
+  display: grid;
+  gap: 7px;
+}
+
+.profile-game-row {
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 40px 1fr 85px 65px 75px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255,255,255,.045);
+  border-radius: 9px;
+  background: rgba(255,255,255,.018);
+}
+
+.profile-game-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  color: #00d9ff;
+  background: rgba(0,217,255,.06);
+}
+
+.profile-game-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-game-name strong {
+  color: #e8edf4;
+  font-size: 11px;
+}
+
+.profile-game-name span {
+  color: #536174;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .7px;
+}
+
+.profile-game-value {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile-game-value span {
+  color: #536174;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.profile-game-value strong {
+  color: #dfe5ee;
+  font-size: 10px;
+}
+
+.profile-game-status {
+  justify-self: end;
+  padding: 6px 8px;
+  border-radius: 5px;
+  color: #59677a;
+  border: 1px solid rgba(255,255,255,.06);
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .7px;
+}
+
+.profile-game-status.active {
+  color: #63f5c3;
+  border-color: rgba(99,245,195,.16);
+  background: rgba(99,245,195,.035);
+}
+
+.profile-achievement-banner {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,121,0,.13);
+  border-radius: 13px;
+  background: linear-gradient(90deg, rgba(255,121,0,.055), rgba(139,92,246,.035));
+}
+
+.achievement-icon {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  color: #ff9b4a;
+  background: rgba(255,121,0,.08);
+  border: 1px solid rgba(255,121,0,.16);
+}
+
+.profile-achievement-banner span {
+  color: #667589;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.profile-achievement-banner h3 {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.profile-achievement-banner p {
+  margin: 0;
+  color: #657387;
+  font-size: 9px;
+}
+
+@media (max-width: 850px) {
+  .profile-page {
+    padding: 25px 18px 45px;
+  }
+
+  .profile-hero {
+    flex-wrap: wrap;
+  }
+
+  .profile-level {
+    width: 100%;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .profile-stat:nth-child(2) {
+    border-right: 0;
+  }
+
+  .profile-stat:nth-child(3),
+  .profile-stat:nth-child(4) {
+    border-top: 1px solid rgba(255,255,255,.06);
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-game-row {
+    grid-template-columns: 40px 1fr 65px;
+  }
+
+  .profile-game-row .profile-game-value:first-of-type {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-page {
+    padding: 20px 12px 35px;
+  }
+
+  .profile-hero {
+    padding: 17px;
+  }
+
+  .profile-avatar {
+    width: 65px;
+    height: 65px;
+    flex-basis: 65px;
+  }
+
+  .profile-identity h1 {
+    font-size: 22px;
+  }
+
+  .profile-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .profile-game-row {
+    grid-template-columns: 36px 1fr 60px;
+  }
+
+  .profile-game-status {
+    display: none;
+  }
+
+  .profile-achievement-banner {
+    align-items: flex-start;
+  }
+}
