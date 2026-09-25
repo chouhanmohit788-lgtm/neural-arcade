@@ -7,6 +7,7 @@ import {
   Trophy,
   Settings,
   Zap,
+  Menu,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -44,60 +45,112 @@ const menuItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+  isOpen,
+  onToggle,
+}) {
   return (
-    <aside className="sidebar">
-      {/* BRAND */}
+    <aside
+      className={`sidebar ${
+        isOpen ? "open" : "closed"
+      }`}
+    >
+
+      {/* =====================================
+          BRAND + TOGGLE
+      ====================================== */}
+
       <div className="sidebar-brand">
+
         <div className="brand-icon">
-          <Zap size={19} strokeWidth={2.2} />
+          <Zap
+            size={19}
+            strokeWidth={2.2}
+          />
         </div>
 
         <div className="brand-text">
           <strong>NEURAL</strong>
           <span>ARCADE</span>
         </div>
+
+        {/* ONLY ONE MENU BUTTON */}
+
+        <button
+          className="sidebar-toggle"
+          onClick={onToggle}
+          aria-label="Toggle sidebar"
+        >
+          <Menu size={20} />
+        </button>
+
       </div>
 
-      {/* MENU */}
-      <nav className="sidebar-nav">
-        <div className="sidebar-label">MAIN MENU</div>
 
-        {menuItems.map((item) => {
-          const Icon = item.icon;
+      {/* =====================================
+          MENU
+      ====================================== */}
 
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === "/"}
-              className={({ isActive }) =>
-                `sidebar-link ${isActive ? "active" : ""}`
-              }
-            >
-              <Icon size={18} strokeWidth={1.9} />
+      {isOpen && (
+        <nav className="sidebar-nav">
 
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-
-      {/* BOTTOM STATUS */}
-      <div className="sidebar-bottom">
-        <div className="neural-status">
-          <span className="status-dot" />
-
-          <div className="status-text">
-            <span>SYSTEM</span>
-            <strong>ONLINE</strong>
+          <div className="sidebar-label">
+            MAIN MENU
           </div>
-        </div>
 
-        <div className="sidebar-version">
-          NEURAL ARCADE v1.0
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/"}
+                className={({ isActive }) =>
+                  `sidebar-link ${
+                    isActive ? "active" : ""
+                  }`
+                }
+              >
+                <Icon
+                  size={18}
+                  strokeWidth={1.9}
+                />
+
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+
+        </nav>
+      )}
+
+
+      {/* =====================================
+          SYSTEM STATUS
+      ====================================== */}
+
+      {isOpen && (
+        <div className="sidebar-bottom">
+
+          <div className="neural-status">
+
+            <span className="status-dot" />
+
+            <div className="status-text">
+              <span>SYSTEM</span>
+              <strong>ONLINE</strong>
+            </div>
+
+          </div>
+
+          <div className="sidebar-version">
+            NEURAL ARCADE v1.0
+          </div>
+
         </div>
-      </div>
+      )}
+
     </aside>
   );
 }

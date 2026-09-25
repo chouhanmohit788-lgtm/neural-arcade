@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import {
   BrowserRouter,
   Routes,
@@ -9,12 +11,16 @@ import {
 import MainLayout from "./components/layout/MainLayout";
 import HomeDashboard from "./components/home/HomeDashboard";
 import ProfilePage from "./components/profile/ProfilePage";
+import AchievementsPage from "./components/achievements/AchievementsPage";
+import SettingsPage from "./components/settings/SettingsPage";
+import LoadingScreen from "./components/loading/LoadingScreen";
 
 import MemoryGrid from "./game/MemoryGrid/MemoryGrid";
 import ReflexTest from "./game/ReflexTest/ReflexTest";
 import PatternCore from "./game/PatternCore/PatternCore";
 import LogicLock from "./game/LogicLock/LogicLock";
 import FocusTest from "./game/FocusTest/FocusTest";
+import NeuralMind from "./game/NeuralMind/NeuralMind";
 import NeuralMaze from "./game/NeuralMaze/NeuralMaze";
 import CircuitBreaker from "./game/CircuitBreaker/CircuitBreaker";
 import NeuralLabyrinth from "./game/NeuralLabyrinth/NeuralLabyrinth";
@@ -118,12 +124,8 @@ function Games() {
       style={{
         minHeight: "100%",
         padding: "42px 42px 60px",
-        background:
-          "radial-gradient(circle at 75% 0%, rgba(139,92,246,.09), transparent 30%), radial-gradient(circle at 20% 70%, rgba(255,105,0,.055), transparent 35%)",
       }}
     >
-      {/* HEADER */}
-
       <section
         style={{
           maxWidth: "1200px",
@@ -149,17 +151,11 @@ function Games() {
             color: "#ffffff",
             fontSize: "clamp(38px, 5vw, 64px)",
             lineHeight: 1,
-            letterSpacing: "-2px",
             fontWeight: 900,
           }}
         >
-          GAME
-          <span
-            style={{
-              color: "#ff7900",
-              marginLeft: "12px",
-            }}
-          >
+          GAME{" "}
+          <span style={{ color: "#ff7900" }}>
             LIBRARY
           </span>
         </h1>
@@ -178,73 +174,6 @@ function Games() {
         </p>
       </section>
 
-      {/* GAME COUNT */}
-
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto 25px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "15px",
-          padding: "15px 18px",
-          border: "1px solid rgba(255,255,255,.07)",
-          borderRadius: "12px",
-          background: "rgba(255,255,255,.025)",
-        }}
-      >
-        <div>
-          <span
-            style={{
-              display: "block",
-              color: "#5e6b7d",
-              fontSize: "8px",
-              fontWeight: 800,
-              letterSpacing: "1.5px",
-              marginBottom: "4px",
-            }}
-          >
-            AVAILABLE CHALLENGES
-          </span>
-
-          <strong
-            style={{
-              color: "#ffffff",
-              fontSize: "15px",
-            }}
-          >
-            {games.length} NEURAL GAMES
-          </strong>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            color: "#63f5c3",
-            fontSize: "9px",
-            fontWeight: 800,
-            letterSpacing: "1px",
-          }}
-        >
-          <span
-            style={{
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              background: "#63f5c3",
-              boxShadow: "0 0 10px rgba(99,245,195,.8)",
-            }}
-          />
-
-          SYSTEM ONLINE
-        </div>
-      </section>
-
-      {/* GAME GRID */}
-
       <section
         style={{
           maxWidth: "1200px",
@@ -259,37 +188,19 @@ function Games() {
           <article
             key={game.path}
             style={{
-              position: "relative",
               minHeight: "275px",
               padding: "22px",
               display: "flex",
               flexDirection: "column",
-              overflow: "hidden",
               borderRadius: "15px",
               border: `1px solid ${game.color}22`,
               background:
                 "linear-gradient(145deg, rgba(10,17,26,.96), rgba(5,9,15,.98))",
-              boxShadow: `0 18px 45px ${game.color}08`,
-              transition:
-                "transform .2s ease, border-color .2s ease",
-            }}
-            onMouseEnter={(event) => {
-              event.currentTarget.style.transform =
-                "translateY(-5px)";
-              event.currentTarget.style.borderColor =
-                `${game.color}66`;
-            }}
-            onMouseLeave={(event) => {
-              event.currentTarget.style.transform =
-                "translateY(0)";
-              event.currentTarget.style.borderColor =
-                `${game.color}22`;
             }}
           >
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
                 justifyContent: "space-between",
                 marginBottom: "22px",
               }}
@@ -305,7 +216,6 @@ function Games() {
                   background: `${game.color}10`,
                   border: `1px solid ${game.color}30`,
                   fontSize: "24px",
-                  boxShadow: `0 0 25px ${game.color}10`,
                 }}
               >
                 {game.icon}
@@ -316,7 +226,6 @@ function Games() {
                   color: "#4e5c6f",
                   fontSize: "9px",
                   fontWeight: 900,
-                  letterSpacing: "1.5px",
                 }}
               >
                 {game.number}
@@ -328,8 +237,6 @@ function Games() {
                 margin: "0 0 9px",
                 color: "#ffffff",
                 fontSize: "20px",
-                fontWeight: 850,
-                letterSpacing: ".3px",
               }}
             >
               {game.title}
@@ -353,7 +260,6 @@ function Games() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                gap: "10px",
               }}
             >
               <span
@@ -362,10 +268,8 @@ function Games() {
                   borderRadius: "6px",
                   color: game.color,
                   background: `${game.color}0d`,
-                  border: `1px solid ${game.color}20`,
                   fontSize: "8px",
                   fontWeight: 900,
-                  letterSpacing: "1px",
                 }}
               >
                 {game.difficulty}
@@ -374,9 +278,6 @@ function Games() {
               <button
                 onClick={() => navigate(game.path)}
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "7px",
                   padding: "9px 13px",
                   border: "none",
                   borderRadius: "7px",
@@ -384,12 +285,10 @@ function Games() {
                   color: "#080b10",
                   fontSize: "9px",
                   fontWeight: 900,
-                  letterSpacing: ".8px",
                   cursor: "pointer",
                 }}
               >
-                PLAY NOW
-                <span>→</span>
+                PLAY NOW →
               </button>
             </div>
           </article>
@@ -400,50 +299,28 @@ function Games() {
 }
 
 /* =========================================================
-   NEURAL MIND HUB
-========================================================= */
-
-function NeuralMindHub() {
-  return (
-    <div className="page">
-      <h1>NEURAL MIND</h1>
-      <p>Select a game from the Games section.</p>
-    </div>
-  );
-}
-
-/* =========================================================
-   ACHIEVEMENTS
-========================================================= */
-
-function Achievements() {
-  return (
-    <div className="page">
-      <h1>ACHIEVEMENTS</h1>
-    </div>
-  );
-}
-
-/* =========================================================
-   SETTINGS
-========================================================= */
-
-function Settings() {
-  return (
-    <div className="page">
-      <h1>SETTINGS</h1>
-    </div>
-  );
-}
-
-/* =========================================================
    APP
 ========================================================= */
 
 function App() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <BrowserRouter>
       <MainLayout>
+
         <Routes>
 
           {/* DASHBOARD */}
@@ -453,70 +330,70 @@ function App() {
             element={<HomeDashboard />}
           />
 
-          {/* ALL GAMES */}
+          {/* GAMES */}
 
           <Route
             path="/games"
             element={<Games />}
           />
 
-          {/* NEURAL MIND HUB */}
+          {/* NEURAL MIND */}
 
           <Route
             path="/neural-mind"
-            element={<NeuralMindHub />}
+            element={<NeuralMind />}
           />
 
-          {/* 01 — MEMORY GRID */}
+          {/* MEMORY */}
 
           <Route
             path="/neural-mind/memory"
             element={<MemoryGrid />}
           />
 
-          {/* 02 — REFLEX TEST */}
+          {/* REFLEX */}
 
           <Route
             path="/neural-mind/reflex"
             element={<ReflexTest />}
           />
 
-          {/* 03 — PATTERN CORE */}
+          {/* PATTERN */}
 
           <Route
             path="/neural-mind/pattern"
             element={<PatternCore />}
           />
 
-          {/* 04 — LOGIC LOCK */}
+          {/* LOGIC */}
 
           <Route
             path="/neural-mind/logic"
             element={<LogicLock />}
           />
 
-          {/* 05 — FOCUS TEST */}
+          {/* FOCUS */}
 
           <Route
             path="/neural-mind/focus"
             element={<FocusTest />}
           />
 
-          {/* 06 — NEURAL MAZE */}
+          {/* NEURAL MAZE */}
 
           <Route
             path="/neural-mind/neural-maze"
             element={<NeuralMaze />}
           />
 
-          {/* 07 — CIRCUIT BREAKER */}
+          {/* CIRCUIT BREAKER */}
 
           <Route
             path="/neural-mind/circuit-breaker"
             element={<CircuitBreaker />}
           />
 
-          {/* 08 — NEURAL LABYRINTH */}
+          {/* LABYRINTH */}
 
           <Route
             path="/neural-mind/labyrinth"
@@ -534,17 +411,17 @@ function App() {
 
           <Route
             path="/achievements"
-            element={<Achievements />}
+            element={<AchievementsPage />}
           />
 
           {/* SETTINGS */}
 
           <Route
             path="/settings"
-            element={<Settings />}
+            element={<SettingsPage />}
           />
 
-          {/* UNKNOWN ROUTE */}
+          {/* UNKNOWN */}
 
           <Route
             path="*"
@@ -557,6 +434,7 @@ function App() {
           />
 
         </Routes>
+
       </MainLayout>
     </BrowserRouter>
   );

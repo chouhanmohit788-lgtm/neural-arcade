@@ -1,915 +1,407 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Brain,
   Zap,
-  Activity,
   Target,
-  Sparkles,
-  RotateCcw,
-  ArrowLeft,
+  Puzzle,
+  Focus,
+  Route,
+  Cpu,
+  Map,
   Trophy,
+  Play,
+  Star,
+  Gamepad2,
 } from "lucide-react";
 
 import "./neuralMind.css";
 
-const GAME_CONFIG = {
-  memory: {
-    title: "MEMORY GRID",
-    subtitle: "Remember. Recreate. Repeat.",
-    icon: Brain,
-    color: "orange",
-  },
-
-  reflex: {
-    title: "REFLEX TEST",
-    subtitle: "React before the system reacts.",
-    icon: Zap,
-    color: "blue",
-  },
-
-  pattern: {
-    title: "PATTERN CORE",
-    subtitle: "Predict what comes next.",
-    icon: Activity,
-    color: "purple",
-  },
-
-  logic: {
-    title: "LOGIC LOCK",
-    subtitle: "Solve the system before time runs out.",
-    icon: Target,
-    color: "cyan",
-  },
-
-  focus: {
-    title: "FOCUS TEST",
-    subtitle: "Ignore the noise. Find the signal.",
-    icon: Sparkles,
-    color: "orange",
-  },
+const GAME_STATS = {
+  memory: "neural-memory-grid-stats",
+  reflex: "neural-reflex-test-stats",
+  pattern: "neural-pattern-core-stats",
+  logic: "neural-logic-lock-stats",
+  focus: "neural-focus-test-stats",
+  maze: "neural-maze-stats",
+  circuit: "neural-circuit-breaker-stats",
+  labyrinth: "neural-labyrinth-stats",
 };
 
-const PATTERNS = [
+const games = [
   {
-    sequence: [2, 4, 6, 8],
-    answer: 10,
-    options: [9, 10, 11, 12],
+    id: "memory",
+    number: "01",
+    title: "Memory Grid",
+    description: "Memorize patterns and reproduce them from memory.",
+    difficulty: "EASY",
+    color: "#00d9ff",
+    path: "/neural-mind/memory",
+    icon: Brain,
   },
   {
-    sequence: [3, 6, 12, 24],
-    answer: 48,
-    options: [36, 42, 48, 52],
+    id: "reflex",
+    number: "02",
+    title: "Reflex Test",
+    description: "Test your reaction speed against the neural signal.",
+    difficulty: "EASY",
+    color: "#22c55e",
+    path: "/neural-mind/reflex",
+    icon: Zap,
   },
   {
-    sequence: [5, 10, 15, 20],
-    answer: 25,
-    options: [22, 25, 28, 30],
+    id: "pattern",
+    number: "03",
+    title: "Pattern Core",
+    description: "Solve increasingly difficult numerical patterns.",
+    difficulty: "MEDIUM",
+    color: "#a855f7",
+    path: "/neural-mind/pattern",
+    icon: Target,
   },
   {
-    sequence: [1, 4, 9, 16],
-    answer: 25,
-    options: [20, 24, 25, 30],
+    id: "logic",
+    number: "04",
+    title: "Logic Lock",
+    description: "Solve logical challenges before the system locks.",
+    difficulty: "MEDIUM",
+    color: "#facc15",
+    path: "/neural-mind/logic",
+    icon: Puzzle,
   },
   {
-    sequence: [2, 6, 18, 54],
-    answer: 162,
-    options: [108, 144, 162, 216],
+    id: "focus",
+    number: "05",
+    title: "Focus Test",
+    description: "Find the correct target among distracting signals.",
+    difficulty: "MEDIUM",
+    color: "#14b8a6",
+    path: "/neural-mind/focus",
+    icon: Focus,
+  },
+  {
+    id: "maze",
+    number: "06",
+    title: "Neural Maze",
+    description: "Remember the hidden path and reproduce it correctly.",
+    difficulty: "HARD",
+    color: "#3b82f6",
+    path: "/neural-mind/neural-maze",
+    icon: Route,
+  },
+  {
+    id: "circuit",
+    number: "07",
+    title: "Circuit Breaker",
+    description: "Connect the power source to the Neural Core.",
+    difficulty: "HARD",
+    color: "#06b6d4",
+    path: "/neural-mind/circuit-breaker",
+    icon: Cpu,
+  },
+  {
+    id: "labyrinth",
+    number: "08",
+    title: "Neural Labyrinth",
+    description: "Navigate the maze and reach the Neural Core.",
+    difficulty: "HARD",
+    color: "#8b5cf6",
+    path: "/neural-mind/labyrinth",
+    icon: Map,
   },
 ];
 
-const LOGIC_QUESTIONS = [
-  {
-    question: "If all A are B and all B are C, then all A are?",
-    options: ["A", "B", "C", "None"],
-    answer: "C",
-  },
-  {
-    question: "Which number comes next? 2, 4, 8, 16, ?",
-    options: ["20", "24", "30", "32"],
-    answer: "32",
-  },
-  {
-    question: "If 5 machines make 5 items in 5 minutes, how long for 1 machine to make 1 item?",
-    options: ["1 min", "5 min", "10 min", "25 min"],
-    answer: "5 min",
-  },
-  {
-    question: "Which one does not belong?",
-    options: ["Apple", "Mango", "Carrot", "Banana"],
-    answer: "Carrot",
-  },
-];
-
-function randomIndex(max) {
-  return Math.floor(Math.random() * max);
-}
-
-function createMemoryGrid(size = 16, count = 3) {
-  const indexes = [];
-
-  while (indexes.length < count) {
-    const index = randomIndex(size);
-
-    if (!indexes.includes(index)) {
-      indexes.push(index);
-    }
+function readStats(key) {
+  try {
+    const saved = localStorage.getItem(GAME_STATS[key]);
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
   }
-
-  return indexes;
 }
 
-function createFocusGrid(size = 25) {
-  const target = randomIndex(size);
-
-  return {
-    target,
-    special: randomIndex(size),
-  };
-}
-
-function getDifficulty(level) {
-  if (level <= 2) return "EASY";
-  if (level <= 5) return "MEDIUM";
-  if (level <= 8) return "HARD";
-  return "EXTREME";
-}
-
-function ChallengeIcon({ game }) {
-  const Icon = GAME_CONFIG[game]?.icon || Brain;
-
-  return <Icon size={24} />;
-}
-
-export default function NeuralMind() {
+function NeuralMind() {
   const navigate = useNavigate();
-  const { game: gameParam } = useParams();
 
-  const game =
-    GAME_CONFIG[gameParam] ? gameParam : "memory";
+  const stats = useMemo(() => {
+    const result = {};
 
-  const config = GAME_CONFIG[game];
+    Object.keys(GAME_STATS).forEach((key) => {
+      result[key] = readStats(key);
+    });
 
-  /* =========================
-     PERSISTENT GAME STATS
-  ========================= */
+    return result;
+  }, []);
 
-  const storageKey = `neural-mind-${game}`;
-
-  const initialStats = useMemo(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch {
-      // Ignore storage errors.
-    }
-
-    return {
-      level: 1,
-      score: 0,
-      highScore: 0,
-      combo: 0,
-      xp: 0,
-      correct: 0,
-      attempts: 0,
-    };
-  }, [storageKey]);
-
-  const [level, setLevel] = useState(initialStats.level);
-  const [score, setScore] = useState(initialStats.score);
-  const [highScore, setHighScore] = useState(initialStats.highScore);
-  const [combo, setCombo] = useState(initialStats.combo);
-  const [xp, setXp] = useState(initialStats.xp);
-  const [correct, setCorrect] = useState(initialStats.correct);
-  const [attempts, setAttempts] = useState(initialStats.attempts);
-
-  const [round, setRound] = useState(1);
-  const [message, setMessage] = useState("SYSTEM READY");
-
-  /* =========================
-     MEMORY
-  ========================= */
-
-  const [memoryCells, setMemoryCells] = useState([]);
-  const [memoryVisible, setMemoryVisible] = useState(true);
-  const [memorySelected, setMemorySelected] = useState([]);
-
-  /* =========================
-     REFLEX
-  ========================= */
-
-  const [reflexReady, setReflexReady] = useState(false);
-  const [reflexActive, setReflexActive] = useState(false);
-  const [reflexStart, setReflexStart] = useState(null);
-  const [reflexTime, setReflexTime] = useState(null);
-
-  /* =========================
-     PATTERN
-  ========================= */
-
-  const [pattern, setPattern] = useState(
-    PATTERNS[0]
+  const totalXP = Object.values(stats).reduce(
+    (sum, game) => sum + Number(game.xp || 0),
+    0
   );
 
-  /* =========================
-     LOGIC
-  ========================= */
-
-  const [logicQuestion, setLogicQuestion] =
-    useState(LOGIC_QUESTIONS[0]);
-
-  /* =========================
-     FOCUS
-  ========================= */
-
-  const [focusGrid, setFocusGrid] = useState(
-    createFocusGrid()
+  const totalScore = Object.values(stats).reduce(
+    (sum, game) => sum + Number(game.score || 0),
+    0
   );
 
-  /* =========================
-     SAVE STATS
-  ========================= */
+  const totalAttempts = Object.values(stats).reduce(
+    (sum, game) => sum + Number(game.attempts || 0),
+    0
+  );
 
-  useEffect(() => {
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        level,
-        score,
-        highScore,
-        combo,
-        xp,
-        correct,
-        attempts,
-      })
+  const highestLevel = Math.max(
+    1,
+    ...Object.values(stats).map((game) => Number(game.level || 1))
+  );
+
+  const completedGames = games.filter((game) => {
+    const data = stats[game.id] || {};
+
+    return (
+      Number(data.completed || 0) > 0 ||
+      Number(data.correct || 0) > 0 ||
+      Number(data.score || 0) > 0
     );
-  }, [
-    storageKey,
-    level,
-    score,
-    highScore,
-    combo,
-    xp,
-    correct,
-    attempts,
-  ]);
-
-  /* =========================
-     ACCURACY
-  ========================= */
-
-  const accuracy =
-    attempts === 0
-      ? 0
-      : Math.round((correct / attempts) * 100);
-
-  /* =========================
-     START GAME
-  ========================= */
-
-  useEffect(() => {
-    startChallenge();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game]);
-
-  function startChallenge() {
-    setMessage("SYSTEM READY");
-
-    if (game === "memory") {
-      const count = Math.min(
-        3 + Math.floor(level / 2),
-        8
-      );
-
-      setMemoryCells(
-        createMemoryGrid(16, count)
-      );
-
-      setMemorySelected([]);
-      setMemoryVisible(true);
-
-      setTimeout(() => {
-        setMemoryVisible(false);
-      }, Math.max(900, 1800 - level * 70));
-    }
-
-    if (game === "reflex") {
-      setReflexReady(true);
-      setReflexActive(false);
-      setReflexTime(null);
-      setReflexStart(null);
-
-      const delay =
-        1200 + Math.random() * 2500;
-
-      setTimeout(() => {
-        setReflexReady(false);
-        setReflexActive(true);
-        setReflexStart(Date.now());
-      }, delay);
-    }
-
-    if (game === "pattern") {
-      setPattern(
-        PATTERNS[randomIndex(PATTERNS.length)]
-      );
-    }
-
-    if (game === "logic") {
-      setLogicQuestion(
-        LOGIC_QUESTIONS[
-          randomIndex(LOGIC_QUESTIONS.length)
-        ]
-      );
-    }
-
-    if (game === "focus") {
-      setFocusGrid(createFocusGrid());
-    }
-  }
-
-  /* =========================
-     RESULT HANDLER
-  ========================= */
-
-  function updateResult(isCorrect, points = 100) {
-    const newAttempts = attempts + 1;
-
-    setAttempts(newAttempts);
-
-    if (isCorrect) {
-      const newCombo = combo + 1;
-
-      const multiplier =
-        1 + Math.min(newCombo * 0.1, 2);
-
-      const earned =
-        Math.round(points * multiplier);
-
-      const newScore = score + earned;
-
-      setCorrect(correct + 1);
-      setCombo(newCombo);
-      setScore(newScore);
-
-      if (newScore > highScore) {
-        setHighScore(newScore);
-      }
-
-      const newXp =
-        xp + Math.round(10 + newCombo * 2);
-
-      if (newXp >= 100) {
-        setLevel((prev) => prev + 1);
-        setXp(newXp - 100);
-      } else {
-        setXp(newXp);
-      }
-
-      setMessage(
-        `CORRECT // +${earned} XP SIGNAL`
-      );
-    } else {
-      setCombo(0);
-
-      setMessage(
-        "INCORRECT // NEURAL SIGNAL LOST"
-      );
-    }
-
-    setRound((prev) => prev + 1);
-  }
-
-  /* =========================
-     MEMORY CLICK
-  ========================= */
-
-  function handleMemoryClick(index) {
-    if (memoryVisible) return;
-
-    if (memorySelected.includes(index)) {
-      return;
-    }
-
-    const nextSelected = [
-      ...memorySelected,
-      index,
-    ];
-
-    setMemorySelected(nextSelected);
-
-    const isCorrect = memoryCells.includes(index);
-
-    if (!isCorrect) {
-      updateResult(false, 100);
-      return;
-    }
-
-    if (
-      nextSelected.length ===
-      memoryCells.length
-    ) {
-      updateResult(true, 150);
-
-      setTimeout(() => {
-        startChallenge();
-      }, 700);
-    }
-  }
-
-  /* =========================
-     REFLEX CLICK
-  ========================= */
-
-  function handleReflexClick() {
-    if (reflexReady) {
-      updateResult(false, 100);
-      setMessage(
-        "TOO EARLY // WAIT FOR SIGNAL"
-      );
-      return;
-    }
-
-    if (!reflexActive || !reflexStart) {
-      return;
-    }
-
-    const reaction =
-      Date.now() - reflexStart;
-
-    setReflexTime(reaction);
-    setReflexActive(false);
-
-    const isCorrect = reaction < 900;
-
-    updateResult(
-      isCorrect,
-      Math.max(
-        80,
-        Math.round(500 - reaction / 3)
-      )
-    );
-
-    setTimeout(() => {
-      startChallenge();
-    }, 1000);
-  }
-
-  /* =========================
-     PATTERN
-  ========================= */
-
-  function handlePatternAnswer(answer) {
-    const isCorrect =
-      answer === pattern.answer;
-
-    updateResult(isCorrect, 140);
-
-    setTimeout(() => {
-      setPattern(
-        PATTERNS[randomIndex(PATTERNS.length)]
-      );
-    }, 700);
-  }
-
-  /* =========================
-     LOGIC
-  ========================= */
-
-  function handleLogicAnswer(answer) {
-    const isCorrect =
-      answer === logicQuestion.answer;
-
-    updateResult(isCorrect, 170);
-
-    setTimeout(() => {
-      setLogicQuestion(
-        LOGIC_QUESTIONS[
-          randomIndex(LOGIC_QUESTIONS.length)
-        ]
-      );
-    }, 700);
-  }
-
-  /* =========================
-     FOCUS
-  ========================= */
-
-  function handleFocusClick(index) {
-    const isCorrect =
-      index === focusGrid.target;
-
-    updateResult(isCorrect, 130);
-
-    setTimeout(() => {
-      setFocusGrid(createFocusGrid());
-    }, 600);
-  }
-
-  /* =========================
-     RESET CURRENT GAME
-  ========================= */
-
-  function resetSession() {
-    localStorage.removeItem(storageKey);
-
-    setLevel(1);
-    setScore(0);
-    setHighScore(0);
-    setCombo(0);
-    setXp(0);
-    setCorrect(0);
-    setAttempts(0);
-    setRound(1);
-
-    setMessage("SESSION RESET");
-
-    setTimeout(() => {
-      startChallenge();
-    }, 300);
-  }
-
-  const adaptiveLevel =
-    getDifficulty(level);
+  }).length;
+
+  const neuralProgress = Math.min(
+    100,
+    Math.round((completedGames / games.length) * 100)
+  );
 
   return (
-    <div className="neural-mind">
+    <div className="neural-mind-page">
 
-      {/* HEADER */}
+      {/* HERO */}
 
-      <div className="neural-header">
+      <section className="neural-hero">
+        <div className="neural-hero-content">
 
-        <button
-          className="back-button"
-          onClick={() => navigate("/")}
-        >
-          <ArrowLeft size={17} />
-          DASHBOARD
-        </button>
-
-        <div className="neural-heading">
-
-          <div className="neural-kicker">
-            NEURAL ARCADE // COGNITIVE PROTOCOL
+          <div className="neural-eyebrow">
+            <Brain size={15} />
+            NEURAL ARCADE // COGNITIVE SYSTEM
           </div>
 
           <h1>
-            <span>NEURAL</span>{" "}
-            <strong>MIND</strong>
+            NEURAL <span>MIND</span>
           </h1>
 
-          <p>{config.subtitle}</p>
+          <p className="neural-tagline">
+            TRAIN YOUR MIND. BEAT THE SYSTEM.
+          </p>
 
+          <p className="neural-description">
+            Challenge your memory, reflexes, logic, focus and spatial
+            intelligence through an adaptive collection of neural games.
+          </p>
+
+          <div className="neural-actions">
+            <button
+              className="neural-primary-btn"
+              onClick={() => navigate("/neural-mind/memory")}
+            >
+              <Play size={16} />
+              START TRAINING
+            </button>
+
+            <button
+              className="neural-secondary-btn"
+              onClick={() => navigate("/games")}
+            >
+              <Gamepad2 size={16} />
+              VIEW ALL GAMES
+            </button>
+          </div>
         </div>
 
-        <button
-          className="reset-button"
-          onClick={resetSession}
-        >
-          <RotateCcw size={15} />
-          RESET SESSION
-        </button>
+        <div className="neural-core-visual">
+          <div className="core-ring ring-one" />
+          <div className="core-ring ring-two" />
+          <div className="core-ring ring-three" />
 
-      </div>
-
-      {/* GAME SELECTOR */}
-
-      <div className="game-selector">
-
-        {Object.entries(GAME_CONFIG).map(
-          ([key, item]) => {
-
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={key}
-                className={
-                  key === game
-                    ? "game-selector-item active"
-                    : "game-selector-item"
-                }
-                onClick={() =>
-                  navigate(
-                    `/neural-mind/${key}`
-                  )
-                }
-              >
-                <Icon size={16} />
-                <span>{item.title}</span>
-              </button>
-            );
-          }
-        )}
-
-      </div>
-
-      {/* GAME TITLE */}
-
-      <div className="selected-game-title">
-
-        <div className="selected-game-icon">
-          <ChallengeIcon game={game} />
+          <div className="core-center">
+            <Brain size={55} />
+            <span>ONLINE</span>
+          </div>
         </div>
-
-        <div>
-          <span>ROUND {String(round).padStart(2, "0")}</span>
-          <h2>{config.title}</h2>
-        </div>
-
-        <div className="adaptive-label">
-          <span>ADAPTIVE LEVEL</span>
-          <strong>{adaptiveLevel}</strong>
-        </div>
-
-      </div>
+      </section>
 
       {/* STATS */}
 
-      <div className="neural-stats">
+      <section className="neural-stats">
 
-        <div className="neural-stat">
-          <span>LEVEL</span>
-          <strong>
-            {String(level).padStart(2, "0")}
-          </strong>
+        <div className="neural-stat-card">
+          <div className="neural-stat-icon orange">
+            <Star size={20} />
+          </div>
+
+          <div>
+            <span>TOTAL XP</span>
+            <strong>{totalXP.toLocaleString()}</strong>
+          </div>
         </div>
 
-        <div className="neural-stat">
-          <span>SCORE</span>
-          <strong>{score}</strong>
+        <div className="neural-stat-card">
+          <div className="neural-stat-icon blue">
+            <Trophy size={20} />
+          </div>
+
+          <div>
+            <span>TOTAL SCORE</span>
+            <strong>{totalScore.toLocaleString()}</strong>
+          </div>
         </div>
 
-        <div className="neural-stat">
-          <span>HIGH SCORE</span>
-          <strong>{highScore}</strong>
+        <div className="neural-stat-card">
+          <div className="neural-stat-icon green">
+            <Gamepad2 size={20} />
+          </div>
+
+          <div>
+            <span>GAMES PLAYED</span>
+            <strong>{totalAttempts}</strong>
+          </div>
         </div>
 
-        <div className="neural-stat">
-          <span>COMBO</span>
-          <strong>x{combo}</strong>
+        <div className="neural-stat-card">
+          <div className="neural-stat-icon purple">
+            <Brain size={20} />
+          </div>
+
+          <div>
+            <span>NEURAL LEVEL</span>
+            <strong>{highestLevel}</strong>
+          </div>
         </div>
 
-        <div className="neural-stat">
-          <span>ACCURACY</span>
-          <strong>{accuracy}%</strong>
+      </section>
+
+      {/* PROGRESS */}
+
+      <section className="neural-progress-card">
+
+        <div className="progress-heading">
+          <div>
+            <span>NEURAL TRAINING PROGRESS</span>
+            <h2>Mind Development</h2>
+          </div>
+
+          <strong>{neuralProgress}%</strong>
         </div>
 
-      </div>
-
-      {/* XP */}
-
-      <div className="xp-section">
-
-        <div className="xp-label">
-          <span>NEURAL XP</span>
-          <strong>{xp}/100</strong>
-        </div>
-
-        <div className="xp-track">
+        <div className="neural-progress-track">
           <div
-            className="xp-fill"
-            style={{
-              width: `${xp}%`,
-            }}
+            className="neural-progress-fill"
+            style={{ width: `${neuralProgress}%` }}
           />
         </div>
 
-      </div>
+        <div className="progress-bottom">
+          <span>
+            {completedGames} / {games.length} games activated
+          </span>
 
-      {/* GAME AREA */}
-
-      <div className="game-board">
-
-        {/* MEMORY */}
-
-        {game === "memory" && (
-          <div className="memory-game">
-
-            <div className="game-instruction">
-              {memoryVisible
-                ? "MEMORIZE THE SIGNAL"
-                : "RECREATE THE PATTERN"}
-            </div>
-
-            <div className="memory-grid">
-
-              {Array.from({
-                length: 16,
-              }).map((_, index) => {
-
-                const active =
-                  memoryVisible &&
-                  memoryCells.includes(index);
-
-                const selected =
-                  memorySelected.includes(index);
-
-                const correct =
-                  selected &&
-                  memoryCells.includes(index);
-
-                return (
-                  <button
-                    key={index}
-                    className={[
-                      "memory-cell",
-                      active ? "memory-active" : "",
-                      selected ? "memory-selected" : "",
-                      correct ? "memory-correct" : "",
-                    ].join(" ")}
-                    onClick={() =>
-                      handleMemoryClick(index)
-                    }
-                  />
-                );
-              })}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* REFLEX */}
-
-        {game === "reflex" && (
-          <div className="reflex-game">
-
-            <div className="game-instruction">
-              {reflexReady
-                ? "WAIT FOR SIGNAL..."
-                : reflexActive
-                  ? "CLICK NOW!"
-                  : reflexTime
-                    ? `${reflexTime} MS`
-                    : "GET READY"}
-            </div>
-
-            <button
-              className={[
-                "reflex-button",
-                reflexActive
-                  ? "reflex-go"
-                  : "",
-              ].join(" ")}
-              onClick={handleReflexClick}
-            >
-              <Zap size={50} />
-
-              <span>
-                {reflexActive
-                  ? "CLICK"
-                  : "WAIT"}
-              </span>
-            </button>
-
-          </div>
-        )}
-
-        {/* PATTERN */}
-
-        {game === "pattern" && (
-          <div className="pattern-game">
-
-            <div className="game-instruction">
-              COMPLETE THE PATTERN
-            </div>
-
-            <div className="pattern-sequence">
-
-              {pattern.sequence.map(
-                (number, index) => (
-                  <div
-                    className="pattern-number"
-                    key={index}
-                  >
-                    {number}
-                  </div>
-                )
-              )}
-
-              <div className="pattern-number missing">
-                ?
-              </div>
-
-            </div>
-
-            <div className="pattern-options">
-
-              {pattern.options.map(
-                (option) => (
-                  <button
-                    key={option}
-                    onClick={() =>
-                      handlePatternAnswer(
-                        option
-                      )
-                    }
-                  >
-                    {option}
-                  </button>
-                )
-              )}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* LOGIC */}
-
-        {game === "logic" && (
-          <div className="logic-game">
-
-            <div className="game-instruction">
-              LOGIC LOCK
-            </div>
-
-            <h3 className="logic-question">
-              {logicQuestion.question}
-            </h3>
-
-            <div className="logic-options">
-
-              {logicQuestion.options.map(
-                (option) => (
-                  <button
-                    key={option}
-                    onClick={() =>
-                      handleLogicAnswer(
-                        option
-                      )
-                    }
-                  >
-                    {option}
-                  </button>
-                )
-              )}
-
-            </div>
-
-          </div>
-        )}
-
-        {/* FOCUS */}
-
-        {game === "focus" && (
-          <div className="focus-game">
-
-            <div className="game-instruction">
-              FIND THE TARGET SIGNAL
-            </div>
-
-            <div className="focus-grid">
-
-              {Array.from({
-                length: 25,
-              }).map((_, index) => {
-
-                const target =
-                  index === focusGrid.target;
-
-                return (
-                  <button
-                    key={index}
-                    className={
-                      target
-                        ? "focus-cell focus-target"
-                        : "focus-cell"
-                    }
-                    onClick={() =>
-                      handleFocusClick(index)
-                    }
-                  >
-                    {target ? "●" : ""}
-                  </button>
-                );
-              })}
-
-            </div>
-
-          </div>
-        )}
-
-      </div>
-
-      {/* MESSAGE */}
-
-      <div className="neural-message">
-        <div className="message-dot" />
-
-        <span>{message}</span>
-
-        <div className="message-right">
-          <Trophy size={15} />
-          HIGH SCORE {highScore}
+          <span>
+            ADAPTIVE NEURAL ENGINE
+          </span>
         </div>
-      </div>
+
+      </section>
+
+      {/* GAMES */}
+
+      <section className="neural-games-section">
+
+        <div className="neural-section-heading">
+          <div>
+            <span>COGNITIVE CHALLENGES</span>
+            <h2>Choose Your Training</h2>
+          </div>
+
+          <div className="neural-live">
+            <span />
+            SYSTEM ONLINE
+          </div>
+        </div>
+
+        <div className="neural-game-grid">
+
+          {games.map((game) => {
+            const Icon = game.icon;
+            const gameStats = stats[game.id] || {};
+
+            const level = Number(gameStats.level || 1);
+            const score = Number(gameStats.score || 0);
+            const xp = Number(gameStats.xp || 0);
+
+            return (
+              <article
+                key={game.id}
+                className="neural-game-card"
+                style={{
+                  "--game-color": game.color,
+                }}
+              >
+                <div className="game-card-top">
+
+                  <div className="game-icon">
+                    <Icon size={24} />
+                  </div>
+
+                  <span className="game-number">
+                    {game.number}
+                  </span>
+
+                </div>
+
+                <div className="game-card-content">
+
+                  <div className="game-title-row">
+                    <h3>{game.title}</h3>
+
+                    <span className="game-difficulty">
+                      {game.difficulty}
+                    </span>
+                  </div>
+
+                  <p>{game.description}</p>
+
+                  <div className="game-mini-stats">
+
+                    <div>
+                      <span>LEVEL</span>
+                      <strong>{level}</strong>
+                    </div>
+
+                    <div>
+                      <span>SCORE</span>
+                      <strong>{score}</strong>
+                    </div>
+
+                    <div>
+                      <span>XP</span>
+                      <strong>{xp}</strong>
+                    </div>
+
+                  </div>
+
+                  <button
+                    className="game-play-btn"
+                    onClick={() => navigate(game.path)}
+                  >
+                    PLAY NOW
+                    <span>→</span>
+                  </button>
+
+                </div>
+              </article>
+            );
+          })}
+
+        </div>
+      </section>
 
     </div>
   );
 }
+
+export default NeuralMind;

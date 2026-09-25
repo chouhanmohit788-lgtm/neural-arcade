@@ -1,0 +1,239 @@
+/* =========================================
+   MENU BUTTON
+========================================= */
+
+.menu-button {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  margin-right: 12px;
+
+  border: 1px solid rgba(120, 135, 160, 0.14);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #8995a9;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.menu-button:hover {
+  color: #ff7900;
+
+  border-color: rgba(255, 121, 0, 0.3);
+
+  background: rgba(255, 121, 0, 0.06);
+}
+
+/* =========================================
+   TOPBAR
+========================================= */
+
+.topbar {
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 28px;
+
+  border-bottom: 1px solid rgba(110, 124, 150, 0.1);
+
+  background: rgba(5, 8, 15, 0.88);
+
+  backdrop-filter: blur(18px);
+
+  position: sticky;
+  top: 0;
+
+  z-index: 800;
+}
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.topbar-search {
+  width: 300px;
+  height: 43px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 0 13px;
+
+  border: 1px solid rgba(110, 124, 150, 0.14);
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #657187;
+}
+
+.topbar-search:focus-within {
+  border-color: rgba(255, 121, 0, 0.3);
+
+  box-shadow:
+    0 0 20px rgba(255, 121, 0, 0.04);
+}
+
+.topbar-search input {
+  width: 100%;
+  height: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #e9edf5;
+
+  font-size: 12px;
+}
+
+.topbar-search input::placeholder {
+  color: #59667a;
+}
+
+/* =========================================
+   RIGHT
+========================================= */
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  margin-left: auto;
+}
+
+.topbar-stat {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #ffca55;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(110, 124, 150, 0.14);
+
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.025);
+
+  color: #78859a;
+
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: #ff7900;
+
+  border-color: rgba(255, 121, 0, 0.25);
+}
+
+.topbar-avatar {
+  width: 40px;
+  height: 40px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: #ffffff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8b5cf6,
+      #4aa8ff
+    );
+
+  font-size: 11px;
+  font-weight: 900;
+
+  box-shadow:
+    0 0 20px rgba(90, 130, 255, 0.12);
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+  .topbar {
+    min-height: 68px;
+
+    padding: 0 15px;
+  }
+
+  .menu-button {
+    margin-right: 8px;
+  }
+
+  .topbar-search {
+    width: auto;
+    flex: 1;
+
+    max-width: none;
+  }
+
+  .topbar-stat {
+    display: none;
+  }
+
+  .topbar-right {
+    gap: 7px;
+  }
+
+  .icon-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .topbar-avatar {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+@media (max-width: 430px) {
+  .topbar-search {
+    max-width: 150px;
+  }
+
+  .topbar-search input {
+    font-size: 10px;
+  }
+
+  .topbar-search svg {
+    width: 16px;
+  }
+}
