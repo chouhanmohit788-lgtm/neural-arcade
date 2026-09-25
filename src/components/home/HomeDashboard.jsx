@@ -7,6 +7,7 @@ import {
   Flame,
   ArrowRight,
   Sparkles,
+  Coins,
   Lock,
   Activity,
   Compass,
@@ -96,6 +97,16 @@ const challenges = [
       "Escape the hidden maze and reach the Neural Core before time runs out.",
     icon: Compass,
     color: "purple",
+    difficulty: "HARD",
+  },
+
+  {
+    id: "neural-gamble",
+    title: "Neural Gamble",
+    description:
+      "Risk your credits, solve skill challenges and choose when to cash out.",
+    icon: Coins,
+    color: "orange",
     difficulty: "HARD",
   },
 ];

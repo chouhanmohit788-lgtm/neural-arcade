@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Zap,
   ArrowLeft,
   RotateCcw,
   Play,
@@ -9,6 +8,8 @@ import {
   Target,
   Clock,
   Info,
+  Zap,
+  Activity,
 } from "lucide-react";
 
 import "./ReflexTest.css";
@@ -22,6 +23,7 @@ const initialStats = {
   correct: 0,
   attempts: 0,
   bestReaction: null,
+  averageReaction: null,
 };
 
 export default function ReflexTest() {
@@ -29,9 +31,7 @@ export default function ReflexTest() {
 
   const savedStats = useMemo(() => {
     try {
-      const saved = localStorage.getItem(
-        "neural-reflex-test-stats"
-      );
+      const saved = localStorage.getItem("neural-reflex-test-stats");
 
       return saved
         ? { ...initialStats, ...JSON.parse(saved) }
@@ -43,34 +43,35 @@ export default function ReflexTest() {
 
   const [level, setLevel] = useState(savedStats.level);
   const [score, setScore] = useState(savedStats.score);
-  const [highScore, setHighScore] = useState(
-    savedStats.highScore
-  );
+  const [highScore, setHighScore] = useState(savedStats.highScore);
   const [combo, setCombo] = useState(savedStats.combo);
   const [xp, setXp] = useState(savedStats.xp);
-  const [correct, setCorrect] = useState(
-    savedStats.correct
-  );
-  const [attempts, setAttempts] = useState(
-    savedStats.attempts
-  );
+  const [correct, setCorrect] = useState(savedStats.correct);
+  const [attempts, setAttempts] = useState(savedStats.attempts);
   const [bestReaction, setBestReaction] = useState(
     savedStats.bestReaction
+  );
+  const [averageReaction, setAverageReaction] = useState(
+    savedStats.averageReaction
   );
 
   const [gameStarted, setGameStarted] = useState(false);
   const [waiting, setWaiting] = useState(false);
-  const [signalActive, setSignalActive] = useState(false);
+  const [flashActive, setFlashActive] = useState(false);
   const [gameOver, setGameOver] = useState(false);
 
   const [reaction, setReaction] = useState(null);
   const [round, setRound] = useState(1);
+
   const [message, setMessage] = useState(
     "READY FOR REFLEX TEST"
   );
 
+  const [dancePhase, setDancePhase] = useState(0);
+
   const timerRef = useRef(null);
   const signalTimeRef = useRef(null);
+  const startTimeoutRef = useRef(null);
 
   const accuracy =
     attempts === 0
@@ -86,6 +87,9 @@ export default function ReflexTest() {
           ? "HARD"
           : "EXTREME";
 
+  /*
+   * SAVE STATS
+   */
   useEffect(() => {
     localStorage.setItem(
       "neural-reflex-test-stats",
@@ -98,6 +102,7 @@ export default function ReflexTest() {
         correct,
         attempts,
         bestReaction,
+        averageReaction,
       })
     );
   }, [
@@ -109,30 +114,61 @@ export default function ReflexTest() {
     correct,
     attempts,
     bestReaction,
+    averageReaction,
   ]);
 
+  /*
+   * DANCE LOOP
+   */
+  useEffect(() => {
+    if (!gameStarted || gameOver) {
+      return;
+    }
+
+    const danceSpeed = Math.max(
+      90,
+      240 - level * 14
+    );
+
+    const danceTimer = setInterval(() => {
+      setDancePhase((prev) => prev + 1);
+    }, danceSpeed);
+
+    return () => clearInterval(danceTimer);
+  }, [gameStarted, gameOver, level]);
+
+  /*
+   * CLEANUP
+   */
   useEffect(() => {
     return () => {
       clearTimeout(timerRef.current);
+      clearTimeout(startTimeoutRef.current);
     };
   }, []);
 
+  /*
+   * START RANDOM ROUND
+   */
   function startRound() {
     clearTimeout(timerRef.current);
 
     setWaiting(true);
-    setSignalActive(false);
+    setFlashActive(false);
     setReaction(null);
-    setMessage("WAIT FOR THE SIGNAL...");
+    setMessage("WATCH THE NEURAL DANCER...");
 
+    /*
+     * Higher level = more unpredictable timing.
+     */
     const minDelay = Math.max(
-      700,
-      1600 - level * 70
+      500,
+      1700 - level * 80
     );
 
     const maxDelay = Math.max(
-      1400,
-      3000 - level * 80
+      1100,
+      3400 - level * 110
     );
 
     const delay =
@@ -141,65 +177,111 @@ export default function ReflexTest() {
 
     timerRef.current = setTimeout(() => {
       setWaiting(false);
-      setSignalActive(true);
+      setFlashActive(true);
+
       signalTimeRef.current = performance.now();
 
-      setMessage("CLICK NOW!");
+      setMessage("⚡ LIGHT FLASHED — CLICK!");
+
+      /*
+       * Flash disappears automatically after a short
+       * reaction window.
+       */
+      const flashDuration = Math.max(
+        450,
+        950 - level * 45
+      );
+
+      timerRef.current = setTimeout(() => {
+        if (!flashActive) {
+          setFlashActive(false);
+          setMessage("TOO SLOW // SIGNAL LOST");
+          setCombo(0);
+          setGameOver(true);
+        }
+      }, flashDuration);
     }, delay);
   }
 
+  /*
+   * START GAME
+   */
   function startGame() {
+    clearTimeout(timerRef.current);
+    clearTimeout(startTimeoutRef.current);
+
     setRound(1);
     setGameOver(false);
     setGameStarted(true);
+    setWaiting(true);
+    setFlashActive(false);
+    setReaction(null);
+    setDancePhase(0);
     setMessage("GET READY...");
 
-    setTimeout(() => {
+    startTimeoutRef.current = setTimeout(() => {
       startRound();
-    }, 500);
+    }, 700);
   }
 
-  function handleSignalClick() {
+  /*
+   * PLAYER CLICKS THE DANCER
+   */
+  function handleDancerClick() {
     if (!gameStarted || gameOver) {
       return;
     }
 
-    /* TOO EARLY */
-
-    if (waiting && !signalActive) {
+    /*
+     * TOO EARLY
+     */
+    if (waiting && !flashActive) {
       clearTimeout(timerRef.current);
 
       setAttempts((prev) => prev + 1);
       setCombo(0);
-      setMessage("TOO EARLY // SIGNAL NOT ACTIVE");
-
+      setMessage("TOO EARLY // WAIT FOR THE FLASH");
       setGameOver(true);
       setWaiting(false);
 
       return;
     }
 
-    /* VALID REACTION */
-
-    if (!signalActive) {
+    /*
+     * NO ACTIVE FLASH
+     */
+    if (!flashActive) {
       return;
     }
+
+    clearTimeout(timerRef.current);
 
     const currentReaction = Math.round(
       performance.now() - signalTimeRef.current
     );
 
     setReaction(currentReaction);
-    setSignalActive(false);
-
-    const isGoodReaction =
-      currentReaction <=
-      Math.max(900, 700 + level * 30);
+    setFlashActive(false);
+    setWaiting(false);
 
     const newAttempts = attempts + 1;
 
     setAttempts(newAttempts);
 
+    /*
+     * REACTION WINDOW
+     */
+    const reactionLimit = Math.max(
+      520,
+      900 - level * 30
+    );
+
+    const isGoodReaction =
+      currentReaction <= reactionLimit;
+
+    /*
+     * TOO SLOW
+     */
     if (!isGoodReaction) {
       setCombo(0);
 
@@ -212,15 +294,18 @@ export default function ReflexTest() {
       return;
     }
 
+    /*
+     * SUCCESS
+     */
     const newCombo = combo + 1;
 
     const speedBonus = Math.max(
-      20,
-      600 - currentReaction
+      25,
+      650 - currentReaction
     );
 
     const comboMultiplier =
-      1 + Math.min(newCombo * 0.1, 1.5);
+      1 + Math.min(newCombo * 0.12, 1.8);
 
     const earnedScore = Math.round(
       (100 + speedBonus) *
@@ -228,12 +313,28 @@ export default function ReflexTest() {
         (1 + (level - 1) * 0.08)
     );
 
-    const newScore =
-      score + earnedScore;
+    const newScore = score + earnedScore;
 
+    /*
+     * REACTION HISTORY
+     */
+    const previousReactionTotal =
+      averageReaction === null
+        ? 0
+        : averageReaction * correct;
+
+    const newAverageReaction = Math.round(
+      (previousReactionTotal + currentReaction) /
+        (correct + 1)
+    );
+
+    /*
+     * UPDATE STATS
+     */
     setCorrect((prev) => prev + 1);
     setCombo(newCombo);
     setScore(newScore);
+    setAverageReaction(newAverageReaction);
 
     if (newScore > highScore) {
       setHighScore(newScore);
@@ -246,6 +347,9 @@ export default function ReflexTest() {
       setBestReaction(currentReaction);
     }
 
+    /*
+     * XP
+     */
     const earnedXp =
       xp + 12 + newCombo * 2;
 
@@ -264,6 +368,9 @@ export default function ReflexTest() {
       );
     }
 
+    /*
+     * NEXT ROUND
+     */
     const nextRound = round + 1;
 
     setRound(nextRound);
@@ -273,8 +380,12 @@ export default function ReflexTest() {
     }, 900);
   }
 
+  /*
+   * RESET
+   */
   function resetGame() {
     clearTimeout(timerRef.current);
+    clearTimeout(startTimeoutRef.current);
 
     localStorage.removeItem(
       "neural-reflex-test-stats"
@@ -288,17 +399,30 @@ export default function ReflexTest() {
     setCorrect(0);
     setAttempts(0);
     setBestReaction(null);
+    setAverageReaction(null);
 
     setGameStarted(false);
     setWaiting(false);
-    setSignalActive(false);
+    setFlashActive(false);
     setGameOver(false);
 
     setReaction(null);
     setRound(1);
+    setDancePhase(0);
 
     setMessage("SESSION RESET");
   }
+
+  /*
+   * DANCER CLASS
+   */
+  const dancerClass = [
+    "neural-dancer",
+    dancePhase % 2 === 0
+      ? "dance-left"
+      : "dance-right",
+    flashActive ? "dancer-flash" : "",
+  ].join(" ");
 
   return (
     <div className="reflex-page">
@@ -343,20 +467,22 @@ export default function ReflexTest() {
       <section className="reflex-info">
 
         <div>
+
           <span className="reflex-kicker">
             COGNITIVE CHALLENGE // 02
           </span>
 
           <h2>
-            REACT.
-            <strong> BEAT THE CLOCK.</strong>
+            WATCH.
+            <strong> REACT.</strong>
           </h2>
 
           <p>
-            Wait for the neural signal. The moment it
-            activates, click as fast as possible. Faster
-            reactions produce higher scores.
+            Watch the Neural Dancer. When its core
+            suddenly flashes, click it instantly.
+            Your reaction time decides your score.
           </p>
+
         </div>
 
         <div className="reflex-difficulty">
@@ -380,28 +506,28 @@ export default function ReflexTest() {
           <div className="reflex-rule">
             <span>01</span>
             <p>
-              Press START to begin the reaction test.
+              Press START and watch the dancer move.
             </p>
           </div>
 
           <div className="reflex-rule">
             <span>02</span>
             <p>
-              Wait until the signal turns green.
+              Wait for the neural core to flash.
             </p>
           </div>
 
           <div className="reflex-rule">
             <span>03</span>
             <p>
-              Click immediately after activation.
+              Click the dancer immediately.
             </p>
           </div>
 
           <div className="reflex-rule">
             <span>04</span>
             <p>
-              Clicking too early ends the round.
+              Faster reactions create bigger scores.
             </p>
           </div>
 
@@ -461,12 +587,14 @@ export default function ReflexTest() {
         </div>
 
         <div className="reflex-xp-track">
+
           <div
             className="reflex-xp-fill"
             style={{
               width: `${xp}%`,
             }}
           />
+
         </div>
 
       </section>
@@ -475,18 +603,22 @@ export default function ReflexTest() {
 
       <section className="reflex-game-panel">
 
+        {/* START */}
+
         {!gameStarted && !gameOver && (
+
           <div className="reflex-start">
 
             <div className="reflex-start-icon">
-              <Zap size={45} />
+              <Activity size={45} />
             </div>
 
-            <h3>REFLEX TEST</h3>
+            <h3>NEURAL DANCER</h3>
 
             <p>
-              Test your reaction speed against the
-              Neural Engine.
+              Watch the movement.
+              Hit the flash.
+              Beat your reaction time.
             </p>
 
             <button
@@ -498,65 +630,136 @@ export default function ReflexTest() {
             </button>
 
           </div>
+
         )}
 
+        {/* ACTIVE GAME */}
+
         {gameStarted && !gameOver && (
+
           <div className="active-reflex">
 
             <div className="reflex-round">
+
               <span>
                 ROUND {String(round).padStart(2, "0")}
               </span>
 
               <strong>
                 {waiting
-                  ? "WAIT"
-                  : signalActive
-                    ? "SIGNAL ACTIVE"
+                  ? "WATCH"
+                  : flashActive
+                    ? "FLASH ACTIVE"
                     : "PROCESSING"}
               </strong>
+
             </div>
 
+            {/* DANCING CHARACTER */}
+
             <button
-              className={[
-                "reflex-signal",
-                signalActive
-                  ? "signal-active"
-                  : "",
-                waiting
-                  ? "signal-waiting"
-                  : "",
-              ].join(" ")}
-              onClick={handleSignalClick}
+              className={dancerClass}
+              onClick={handleDancerClick}
+              aria-label="Neural Dancer"
             >
 
-              {signalActive ? (
-                <>
-                  <Zap size={56} />
-                  <span>CLICK NOW</span>
-                </>
-              ) : (
-                <>
-                  <Clock size={48} />
-                  <span>
-                    {waiting
-                      ? "WAIT..."
-                      : "GET READY"}
-                  </span>
-                </>
-              )}
+              <div className="dancer-aura" />
+
+              <div className="dancer-shadow" />
+
+              <div className="dancer-character">
+
+                <div className="dancer-head">
+
+                  <div className="dancer-eye left" />
+                  <div className="dancer-eye right" />
+
+                  <div className="dancer-face-line" />
+
+                </div>
+
+                <div className="dancer-body">
+
+                  <div className="dancer-core">
+
+                    <div className="core-inner" />
+
+                  </div>
+
+                </div>
+
+                <div className="dancer-arm arm-left">
+                  <span />
+                </div>
+
+                <div className="dancer-arm arm-right">
+                  <span />
+                </div>
+
+                <div className="dancer-leg leg-left">
+                  <span />
+                </div>
+
+                <div className="dancer-leg leg-right">
+                  <span />
+                </div>
+
+              </div>
+
+              <div className="dancer-status">
+
+                {flashActive ? (
+                  <>
+                    <Zap size={18} />
+                    <span>CLICK NOW</span>
+                  </>
+                ) : (
+                  <>
+                    <Activity size={18} />
+                    <span>
+                      {waiting
+                        ? "DANCING..."
+                        : "GET READY"}
+                    </span>
+                  </>
+                )}
+
+              </div>
 
             </button>
 
-            <div className="reflex-live-message">
+            <div
+              className={[
+                "reflex-live-message",
+                flashActive
+                  ? "message-flash"
+                  : "",
+              ].join(" ")}
+            >
               <span />
               {message}
             </div>
 
+            <div className="reaction-hint">
+
+              <Clock size={14} />
+
+              <span>
+                {flashActive
+                  ? "REACT AS FAST AS POSSIBLE"
+                  : "WAIT FOR THE CORE FLASH"}
+              </span>
+
+            </div>
+
           </div>
+
         )}
 
+        {/* GAME OVER */}
+
         {gameOver && (
+
           <div className="reflex-game-over">
 
             <div className="reflex-over-icon">
@@ -574,6 +777,24 @@ export default function ReflexTest() {
                 ? `${reaction} MS`
                 : "TOO EARLY"}
             </h3>
+
+            <div className="reflex-reaction-badge">
+
+              <Zap size={16} />
+
+              <span>
+                {reaction !== null
+                  ? reaction < 250
+                    ? "LIGHTNING REFLEX"
+                    : reaction < 400
+                      ? "FAST REACTION"
+                      : reaction < 600
+                        ? "GOOD REACTION"
+                        : "KEEP TRAINING"
+                  : "WATCH THE FLASH"}
+              </span>
+
+            </div>
 
             <div className="reflex-over-stats">
 
@@ -596,6 +817,15 @@ export default function ReflexTest() {
                 </strong>
               </div>
 
+              <div>
+                <small>AVERAGE</small>
+                <strong>
+                  {averageReaction !== null
+                    ? `${averageReaction}ms`
+                    : "--"}
+                </strong>
+              </div>
+
             </div>
 
             <button
@@ -607,6 +837,7 @@ export default function ReflexTest() {
             </button>
 
           </div>
+
         )}
 
       </section>
@@ -617,13 +848,22 @@ export default function ReflexTest() {
 
         <div>
           <Zap size={15} />
-          <span>REACTION ENGINE ACTIVE</span>
+          <span>NEURAL DANCER ACTIVE</span>
         </div>
 
         <div>
           <Target size={15} />
           <span>
             ACCURACY {accuracy}%
+          </span>
+        </div>
+
+        <div>
+          <Clock size={15} />
+          <span>
+            AVG {averageReaction !== null
+              ? `${averageReaction}ms`
+              : "--"}
           </span>
         </div>
 

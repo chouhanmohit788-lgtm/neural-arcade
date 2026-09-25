@@ -1,0 +1,1731 @@
+/* ============================================================
+   ASHTE KASHTE
+   NEURAL ARCADE BOARD UI
+============================================================ */
+
+.ashte-page {
+  --bg: #07090d;
+  --panel: #0d1118;
+  --panel-2: #111720;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-bright: rgba(255, 177, 66, 0.32);
+  --text: #f5f2ea;
+  --muted: #8d96a5;
+  --gold: #e0a447;
+  --gold-bright: #ffc866;
+  --green: #55c878;
+  --danger: #d95c4f;
+
+  min-height: 100vh;
+  width: 100%;
+  color: var(--text);
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(224, 164, 71, 0.08),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 85%,
+      rgba(65, 117, 180, 0.08),
+      transparent 30%
+    ),
+    var(--bg);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+.ashte-page *,
+.ashte-page *::before,
+.ashte-page *::after {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   SHELL
+============================================================ */
+
+.ashte-shell {
+  width: min(1700px, 100%);
+  margin: 0 auto;
+  padding: 22px 28px 40px;
+}
+
+/* ============================================================
+   HEADER
+============================================================ */
+
+.ashte-header {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 20px;
+
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 30px;
+}
+
+.ashte-back-button,
+.ashte-header-button {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+
+  min-height: 38px;
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.ashte-back-button {
+  justify-self: start;
+}
+
+.ashte-back-button:hover,
+.ashte-header-button:hover {
+  color: var(--text);
+  border-color: var(--border-bright);
+  background: rgba(224, 164, 71, 0.07);
+  transform: translateY(-1px);
+}
+
+.ashte-header-actions {
+  justify-self: end;
+  display: flex;
+  gap: 8px;
+}
+
+.ashte-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: center;
+}
+
+.ashte-title-icon {
+  width: 43px;
+  height: 43px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  color: var(--gold-bright);
+
+  border: 1px solid
+    rgba(224, 164, 71, 0.3);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(224, 164, 71, 0.17),
+      rgba(224, 164, 71, 0.03)
+    );
+
+  box-shadow:
+    0 0 25px
+      rgba(224, 164, 71, 0.08);
+}
+
+.ashte-title span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.ashte-title h1 {
+  margin: 2px 0 0;
+
+  font-size: 20px;
+  line-height: 1;
+
+  letter-spacing: 0.08em;
+
+  font-weight: 900;
+}
+
+/* ============================================================
+   INTRO
+============================================================ */
+
+.ashte-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+
+  gap: 30px;
+
+  margin-bottom: 26px;
+}
+
+.ashte-eyebrow {
+  display: block;
+
+  color: var(--gold);
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 0.2em;
+}
+
+.ashte-intro h2 {
+  margin: 8px 0;
+
+  font-size: clamp(34px, 4vw, 58px);
+
+  line-height: 0.92;
+
+  letter-spacing: -0.04em;
+
+  font-weight: 900;
+}
+
+.ashte-intro h2 span {
+  color: var(--gold-bright);
+}
+
+.ashte-intro p {
+  max-width: 540px;
+
+  margin: 14px 0 0;
+
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ashte-active-card {
+  min-width: 190px;
+
+  padding: 15px 17px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  text-align: right;
+}
+
+.ashte-active-card span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.ashte-active-card strong {
+  display: block;
+
+  margin-top: 5px;
+
+  font-size: 16px;
+}
+
+.ashte-active-card small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+/* ============================================================
+   PLAYER SELECT
+============================================================ */
+
+.ashte-player-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 18px;
+
+  padding: 11px 13px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 11px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.ashte-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.ashte-player-counts {
+  display: flex;
+  gap: 6px;
+}
+
+.ashte-player-counts button {
+  min-width: 82px;
+
+  padding: 7px 12px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  transition: 0.2s ease;
+}
+
+.ashte-player-counts button strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.ashte-player-counts button span {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.ashte-player-counts button:hover,
+.ashte-player-counts button.active {
+  border-color: var(--gold);
+  background: rgba(224, 164, 71, 0.09);
+  color: var(--gold-bright);
+}
+
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+
+.ashte-game-layout {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    310px;
+
+  gap: 18px;
+
+  align-items: start;
+}
+
+/* ============================================================
+   BOARD CARD
+============================================================ */
+
+.ashte-board-card {
+  min-width: 0;
+
+  border: 1px solid var(--border);
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  overflow: hidden;
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.28);
+}
+
+.ashte-board-card-header {
+  min-height: 62px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 17px;
+
+  border-bottom: 1px solid var(--border);
+}
+
+.ashte-board-card-header span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.17em;
+}
+
+.ashte-board-card-header strong {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 10px;
+
+  letter-spacing: 0.08em;
+}
+
+.ashte-live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: #8fa99a;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.ashte-live span {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: var(--green);
+
+  box-shadow:
+    0 0 10px
+      rgba(85, 200, 120, 0.8);
+}
+
+/* ============================================================
+   BOARD WRAPPER
+============================================================ */
+
+.ashte-board-wrapper {
+  width: 100%;
+
+  padding: clamp(12px, 2vw, 26px);
+
+  display: flex;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(224, 164, 71, 0.045),
+      transparent 65%
+    );
+}
+
+/* ============================================================
+   BOARD
+============================================================ */
+
+.ashte-board {
+  position: relative;
+
+  width: min(100%, 760px);
+
+  aspect-ratio: 1;
+
+  display: grid;
+
+  border: 5px solid #302719;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #17120d,
+      #0d0b09
+    );
+
+  box-shadow:
+    0 0 0 1px
+      rgba(224, 164, 71, 0.15),
+    0 20px 55px
+      rgba(0, 0, 0, 0.5),
+    inset 0 0 45px
+      rgba(0, 0, 0, 0.7);
+}
+
+/* ============================================================
+   CELL
+============================================================ */
+
+.ashte-cell {
+  position: relative;
+
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-right: 1px solid
+    rgba(224, 164, 71, 0.045);
+
+  border-bottom: 1px solid
+    rgba(224, 164, 71, 0.045);
+}
+
+/* ============================================================
+   PATH
+============================================================ */
+
+.ashte-path-cell {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(224, 164, 71, 0.14),
+      rgba(224, 164, 71, 0.035)
+    );
+
+  box-shadow:
+    inset 0 0 0 1px
+      rgba(224, 164, 71, 0.08);
+}
+
+.ashte-safe-cell {
+  background:
+    radial-gradient(
+      circle,
+      rgba(224, 164, 71, 0.28),
+      rgba(224, 164, 71, 0.06)
+    );
+
+  box-shadow:
+    inset 0 0 12px
+      rgba(224, 164, 71, 0.18);
+}
+
+.ashte-path-arrow {
+  color: rgba(255, 208, 123, 0.27);
+
+  font-size: clamp(8px, 1vw, 13px);
+
+  font-weight: 900;
+}
+
+/* ============================================================
+   HOME
+============================================================ */
+
+.ashte-home-cell {
+  border: 1px solid
+    rgba(255, 255, 255, 0.035);
+}
+
+.home-zone-0,
+.player-0-home {
+  background:
+    radial-gradient(
+      circle,
+      rgba(224, 164, 71, 0.13),
+      transparent 75%
+    );
+}
+
+.home-zone-1,
+.player-1-home {
+  background:
+    radial-gradient(
+      circle,
+      rgba(217, 92, 79, 0.13),
+      transparent 75%
+    );
+}
+
+.home-zone-2,
+.player-2-home {
+  background:
+    radial-gradient(
+      circle,
+      rgba(78, 145, 217, 0.13),
+      transparent 75%
+    );
+}
+
+.home-zone-3,
+.player-3-home {
+  background:
+    radial-gradient(
+      circle,
+      rgba(88, 168, 106, 0.13),
+      transparent 75%
+    );
+}
+
+.ashte-home-label {
+  color: rgba(255, 255, 255, 0.18);
+
+  font-size: clamp(7px, 0.8vw, 10px);
+
+  font-weight: 900;
+
+  letter-spacing: 0.06em;
+}
+
+/* ============================================================
+   INNER PATH
+============================================================ */
+
+.ashte-inner-cell {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(224, 164, 71, 0.2),
+      rgba(224, 164, 71, 0.06)
+    );
+
+  box-shadow:
+    inset 0 0 10px
+      rgba(224, 164, 71, 0.15);
+}
+
+.ashte-inner-mark {
+  color: rgba(255, 202, 116, 0.45);
+
+  font-size: clamp(7px, 0.8vw, 10px);
+}
+
+/* ============================================================
+   WIN CELL
+============================================================ */
+
+.ashte-win-cell {
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 194, 78, 0.45),
+      rgba(224, 164, 71, 0.12)
+    );
+}
+
+.ashte-win-core {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+
+  color: var(--gold-bright);
+
+  text-shadow:
+    0 0 12px
+      rgba(255, 200, 100, 0.5);
+}
+
+.ashte-win-core span {
+  font-size: clamp(6px, 0.7vw, 9px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+/* ============================================================
+   CENTER
+============================================================ */
+
+.ashte-center-area {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 33.333%;
+  height: 33.333%;
+
+  transform: translate(
+    -50%,
+    -50%
+  );
+
+  display: grid;
+  place-items: center;
+
+  pointer-events: none;
+
+  background:
+    conic-gradient(
+      from 45deg,
+      rgba(224, 164, 71, 0.1),
+      rgba(78, 145, 217, 0.08),
+      rgba(217, 92, 79, 0.08),
+      rgba(88, 168, 106, 0.08),
+      rgba(224, 164, 71, 0.1)
+    );
+
+  border: 2px solid
+    rgba(224, 164, 71, 0.23);
+
+  clip-path: polygon(
+    50% 0%,
+    100% 50%,
+    50% 100%,
+    0% 50%
+  );
+}
+
+.ashte-center-ring {
+  width: 48%;
+  height: 48%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 2px;
+
+  color: var(--gold-bright);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(224, 164, 71, 0.3),
+      rgba(9, 10, 13, 0.9)
+    );
+
+  border: 1px solid
+    rgba(255, 200, 110, 0.32);
+
+  box-shadow:
+    0 0 25px
+      rgba(224, 164, 71, 0.16);
+}
+
+.ashte-center-ring strong {
+  font-size: clamp(8px, 1vw, 14px);
+  letter-spacing: 0.12em;
+}
+
+.ashte-center-ring span {
+  font-size: clamp(4px, 0.5vw, 7px);
+
+  color: rgba(255, 255, 255, 0.5);
+
+  letter-spacing: 0.1em;
+}
+
+/* ============================================================
+   PIECES
+============================================================ */
+
+.ashte-piece {
+  position: relative;
+  z-index: 5;
+
+  width: 72%;
+  height: 72%;
+
+  min-width: 12px;
+  min-height: 12px;
+
+  border-radius: 50%;
+
+  border: 2px solid
+    rgba(255, 255, 255, 0.5);
+
+  color: #15110c;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      #fff,
+      var(--piece-color) 40%,
+      color-mix(
+        in srgb,
+        var(--piece-color) 55%,
+        #000
+      )
+    );
+
+  box-shadow:
+    0 3px 8px
+      rgba(0, 0, 0, 0.55),
+    inset 0 1px 2px
+      rgba(255, 255, 255, 0.7);
+
+  display: grid;
+  place-items: center;
+
+  cursor: default;
+
+  font-size: clamp(7px, 0.8vw, 11px);
+  font-weight: 1000;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
+}
+
+.ashte-piece.selectable {
+  cursor: pointer;
+
+  animation:
+    piecePulse 1.2s infinite;
+}
+
+.ashte-piece.selectable:hover {
+  transform: scale(1.15);
+
+  filter: brightness(1.15);
+
+  box-shadow:
+    0 0 14px
+      var(--piece-color),
+    0 4px 9px
+      rgba(0, 0, 0, 0.5);
+}
+
+.ashte-piece.selected {
+  transform: scale(1.22);
+
+  border-color: #fff;
+
+  box-shadow:
+    0 0 0 3px
+      rgba(255, 255, 255, 0.15),
+    0 0 20px
+      var(--piece-color);
+}
+
+.ashte-piece:disabled {
+  opacity: 1;
+}
+
+@keyframes piecePulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 5px
+        var(--piece-color),
+      0 3px 8px
+        rgba(0, 0, 0, 0.5);
+  }
+
+  50% {
+    box-shadow:
+      0 0 16px
+        var(--piece-color),
+      0 3px 8px
+        rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ============================================================
+   BOARD FOOTER
+============================================================ */
+
+.ashte-board-footer {
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--muted);
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.ashte-board-footer i {
+  width: 3px;
+  height: 3px;
+
+  border-radius: 50%;
+
+  background: var(--gold);
+}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+
+.ashte-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ashte-side-card {
+  padding: 15px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(255, 255, 255, 0.012)
+    );
+}
+
+.ashte-card-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.14em;
+
+  margin-bottom: 14px;
+}
+
+.ashte-card-title svg {
+  color: var(--gold);
+}
+
+/* ============================================================
+   COINS
+============================================================ */
+
+.ashte-coins {
+  display: grid;
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 8px;
+
+  margin-bottom: 14px;
+}
+
+.ashte-coin {
+  aspect-ratio: 1;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  font-size: 16px;
+  font-weight: 1000;
+
+  transition: 0.2s ease;
+}
+
+.ashte-coin.white {
+  color: #27231c;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      #fff,
+      #d7d0c1
+    );
+
+  border: 2px solid #f3ead9;
+
+  box-shadow:
+    0 4px 10px
+      rgba(0, 0, 0, 0.3);
+}
+
+.ashte-coin.black {
+  color: #e9d9bb;
+
+  background:
+    radial-gradient(
+      circle at 30% 25%,
+      #424242,
+      #090909
+    );
+
+  border: 2px solid #5b554b;
+
+  box-shadow:
+    0 4px 10px
+      rgba(0, 0, 0, 0.4);
+}
+
+.ashte-coin.flipping {
+  animation:
+    coinFlip 0.25s
+    infinite alternate;
+}
+
+@keyframes coinFlip {
+  from {
+    transform: rotateY(0deg)
+      translateY(-2px);
+  }
+
+  to {
+    transform: rotateY(180deg)
+      translateY(2px);
+  }
+}
+
+.ashte-score-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 10px 11px;
+
+  border: 1px solid
+    rgba(224, 164, 71, 0.14);
+
+  border-radius: 9px;
+
+  background:
+    rgba(224, 164, 71, 0.045);
+}
+
+.ashte-score-result span {
+  color: var(--muted);
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.ashte-score-result strong {
+  color: var(--gold-bright);
+
+  font-size: 22px;
+}
+
+.ashte-message {
+  min-height: 30px;
+
+  margin: 10px 0;
+
+  color: var(--muted);
+
+  font-size: 9px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+
+.ashte-throw-button,
+.ashte-move-button,
+.ashte-reset-button {
+  width: 100%;
+
+  min-height: 43px;
+
+  border-radius: 9px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 0.08em;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.ashte-throw-button {
+  border: 1px solid
+    rgba(224, 164, 71, 0.55);
+
+  color: #17120c;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-bright),
+      var(--gold)
+    );
+
+  box-shadow:
+    0 8px 20px
+      rgba(224, 164, 71, 0.12);
+}
+
+.ashte-throw-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 25px
+      rgba(224, 164, 71, 0.2);
+}
+
+.ashte-throw-button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+.ashte-move-button {
+  margin-top: 8px;
+
+  border: 1px solid
+    rgba(85, 200, 120, 0.35);
+
+  color: #a9e7ba;
+
+  background:
+    rgba(85, 200, 120, 0.07);
+}
+
+.ashte-move-button:hover {
+  background:
+    rgba(85, 200, 120, 0.14);
+}
+
+.ashte-reset-button {
+  border: 1px solid var(--border);
+
+  color: var(--muted);
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+.ashte-reset-button:hover {
+  color: var(--text);
+
+  border-color:
+    rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================
+   SCORE LIST
+============================================================ */
+
+.ashte-score-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.ashte-score-list > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 8px 0;
+
+  border-bottom: 1px solid
+    rgba(255, 255, 255, 0.045);
+}
+
+.ashte-score-list > div:last-child {
+  border-bottom: 0;
+}
+
+.ashte-score-list span {
+  color: var(--muted);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.ashte-score-list strong {
+  min-width: 23px;
+
+  color: var(--gold-bright);
+
+  text-align: right;
+
+  font-size: 12px;
+}
+
+/* ============================================================
+   PLAYER LIST
+============================================================ */
+
+.ashte-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ashte-player-row {
+  min-height: 45px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 7px 8px;
+
+  border: 1px solid transparent;
+
+  border-radius: 8px;
+
+  color: var(--muted);
+}
+
+.ashte-player-row.active {
+  border-color:
+    rgba(224, 164, 71, 0.2);
+
+  background:
+    rgba(224, 164, 71, 0.05);
+
+  color: var(--text);
+}
+
+.ashte-player-dot {
+  width: 8px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 8px
+      currentColor;
+}
+
+.ashte-player-row > div {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.ashte-player-row strong {
+  display: block;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.ashte-player-row small {
+  display: block;
+
+  margin-top: 2px;
+
+  color: var(--muted);
+
+  font-size: 7px;
+  font-weight: 700;
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+
+.ashte-modal-backdrop {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    rgba(0, 0, 0, 0.78);
+
+  backdrop-filter:
+    blur(10px);
+}
+
+.ashte-rules-modal,
+.ashte-win-modal {
+  position: relative;
+
+  width: min(720px, 100%);
+
+  padding: 30px;
+
+  border: 1px solid
+    rgba(224, 164, 71, 0.25);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #12171f,
+      #0a0d12
+    );
+
+  box-shadow:
+    0 30px 100px
+      rgba(0, 0, 0, 0.6);
+}
+
+.ashte-modal-close {
+  position: absolute;
+
+  right: 15px;
+  top: 15px;
+
+  width: 34px;
+  height: 34px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: var(--muted);
+
+  font-size: 21px;
+
+  cursor: pointer;
+}
+
+.ashte-rules-modal h2 {
+  margin: 8px 0 24px;
+
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.ashte-rules-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 10px;
+}
+
+.ashte-rules-grid > div {
+  padding: 16px;
+
+  border: 1px solid var(--border);
+
+  border-radius: 11px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+}
+
+.ashte-rules-grid strong {
+  color: var(--gold);
+
+  font-size: 11px;
+}
+
+.ashte-rules-grid h3 {
+  margin: 7px 0;
+
+  font-size: 12px;
+}
+
+.ashte-rules-grid p {
+  margin: 0;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+/* ============================================================
+   WIN MODAL
+============================================================ */
+
+.ashte-win-modal {
+  width: min(440px, 100%);
+
+  text-align: center;
+}
+
+.ashte-win-icon {
+  width: 75px;
+  height: 75px;
+
+  margin: 0 auto 18px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: var(--gold-bright);
+
+  border: 1px solid
+    rgba(224, 164, 71, 0.35);
+
+  background:
+    rgba(224, 164, 71, 0.09);
+
+  box-shadow:
+    0 0 35px
+      rgba(224, 164, 71, 0.16);
+}
+
+.ashte-win-modal > span {
+  color: var(--gold);
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.2em;
+}
+
+.ashte-win-modal h2 {
+  margin: 10px 0;
+
+  font-size: 32px;
+}
+
+.ashte-win-modal p {
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+.ashte-win-modal button {
+  width: 100%;
+
+  min-height: 45px;
+
+  margin-top: 15px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  color: #15110c;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--gold-bright),
+      var(--gold)
+    );
+
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+/* ============================================================
+   FULLSCREEN
+============================================================ */
+
+.ashte-page:fullscreen {
+  width: 100vw;
+  height: 100vh;
+
+  overflow: auto;
+
+  background: var(--bg);
+}
+
+.ashte-page:fullscreen .ashte-shell {
+  width: 100%;
+
+  min-height: 100vh;
+
+  padding: 14px 22px 24px;
+}
+
+.ashte-fullscreen .ashte-board {
+  max-width: min(
+    72vh,
+    760px
+  );
+}
+
+.ashte-fullscreen .ashte-intro {
+  margin-bottom: 14px;
+}
+
+.ashte-fullscreen .ashte-header {
+  margin-bottom: 16px;
+}
+
+.ashte-fullscreen .ashte-player-select {
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+@media (max-width: 1100px) {
+  .ashte-game-layout {
+    grid-template-columns:
+      minmax(0, 1fr)
+      270px;
+  }
+
+  .ashte-shell {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+
+@media (max-width: 900px) {
+  .ashte-game-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .ashte-sidebar {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .ashte-reset-button {
+    grid-column: 1 / -1;
+  }
+
+  .ashte-board {
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 650px) {
+  .ashte-shell {
+    padding: 12px 10px 28px;
+  }
+
+  .ashte-header {
+    grid-template-columns:
+      auto 1fr auto;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+  }
+
+  .ashte-title {
+    justify-self: start;
+  }
+
+  .ashte-title-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .ashte-title h1 {
+    font-size: 14px;
+  }
+
+  .ashte-title span {
+    font-size: 7px;
+  }
+
+  .ashte-back-button span,
+  .ashte-header-button span {
+    display: none;
+  }
+
+  .ashte-back-button,
+  .ashte-header-button {
+    width: 36px;
+    padding: 0;
+  }
+
+  .ashte-intro {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    margin-bottom: 16px;
+  }
+
+  .ashte-intro h2 {
+    font-size: 36px;
+  }
+
+  .ashte-active-card {
+    width: 100%;
+
+    text-align: left;
+  }
+
+  .ashte-player-select {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .ashte-player-counts {
+    width: 100%;
+  }
+
+  .ashte-player-counts button {
+    flex: 1;
+  }
+
+  .ashte-board-card-header {
+    min-height: 52px;
+  }
+
+  .ashte-board-card-header strong {
+    font-size: 8px;
+  }
+
+  .ashte-live {
+    display: none;
+  }
+
+  .ashte-board-wrapper {
+    padding: 8px;
+  }
+
+  .ashte-board {
+    border-width: 3px;
+  }
+
+  .ashte-board-footer {
+    flex-wrap: wrap;
+
+    min-height: 48px;
+
+    padding: 7px;
+
+    gap: 6px;
+
+    font-size: 6px;
+  }
+
+  .ashte-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .ashte-rules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ashte-rules-modal,
+  .ashte-win-modal {
+    padding: 22px;
+  }
+}
+
+/* ============================================================
+   VERY SMALL SCREENS
+============================================================ */
+
+@media (max-width: 400px) {
+  .ashte-shell {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .ashte-intro h2 {
+    font-size: 31px;
+  }
+
+  .ashte-board-wrapper {
+    padding: 4px;
+  }
+
+  .ashte-piece {
+    border-width: 1px;
+  }
+
+  .ashte-title-icon {
+    display: none;
+  }
+}
+
+/* ============================================================
+   REDUCE MOTION
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ashte-piece.selectable,
+  .ashte-coin.flipping {
+    animation: none;
+  }
+
+  .ashte-piece,
+  .ashte-header-button,
+  .ashte-back-button,
+  .ashte-throw-button {
+    transition: none;
+  }
+}

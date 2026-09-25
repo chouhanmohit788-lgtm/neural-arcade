@@ -1,14 +1,18 @@
+/* =========================================================
+   MEMORY GRID // ADVANCED
+========================================================= */
+
 .memory-page {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 30px 34px 60px;
   color: #f5f7ff;
 }
 
-/* =========================
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .memory-header {
   display: grid;
@@ -45,13 +49,19 @@
 
 .memory-back:hover {
   color: #ff7200;
-  border-color: rgba(255, 106, 0, 0.2);
+  border-color: rgba(255, 106, 0, 0.3);
+  background: rgba(255, 106, 0, 0.04);
 }
 
 .memory-reset {
   justify-self: end;
   color: #ff7200;
   border-color: rgba(255, 106, 0, 0.2);
+}
+
+.memory-reset:hover {
+  background: rgba(255, 106, 0, 0.06);
+  box-shadow: 0 0 20px rgba(255, 106, 0, 0.08);
 }
 
 .memory-brand {
@@ -75,7 +85,8 @@
   background: rgba(255, 106, 0, 0.08);
   border: 1px solid rgba(255, 106, 0, 0.15);
 
-  box-shadow: 0 0 20px rgba(255, 106, 0, 0.07);
+  box-shadow:
+    0 0 20px rgba(255, 106, 0, 0.07);
 }
 
 .memory-brand span {
@@ -96,9 +107,9 @@
   letter-spacing: 0.5px;
 }
 
-/* =========================
+/* =========================================================
    INFO
-========================= */
+========================================================= */
 
 .memory-info {
   display: flex;
@@ -116,7 +127,7 @@
   background:
     radial-gradient(
       circle at 85% 50%,
-      rgba(255, 106, 0, 0.06),
+      rgba(255, 106, 0, 0.07),
       transparent 35%
     ),
     rgba(9, 13, 23, 0.75);
@@ -143,7 +154,7 @@
 }
 
 .memory-info p {
-  max-width: 650px;
+  max-width: 700px;
 
   margin: 0;
 
@@ -154,19 +165,24 @@
 }
 
 .difficulty-box {
-  min-width: 145px;
+  min-width: 165px;
 
   display: flex;
   flex-direction: column;
 
   gap: 7px;
 
-  padding: 14px;
+  padding: 15px;
 
-  border: 1px solid rgba(255, 106, 0, 0.14);
+  border: 1px solid rgba(255, 106, 0, 0.16);
   border-radius: 10px;
 
-  background: rgba(255, 106, 0, 0.035);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 106, 0, 0.07),
+      rgba(255, 106, 0, 0.015)
+    );
 
   text-align: right;
 }
@@ -187,9 +203,18 @@
   letter-spacing: 1px;
 }
 
-/* =========================
+.difficulty-box small {
+  color: #69758a;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+/* =========================================================
    RULES
-========================= */
+========================================================= */
 
 .memory-rules {
   margin-top: 18px;
@@ -251,9 +276,9 @@
   line-height: 1.5;
 }
 
-/* =========================
+/* =========================================================
    STATS
-========================= */
+========================================================= */
 
 .memory-stats {
   display: grid;
@@ -276,7 +301,12 @@
   border: 1px solid rgba(255, 255, 255, 0.055);
   border-radius: 12px;
 
-  background: rgba(8, 12, 21, 0.8);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.025),
+      rgba(255, 255, 255, 0.008)
+    );
 }
 
 .memory-stat span {
@@ -296,9 +326,9 @@
   font-size: 18px;
 }
 
-/* =========================
+/* =========================================================
    XP
-========================= */
+========================================================= */
 
 .memory-xp {
   margin-top: 18px;
@@ -343,17 +373,18 @@
     #ff9b4a
   );
 
-  box-shadow: 0 0 15px rgba(255, 106, 0, 0.4);
+  box-shadow:
+    0 0 15px rgba(255, 106, 0, 0.4);
 
   transition: width 0.35s ease;
 }
 
-/* =========================
+/* =========================================================
    GAME PANEL
-========================= */
+========================================================= */
 
 .memory-game-panel {
-  min-height: 480px;
+  min-height: 540px;
 
   display: flex;
   align-items: center;
@@ -368,7 +399,7 @@
   background:
     radial-gradient(
       circle at center,
-      rgba(255, 106, 0, 0.04),
+      rgba(255, 106, 0, 0.045),
       transparent 48%
     ),
     #080c14;
@@ -387,9 +418,9 @@
   background-size: 40px 40px;
 }
 
-/* =========================
+/* =========================================================
    START
-========================= */
+========================================================= */
 
 .memory-start {
   display: flex;
@@ -401,42 +432,89 @@
 }
 
 .start-icon {
-  width: 85px;
-  height: 85px;
+  width: 88px;
+  height: 88px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 
-  border: 1px solid rgba(255, 106, 0, 0.2);
+  border: 1px solid rgba(255, 106, 0, 0.25);
   border-radius: 50%;
 
   color: #ff7200;
 
-  background: rgba(255, 106, 0, 0.06);
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 106, 0, 0.12),
+      rgba(255, 106, 0, 0.025)
+    );
 
-  box-shadow: 0 0 35px rgba(255, 106, 0, 0.08);
+  box-shadow:
+    0 0 35px rgba(255, 106, 0, 0.1);
+}
+
+.start-warning {
+  color: #ff7200;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 2px;
 }
 
 .memory-start h3 {
-  margin: 0;
+  margin: 8px 0 8px;
 
-  font-size: 23px;
+  font-size: 25px;
 }
 
 .memory-start p {
-  margin: 8px 0 22px;
+  max-width: 420px;
+
+  margin: 0 0 20px;
 
   color: #69758a;
 
   font-size: 12px;
+  line-height: 1.6;
 }
 
-/* =========================
-   START BUTTON
-========================= */
+.start-specs {
+  display: flex;
+  gap: 9px;
+
+  margin-bottom: 22px;
+}
+
+.start-specs div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  padding: 9px 11px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+
+  color: #69758a;
+  background: rgba(255, 255, 255, 0.018);
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.8px;
+}
+
+.start-specs svg {
+  color: #ff7200;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
 
 .start-button {
   display: flex;
@@ -461,24 +539,28 @@
 
   cursor: pointer;
 
-  box-shadow: 0 0 25px rgba(255, 106, 0, 0.16);
+  box-shadow:
+    0 0 25px rgba(255, 106, 0, 0.16);
 
-  transition: 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .start-button:hover {
   transform: translateY(-2px);
 
-  box-shadow: 0 0 35px rgba(255, 106, 0, 0.28);
+  box-shadow:
+    0 0 35px rgba(255, 106, 0, 0.3);
 }
 
-/* =========================
+/* =========================================================
    ACTIVE GAME
-========================= */
+========================================================= */
 
 .active-memory-game {
   width: 100%;
-  max-width: 520px;
+  max-width: 650px;
 
   display: flex;
   flex-direction: column;
@@ -491,7 +573,7 @@
   display: flex;
   justify-content: space-between;
 
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .round-status span {
@@ -510,14 +592,67 @@
   letter-spacing: 1.5px;
 }
 
-.memory-grid {
+/* =========================================================
+   LIVE BAR
+========================================================= */
+
+.game-live-bar {
   width: 100%;
-  max-width: 440px;
 
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
-  gap: 10px;
+  gap: 8px;
+
+  margin-bottom: 15px;
+}
+
+.game-live-bar > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.game-live-bar svg {
+  color: #ff7200;
+}
+
+.game-live-bar span {
+  color: #59667d;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.game-live-bar strong {
+  color: #f5f7ff;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   MEMORY GRID
+========================================================= */
+
+.memory-grid {
+  width: min(100%, 590px);
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(var(--memory-grid-size), minmax(0, 1fr));
+
+  gap: clamp(5px, 1vw, 9px);
 }
 
 .memory-cell {
@@ -525,10 +660,17 @@
 
   aspect-ratio: 1;
 
-  border: 1px solid rgba(255, 255, 255, 0.065);
-  border-radius: 10px;
+  min-width: 0;
 
-  background: #111722;
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  border-radius: clamp(5px, 0.8vw, 10px);
+
+  background:
+    linear-gradient(
+      145deg,
+      #121925,
+      #0d131e
+    );
 
   cursor: pointer;
 
@@ -542,31 +684,69 @@
 .memory-cell:hover {
   transform: scale(1.025);
 
-  border-color: rgba(255, 106, 0, 0.25);
+  border-color:
+    rgba(255, 106, 0, 0.35);
+
+  background:
+    linear-gradient(
+      145deg,
+      #182130,
+      #101722
+    );
 }
 
 .memory-cell.glowing {
-  background: #ff7200;
+  background:
+    radial-gradient(
+      circle,
+      #ff9b4a 0%,
+      #ff7200 42%,
+      #d94d00 100%
+    );
 
-  border-color: #ffad68;
+  border-color: #ffc18f;
 
   box-shadow:
-    0 0 18px rgba(255, 106, 0, 0.45),
-    inset 0 0 18px rgba(255, 255, 255, 0.08);
+    0 0 20px rgba(255, 106, 0, 0.65),
+    inset 0 0 15px rgba(255, 255, 255, 0.15);
+
+  animation: signalPulse 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes signalPulse {
+  from {
+    box-shadow:
+      0 0 15px rgba(255, 106, 0, 0.45),
+      inset 0 0 12px rgba(255, 255, 255, 0.1);
+  }
+
+  to {
+    box-shadow:
+      0 0 28px rgba(255, 106, 0, 0.8),
+      inset 0 0 18px rgba(255, 255, 255, 0.16);
+  }
 }
 
 .memory-cell.selected {
-  background: rgba(255, 106, 0, 0.12);
+  background:
+    rgba(255, 106, 0, 0.11);
 
-  border-color: rgba(255, 106, 0, 0.3);
+  border-color:
+    rgba(255, 106, 0, 0.35);
 }
 
 .memory-cell.correct {
-  background: #ff7200;
+  background:
+    linear-gradient(
+      145deg,
+      #ff8b35,
+      #ff6200
+    );
 
-  border-color: #ffb275;
+  border-color: #ffc08c;
 
-  box-shadow: 0 0 14px rgba(255, 106, 0, 0.25);
+  box-shadow:
+    0 0 15px rgba(255, 106, 0, 0.4);
 }
 
 .memory-cell span {
@@ -575,24 +755,47 @@
   top: 50%;
   left: 50%;
 
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 
   border-radius: 50%;
 
-  background: #fff;
+  background: #ffffff;
 
-  transform: translate(-50%, -50%);
+  transform:
+    translate(-50%, -50%);
 
-  box-shadow: 0 0 15px #fff;
+  box-shadow:
+    0 0 18px #ffffff;
 }
+
+.memory-cell small {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  transform:
+    translate(-50%, -50%);
+
+  color: #080a0f;
+
+  font-size: clamp(8px, 1vw, 12px);
+  font-weight: 1000;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
 
 .memory-message {
   display: flex;
   align-items: center;
   gap: 8px;
 
-  margin-top: 20px;
+  min-height: 18px;
+
+  margin-top: 17px;
 
   color: #758198;
 
@@ -600,22 +803,27 @@
   font-weight: 800;
 
   letter-spacing: 1px;
+
+  text-align: center;
 }
 
 .memory-message span {
   width: 6px;
   height: 6px;
 
+  flex-shrink: 0;
+
   border-radius: 50%;
 
   background: #ff7200;
 
-  box-shadow: 0 0 8px #ff7200;
+  box-shadow:
+    0 0 8px #ff7200;
 }
 
-/* =========================
+/* =========================================================
    GAME OVER
-========================= */
+========================================================= */
 
 .memory-game-over {
   display: flex;
@@ -642,6 +850,9 @@
   color: #ff7200;
 
   background: rgba(255, 106, 0, 0.06);
+
+  box-shadow:
+    0 0 30px rgba(255, 106, 0, 0.08);
 }
 
 .memory-game-over > span {
@@ -654,45 +865,69 @@
 }
 
 .memory-game-over h3 {
-  margin: 8px 0 20px;
+  margin: 8px 0 7px;
 
   font-size: 25px;
 }
 
+.game-over-message {
+  max-width: 400px;
+
+  margin: 0 0 20px;
+
+  color: #68758a;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .game-over-stats {
-  display: flex;
-  gap: 30px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 10px;
 
   margin-bottom: 24px;
 }
 
 .game-over-stats div {
+  min-width: 75px;
+
   display: flex;
   flex-direction: column;
 
   gap: 5px;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+
+  background: rgba(255, 255, 255, 0.018);
 }
 
 .game-over-stats small {
   color: #59667d;
 
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 900;
 
   letter-spacing: 1px;
 }
 
 .game-over-stats strong {
-  font-size: 19px;
+  font-size: 17px;
 }
 
-/* =========================
+/* =========================================================
    FOOTER
-========================= */
+========================================================= */
 
 .memory-footer {
   display: flex;
   justify-content: space-between;
+
+  gap: 15px;
 
   margin-top: 15px;
   padding: 12px 3px;
@@ -715,11 +950,12 @@
   color: #ff7200;
 }
 
-/* =========================
+/* =========================================================
    RESPONSIVE
-========================= */
+========================================================= */
 
 @media (max-width: 1000px) {
+
   .memory-header {
     grid-template-columns: 1fr;
   }
@@ -741,9 +977,14 @@
   .memory-stats {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .memory-game-panel {
+    padding: 25px;
+  }
 }
 
 @media (max-width: 650px) {
+
   .memory-page {
     padding: 20px 14px 45px;
   }
@@ -767,16 +1008,37 @@
   }
 
   .memory-game-panel {
-    min-height: 400px;
-    padding: 20px;
+    min-height: 430px;
+    padding: 18px;
+  }
+
+  .active-memory-game {
+    width: 100%;
+  }
+
+  .game-live-bar {
+    gap: 5px;
+  }
+
+  .game-live-bar > div {
+    gap: 4px;
+  }
+
+  .game-live-bar span {
+    display: none;
   }
 
   .memory-grid {
-    gap: 7px;
+    gap: 5px;
+  }
+
+  .start-specs {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .game-over-stats {
-    gap: 18px;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .memory-footer {

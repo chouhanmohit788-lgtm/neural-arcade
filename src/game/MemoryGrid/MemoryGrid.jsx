@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Brain,
@@ -9,19 +9,129 @@ import {
   Target,
   Zap,
   Info,
+  Timer,
+  Flame,
+  Crosshair,
 } from "lucide-react";
 
 import "./MemoryGrid.css";
 
-const GRID_SIZE = 16;
+/* =========================================================
+   ADVANCED MEMORY ENGINE
+========================================================= */
+
+const MAX_LEVEL = 10;
+
+const LEVEL_CONFIG = [
+  // LEVEL 1 — MEDIUM
+  {
+    level: 1,
+    size: 5,
+    cells: 6,
+    reveal: 7000,
+    time: 60,
+  },
+
+  // LEVEL 2
+  {
+    level: 2,
+    size: 6,
+    cells: 9,
+    reveal: 6500,
+    time: 60,
+  },
+
+  // LEVEL 3
+  {
+    level: 3,
+    size: 6,
+    cells: 10,
+    reveal: 6000,
+    time: 60,
+  },
+
+  // LEVEL 4
+  {
+    level: 4,
+    size: 7,
+    cells: 11,
+    reveal: 5500,
+    time: 60,
+  },
+
+  // LEVEL 5
+  {
+    level: 5,
+    size: 7,
+    cells: 12,
+    reveal: 5000,
+    time: 60,
+  },
+
+  // LEVEL 6
+  {
+    level: 6,
+    size: 8,
+    cells: 13,
+    reveal: 4500,
+    time: 60,
+  },
+
+  // LEVEL 7
+  {
+    level: 7,
+    size: 8,
+    cells: 14,
+    reveal: 4000,
+    time: 60,
+  },
+
+  // LEVEL 8
+  {
+    level: 8,
+    size: 9,
+    cells: 15,
+    reveal: 3500,
+    time: 60,
+  },
+
+  // LEVEL 9
+  {
+    level: 9,
+    size: 9,
+    cells: 16,
+    reveal: 3000,
+    time: 60,
+  },
+
+  // LEVEL 10 — EXTREME
+  {
+    level: 10,
+    size: 10,
+    cells: 18,
+    reveal: 2500,
+    time: 60,
+  },
+];
+
+function getLevelConfig(level) {
+  return (
+    LEVEL_CONFIG[
+      Math.min(Math.max(level, 1), MAX_LEVEL) - 1
+    ] || LEVEL_CONFIG[0]
+  );
+}
 
 function createPattern(level) {
-  const count = Math.min(3 + Math.floor((level - 1) / 2), 9);
+  const config = getLevelConfig(level);
+  const totalCells = config.size * config.size;
 
   const cells = [];
 
-  while (cells.length < count) {
-    const random = Math.floor(Math.random() * GRID_SIZE);
+  while (cells.length < config.cells) {
+    const random = Math.floor(
+      Math.random() * totalCells
+    );
 
     if (!cells.includes(random)) {
       cells.push(random);
@@ -44,6 +154,10 @@ const initialStats = {
 export default function MemoryGrid() {
   const navigate = useNavigate();
 
+  const timerRef = useRef(null);
+  const revealTimerRef = useRef(null);
+  const levelRef = useRef(1);
+
   const savedStats = useMemo(() => {
     try {
       const saved = localStorage.getItem(
@@ -51,23 +165,40 @@ export default function MemoryGrid() {
       );
 
       return saved
-        ? { ...initialStats, ...JSON.parse(saved) }
+        ? {
+            ...initialStats,
+            ...JSON.parse(saved),
+          }
         : initialStats;
     } catch {
       return initialStats;
     }
   }, []);
 
-  const [level, setLevel] = useState(savedStats.level);
-  const [score, setScore] = useState(savedStats.score);
+  const [level, setLevel] = useState(
+    savedStats.level
+  );
+
+  const [score, setScore] = useState(
+    savedStats.score
+  );
+
   const [highScore, setHighScore] = useState(
     savedStats.highScore
   );
-  const [combo, setCombo] = useState(savedStats.combo);
-  const [xp, setXp] = useState(savedStats.xp);
+
+  const [combo, setCombo] = useState(
+    savedStats.combo
+  );
+
+  const [xp, setXp] = useState(
+    savedStats.xp
+  );
+
   const [correct, setCorrect] = useState(
     savedStats.correct
   );
+
   const [attempts, setAttempts] = useState(
     savedStats.attempts
   );
@@ -75,38 +206,65 @@ export default function MemoryGrid() {
   const [pattern, setPattern] = useState([]);
   const [selected, setSelected] = useState([]);
 
-  const [showPattern, setShowPattern] = useState(false);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+  const [showPattern, setShowPattern] =
+    useState(false);
+
+  const [gameStarted, setGameStarted] =
+    useState(false);
+
+  const [gameOver, setGameOver] =
+    useState(false);
 
   const [round, setRound] = useState(1);
+
   const [message, setMessage] = useState(
-    "READY FOR MEMORY TEST"
+    "READY FOR ADVANCED MEMORY TEST"
   );
+
+  const [timeLeft, setTimeLeft] =
+    useState(60);
 
   const [bestRound, setBestRound] = useState(
     Number(
-      localStorage.getItem("neural-memory-best-round")
+      localStorage.getItem(
+        "neural-memory-best-round"
+      )
     ) || 1
   );
+
+  const config = getLevelConfig(level);
+
+  const gridSize = config.size;
 
   const accuracy =
     attempts === 0
       ? 0
-      : Math.round((correct / attempts) * 100);
+      : Math.round(
+          (correct / attempts) * 100
+        );
 
   const difficulty =
     level <= 2
-      ? "EASY"
+      ? "MEDIUM"
       : level <= 5
-        ? "MEDIUM"
+        ? "HARD"
         : level <= 8
-          ? "HARD"
-          : "EXTREME";
+          ? "EXTREME"
+          : "NEURAL OVERLOAD";
 
-  /* =========================
+  const xpPercent = Math.min(xp, 100);
+
+  /* =========================================================
+     LEVEL REF
+  ========================================================= */
+
+  useEffect(() => {
+    levelRef.current = level;
+  }, [level]);
+
+  /* =========================================================
      SAVE STATS
-  ========================= */
+  ========================================================= */
 
   useEffect(() => {
     localStorage.setItem(
@@ -131,55 +289,190 @@ export default function MemoryGrid() {
     attempts,
   ]);
 
-  /* =========================
-     START ROUND
-  ========================= */
+  /* =========================================================
+     CLEANUP
+  ========================================================= */
 
-  function startRound() {
-    const newPattern = createPattern(level);
+  useEffect(() => {
+    return () => {
+      clearTimeout(timerRef.current);
+      clearTimeout(
+        revealTimerRef.current
+      );
+    };
+  }, []);
+
+  /* =========================================================
+     START ROUND
+  ========================================================= */
+
+  function startRound(
+    customLevel = levelRef.current
+  ) {
+    clearTimeout(timerRef.current);
+    clearTimeout(
+      revealTimerRef.current
+    );
+
+    const roundConfig =
+      getLevelConfig(customLevel);
+
+    const newPattern =
+      createPattern(customLevel);
 
     setPattern(newPattern);
     setSelected([]);
+
     setShowPattern(true);
     setGameStarted(true);
     setGameOver(false);
 
-    setMessage("MEMORIZE THE PATTERN");
+    setTimeLeft(roundConfig.time);
 
-    const displayTime = Math.max(
-      900,
-      2200 - level * 100
+    setMessage(
+      `MEMORIZE ${roundConfig.cells} SIGNALS // EXACT ORDER`
     );
 
-    setTimeout(() => {
-      setShowPattern(false);
-      setMessage("RECREATE THE PATTERN");
-    }, displayTime);
+    revealTimerRef.current =
+      setTimeout(() => {
+        setShowPattern(false);
+
+        setMessage(
+          `RECREATE SEQUENCE // 0/${roundConfig.cells}`
+        );
+
+        setTimeLeft(
+          roundConfig.time
+        );
+
+        startResponseTimer(
+          roundConfig.time
+        );
+      }, roundConfig.reveal);
   }
 
-  /* =========================
-     START NEW SESSION
-  ========================= */
+  /* =========================================================
+     RESPONSE TIMER
+  ========================================================= */
+
+  function startResponseTimer(
+    seconds
+  ) {
+    clearTimeout(timerRef.current);
+
+    let remaining = seconds;
+
+    const tick = () => {
+      if (remaining <= 0) {
+        handleTimeout();
+        return;
+      }
+
+      setTimeLeft(remaining);
+
+      remaining -= 1;
+
+      timerRef.current =
+        setTimeout(tick, 1000);
+    };
+
+    timerRef.current =
+      setTimeout(tick, 1000);
+  }
+
+  /* =========================================================
+     START GAME
+  ========================================================= */
 
   function startGame() {
+    clearTimeout(timerRef.current);
+    clearTimeout(
+      revealTimerRef.current
+    );
+
     setRound(1);
     setGameOver(false);
+    setCombo(0);
 
-    setTimeout(() => {
-      startRound();
-    }, 100);
+    startRound(
+      levelRef.current
+    );
   }
 
-  /* =========================
+  /* =========================================================
+     TIMEOUT
+  ========================================================= */
+
+  function handleTimeout() {
+    clearTimeout(timerRef.current);
+    clearTimeout(
+      revealTimerRef.current
+    );
+
+    setAttempts(
+      (prev) => prev + 1
+    );
+
+    setCombo(0);
+
+    setMessage(
+      "TIMEOUT // NEURAL SIGNAL LOST"
+    );
+
+    setGameOver(true);
+  }
+
+  /* =========================================================
+     FAIL
+  ========================================================= */
+
+  function failRound(index) {
+    clearTimeout(timerRef.current);
+
+    setSelected(
+      (prev) => [...prev, index]
+    );
+
+    setAttempts(
+      (prev) => prev + 1
+    );
+
+    setCombo(0);
+
+    setMessage(
+      "WRONG SEQUENCE // MEMORY CORE BREACHED"
+    );
+
+    setGameOver(true);
+  }
+
+  /* =========================================================
      CELL CLICK
-  ========================= */
+  ========================================================= */
 
   function handleCellClick(index) {
-    if (!gameStarted || showPattern || gameOver) {
+    if (
+      !gameStarted ||
+      showPattern ||
+      gameOver
+    ) {
       return;
     }
 
     if (selected.includes(index)) {
+      return;
+    }
+
+    const nextPosition =
+      selected.length;
+
+    const expectedCell =
+      pattern[nextPosition];
+
+    /* WRONG */
+
+    if (index !== expectedCell) {
+      failRound(index);
       return;
     }
 
@@ -190,79 +483,127 @@ export default function MemoryGrid() {
 
     setSelected(newSelected);
 
-    /* WRONG CELL */
+    const progress =
+      newSelected.length;
 
-    if (!pattern.includes(index)) {
-      setAttempts((prev) => prev + 1);
-      setCombo(0);
+    /* STILL PLAYING */
 
+    if (
+      progress <
+      pattern.length
+    ) {
       setMessage(
-        "WRONG CELL // MEMORY SIGNAL LOST"
-      );
-
-      setGameOver(true);
-
-      return;
-    }
-
-    /* CORRECT BUT NOT COMPLETE */
-
-    if (newSelected.length < pattern.length) {
-      setMessage(
-        `${newSelected.length}/${pattern.length} SIGNALS FOUND`
+        `SEQUENCE ${progress}/${pattern.length} // LOCKED`
       );
 
       return;
     }
 
-    /* COMPLETE CORRECT PATTERN */
+    /* =====================================================
+       PERFECT ROUND
+    ===================================================== */
 
-    const newCombo = combo + 1;
+    clearTimeout(timerRef.current);
 
-    const multiplier =
-      1 + Math.min(newCombo * 0.1, 1.5);
+    const newCombo =
+      combo + 1;
 
-    const earnedScore = Math.round(
-      150 * multiplier * level
-    );
+    const speedBonus =
+      timeLeft * 12;
+
+    const comboMultiplier =
+      1 +
+      Math.min(
+        newCombo * 0.15,
+        2
+      );
+
+    const precisionBonus =
+      pattern.length * 20;
+
+    const earnedScore =
+      Math.round(
+        (
+          180 *
+            comboMultiplier +
+          speedBonus +
+          precisionBonus
+        ) * Math.max(level, 1)
+      );
 
     const newScore =
       score + earnedScore;
 
-    const newXp =
-      xp + 15 + newCombo * 2;
+    const earnedXp =
+      20 +
+      level * 3 +
+      newCombo * 3;
 
-    setAttempts((prev) => prev + 1);
-    setCorrect((prev) => prev + 1);
+    const newXp =
+      xp + earnedXp;
+
+    setAttempts(
+      (prev) => prev + 1
+    );
+
+    setCorrect(
+      (prev) => prev + 1
+    );
 
     setCombo(newCombo);
+
     setScore(newScore);
 
-    if (newScore > highScore) {
+    if (
+      newScore > highScore
+    ) {
       setHighScore(newScore);
     }
 
-    if (newXp >= 100) {
-      setLevel((prev) => prev + 1);
-      setXp(newXp - 100);
+    let nextLevel = level;
+
+    /* LEVEL UP */
+
+    if (
+      newXp >= 100 &&
+      level < MAX_LEVEL
+    ) {
+      nextLevel =
+        level + 1;
+
+      setLevel(nextLevel);
+
+      levelRef.current =
+        nextLevel;
+
+      setXp(
+        newXp - 100
+      );
 
       setMessage(
-        `LEVEL UP // +${earnedScore} SCORE`
+        `LEVEL UP // LEVEL ${nextLevel}`
       );
     } else {
-      setXp(newXp);
+      setXp(
+        Math.min(newXp, 99)
+      );
 
       setMessage(
-        `PERFECT MEMORY // +${earnedScore} SCORE`
+        `PERFECT SEQUENCE // +${earnedScore}`
       );
     }
 
-    const nextRound = round + 1;
+    const nextRound =
+      round + 1;
 
     setRound(nextRound);
 
-    if (nextRound > bestRound) {
-      setBestRound(nextRound);
+    if (
+      nextRound > bestRound
+    ) {
+      setBestRound(
+        nextRound
+      );
 
       localStorage.setItem(
         "neural-memory-best-round",
@@ -270,16 +611,23 @@ export default function MemoryGrid() {
       );
     }
 
-    setTimeout(() => {
-      startRound();
-    }, 850);
+    timerRef.current =
+      setTimeout(() => {
+        startRound(nextLevel);
+      }, 900);
   }
 
-  /* =========================
+  /* =========================================================
      RESET
-  ========================= */
+  ========================================================= */
 
   function resetGame() {
+    clearTimeout(timerRef.current);
+
+    clearTimeout(
+      revealTimerRef.current
+    );
+
     localStorage.removeItem(
       "neural-memory-grid-stats"
     );
@@ -289,6 +637,9 @@ export default function MemoryGrid() {
     );
 
     setLevel(1);
+
+    levelRef.current = 1;
+
     setScore(0);
     setHighScore(0);
     setCombo(0);
@@ -301,25 +652,34 @@ export default function MemoryGrid() {
 
     setPattern([]);
     setSelected([]);
+
     setShowPattern(false);
     setGameStarted(false);
     setGameOver(false);
 
-    setMessage("SESSION RESET");
+    setTimeLeft(60);
+
+    setMessage(
+      "ADVANCED MEMORY CORE RESET"
+    );
   }
+
+  /* =========================================================
+     RENDER
+  ========================================================= */
 
   return (
     <div className="memory-page">
 
-      {/* =========================
-          HEADER
-      ========================= */}
+      {/* HEADER */}
 
       <header className="memory-header">
 
         <button
           className="memory-back"
-          onClick={() => navigate("/")}
+          onClick={() =>
+            navigate("/")
+          }
         >
           <ArrowLeft size={17} />
           DASHBOARD
@@ -332,8 +692,13 @@ export default function MemoryGrid() {
           </div>
 
           <div>
-            <span>NEURAL ARCADE</span>
-            <h1>MEMORY GRID</h1>
+            <span>
+              NEURAL ARCADE
+            </span>
+
+            <h1>
+              MEMORY GRID
+            </h1>
           </div>
 
         </div>
@@ -348,45 +713,59 @@ export default function MemoryGrid() {
 
       </header>
 
-      {/* =========================
-          GAME INFO
-      ========================= */}
+      {/* GAME INFO */}
 
       <section className="memory-info">
 
         <div>
+
           <span className="memory-kicker">
             COGNITIVE CHALLENGE // 01
           </span>
 
           <h2>
             REMEMBER.
-            <strong> RECREATE.</strong>
+            <strong>
+              {" "}
+              RECREATE.
+            </strong>
           </h2>
 
           <p>
-            Memorize the illuminated cells and
-            recreate the exact pattern before the
-            Neural Engine increases the difficulty.
+            Memorize the illuminated
+            sequence and reproduce
+            every signal in the exact
+            order before the Neural
+            Engine times out.
           </p>
+
         </div>
 
         <div className="difficulty-box">
-          <span>ADAPTIVE DIFFICULTY</span>
-          <strong>{difficulty}</strong>
+
+          <span>
+            NEURAL DIFFICULTY
+          </span>
+
+          <strong>
+            {difficulty}
+          </strong>
+
+          <small>
+            {gridSize}×{gridSize} GRID
+          </small>
+
         </div>
 
       </section>
 
-      {/* =========================
-          RULES
-      ========================= */}
+      {/* RULES */}
 
       <section className="memory-rules">
 
         <div className="rule-title">
           <Info size={16} />
-          HOW TO PLAY
+          ADVANCED PROTOCOL
         </div>
 
         <div className="rules-grid">
@@ -394,28 +773,32 @@ export default function MemoryGrid() {
           <div className="rule">
             <span>01</span>
             <p>
-              Watch the glowing cells carefully.
+              Memorize every glowing
+              signal.
             </p>
           </div>
 
           <div className="rule">
             <span>02</span>
             <p>
-              Remember their exact positions.
+              Remember the exact
+              sequence.
             </p>
           </div>
 
           <div className="rule">
             <span>03</span>
             <p>
-              Click the same cells after they disappear.
+              Recreate the sequence
+              under time pressure.
             </p>
           </div>
 
           <div className="rule">
             <span>04</span>
             <p>
-              Correct patterns increase your combo.
+              One wrong signal ends
+              the round.
             </p>
           </div>
 
@@ -423,163 +806,325 @@ export default function MemoryGrid() {
 
       </section>
 
-      {/* =========================
-          STATS
-      ========================= */}
+      {/* STATS */}
 
       <section className="memory-stats">
 
         <div className="memory-stat">
           <span>LEVEL</span>
           <strong>
-            {String(level).padStart(2, "0")}
+            {String(level).padStart(
+              2,
+              "0"
+            )}
           </strong>
         </div>
 
         <div className="memory-stat">
           <span>SCORE</span>
-          <strong>{score}</strong>
+          <strong>
+            {score}
+          </strong>
         </div>
 
         <div className="memory-stat">
           <span>HIGH SCORE</span>
-          <strong>{highScore}</strong>
+          <strong>
+            {highScore}
+          </strong>
         </div>
 
         <div className="memory-stat">
           <span>COMBO</span>
-          <strong>x{combo}</strong>
+          <strong>
+            x{combo}
+          </strong>
         </div>
 
         <div className="memory-stat">
           <span>ACCURACY</span>
-          <strong>{accuracy}%</strong>
+          <strong>
+            {accuracy}%
+          </strong>
         </div>
 
         <div className="memory-stat">
           <span>BEST ROUND</span>
-          <strong>{bestRound}</strong>
+          <strong>
+            {bestRound}
+          </strong>
         </div>
 
       </section>
 
-      {/* =========================
-          XP
-      ========================= */}
+      {/* XP */}
 
       <section className="memory-xp">
 
         <div className="xp-header">
-          <span>NEURAL XP</span>
-          <strong>{xp}/100</strong>
+
+          <span>
+            NEURAL XP
+          </span>
+
+          <strong>
+            {xp}/100
+          </strong>
+
         </div>
 
         <div className="xp-track">
+
           <div
             className="xp-fill"
-            style={{ width: `${xp}%` }}
+            style={{
+              width:
+                `${xpPercent}%`,
+            }}
           />
+
         </div>
 
       </section>
 
-      {/* =========================
-          GAME
-      ========================= */}
+      {/* GAME PANEL */}
 
       <section className="memory-game-panel">
 
-        {!gameStarted && !gameOver && (
-          <div className="memory-start">
+        {/* START */}
 
-            <div className="start-icon">
-              <Brain size={42} />
-            </div>
+        {!gameStarted &&
+          !gameOver && (
+            <div className="memory-start">
 
-            <h3>MEMORY GRID</h3>
+              <div className="start-icon">
+                <Brain size={42} />
+              </div>
 
-            <p>
-              Your first pattern is waiting.
-            </p>
-
-            <button
-              className="start-button"
-              onClick={startGame}
-            >
-              <Play size={18} />
-              START GAME
-            </button>
-
-          </div>
-        )}
-
-        {gameStarted && !gameOver && (
-          <div className="active-memory-game">
-
-            <div className="round-status">
-              <span>
-                ROUND {String(round).padStart(2, "0")}
+              <span className="start-warning">
+                ADVANCED MODE
               </span>
 
-              <strong>
-                {showPattern
-                  ? "MEMORIZE"
-                  : "RECREATE"}
-              </strong>
-            </div>
+              <h3>
+                MEMORY CORE
+              </h3>
 
-            <div className="memory-grid">
+              <p>
+                Level 01 starts at
+                5×5 with 6 signals.
+                You get 7 seconds
+                to memorize the
+                pattern and 60
+                seconds to recreate
+                it.
+              </p>
 
-              {Array.from({
-                length: GRID_SIZE,
-              }).map((_, index) => {
+              <div className="start-specs">
 
-                const glowing =
-                  showPattern &&
-                  pattern.includes(index);
+                <div>
+                  <Target size={15} />
+                  <span>
+                    6 SIGNALS
+                  </span>
+                </div>
 
-                const clicked =
-                  selected.includes(index);
+                <div>
+                  <Timer size={15} />
+                  <span>
+                    60 SEC
+                  </span>
+                </div>
 
-                const correct =
-                  clicked &&
-                  pattern.includes(index);
+                <div>
+                  <Crosshair size={15} />
+                  <span>
+                    EXACT ORDER
+                  </span>
+                </div>
 
-                return (
-                  <button
-                    key={index}
-                    className={[
-                      "memory-cell",
-                      glowing
-                        ? "glowing"
-                        : "",
-                      clicked
-                        ? "selected"
-                        : "",
-                      correct
-                        ? "correct"
-                        : "",
-                    ].join(" ")}
-                    onClick={() =>
-                      handleCellClick(index)
-                    }
-                  >
-                    {glowing && (
-                      <span />
-                    )}
-                  </button>
-                );
-              })}
+              </div>
+
+              <button
+                className="start-button"
+                onClick={startGame}
+              >
+                <Play size={18} />
+                START MEMORY TEST
+              </button>
 
             </div>
+          )}
 
-            <div className="memory-message">
-              <span />
-              {message}
+        {/* ACTIVE GAME */}
+
+        {gameStarted &&
+          !gameOver && (
+            <div className="active-memory-game">
+
+              <div className="round-status">
+
+                <span>
+                  ROUND{" "}
+                  {String(round).padStart(
+                    2,
+                    "0"
+                  )}
+                </span>
+
+                <strong>
+                  {showPattern
+                    ? "MEMORIZE"
+                    : "RECREATE"}
+                </strong>
+
+              </div>
+
+              <div className="game-live-bar">
+
+                <div>
+                  <Timer size={14} />
+
+                  <span>
+                    TIME
+                  </span>
+
+                  <strong>
+                    {timeLeft}s
+                  </strong>
+                </div>
+
+                <div>
+                  <Flame size={14} />
+
+                  <span>
+                    COMBO
+                  </span>
+
+                  <strong>
+                    x{combo}
+                  </strong>
+                </div>
+
+                <div>
+                  <Target size={14} />
+
+                  <span>
+                    SIGNALS
+                  </span>
+
+                  <strong>
+                    {showPattern
+                      ? config.cells
+                      : `${selected.length}/${pattern.length}`}
+                  </strong>
+                </div>
+
+              </div>
+
+              {/* GRID */}
+
+              <div
+                className="memory-grid"
+                style={{
+                  "--memory-grid-size":
+                    gridSize,
+                }}
+              >
+
+                {Array.from({
+                  length:
+                    gridSize *
+                    gridSize,
+                }).map(
+                  (_, index) => {
+
+                    const glowing =
+                      showPattern &&
+                      pattern.includes(
+                        index
+                      );
+
+                    const clicked =
+                      selected.includes(
+                        index
+                      );
+
+                    const correct =
+                      clicked &&
+                      pattern.includes(
+                        index
+                      );
+
+                    const sequenceNumber =
+                      pattern.indexOf(
+                        index
+                      ) + 1;
+
+                    return (
+                      <button
+                        key={index}
+                        className={[
+                          "memory-cell",
+
+                          glowing
+                            ? "glowing"
+                            : "",
+
+                          clicked
+                            ? "selected"
+                            : "",
+
+                          correct
+                            ? "correct"
+                            : "",
+                        ].join(" ")}
+                        onClick={() =>
+                          handleCellClick(
+                            index
+                          )
+                        }
+                      >
+
+                        {glowing && (
+                          <>
+                            <span />
+
+                            <small>
+                              {
+                                sequenceNumber
+                              }
+                            </small>
+                          </>
+                        )}
+
+                        {correct &&
+                          !showPattern && (
+                            <small>
+                              {
+                                sequenceNumber
+                              }
+                            </small>
+                          )}
+
+                      </button>
+                    );
+                  }
+                )}
+
+              </div>
+
+              <div className="memory-message">
+
+                <span />
+
+                {message}
+
+              </div>
+
             </div>
+          )}
 
-          </div>
-        )}
+        {/* GAME OVER */}
 
         {gameOver && (
           <div className="memory-game-over">
@@ -588,27 +1133,58 @@ export default function MemoryGrid() {
               <Trophy size={38} />
             </div>
 
-            <span>MEMORY SIGNAL LOST</span>
+            <span>
+              MEMORY CORE BREACHED
+            </span>
 
             <h3>
               ROUND {round}
             </h3>
 
+            <p className="game-over-message">
+              {message}
+            </p>
+
             <div className="game-over-stats">
 
               <div>
-                <small>SCORE</small>
-                <strong>{score}</strong>
+                <small>
+                  SCORE
+                </small>
+
+                <strong>
+                  {score}
+                </strong>
               </div>
 
               <div>
-                <small>LEVEL</small>
-                <strong>{level}</strong>
+                <small>
+                  LEVEL
+                </small>
+
+                <strong>
+                  {level}
+                </strong>
               </div>
 
               <div>
-                <small>ACCURACY</small>
-                <strong>{accuracy}%</strong>
+                <small>
+                  COMBO
+                </small>
+
+                <strong>
+                  x{combo}
+                </strong>
+              </div>
+
+              <div>
+                <small>
+                  ACCURACY
+                </small>
+
+                <strong>
+                  {accuracy}%
+                </strong>
               </div>
 
             </div>
@@ -618,7 +1194,7 @@ export default function MemoryGrid() {
               onClick={startGame}
             >
               <RotateCcw size={17} />
-              TRY AGAIN
+              RETRY NEURAL TEST
             </button>
 
           </div>
@@ -626,21 +1202,31 @@ export default function MemoryGrid() {
 
       </section>
 
-      {/* =========================
-          FOOTER
-      ========================= */}
+      {/* FOOTER */}
 
       <footer className="memory-footer">
 
         <div>
           <Zap size={15} />
-          <span>ADAPTIVE NEURAL ENGINE ACTIVE</span>
+
+          <span>
+            ADAPTIVE NEURAL ENGINE ACTIVE
+          </span>
         </div>
 
         <div>
           <Target size={15} />
+
           <span>
-            ACCURACY {accuracy}%
+            EXACT-SEQUENCE MODE
+          </span>
+        </div>
+
+        <div>
+          <Timer size={15} />
+
+          <span>
+            LEVEL {level}/{MAX_LEVEL}
           </span>
         </div>
 

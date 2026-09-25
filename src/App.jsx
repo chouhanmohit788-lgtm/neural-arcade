@@ -24,6 +24,9 @@ import NeuralMind from "./game/NeuralMind/NeuralMind";
 import NeuralMaze from "./game/NeuralMaze/NeuralMaze";
 import CircuitBreaker from "./game/CircuitBreaker/CircuitBreaker";
 import NeuralLabyrinth from "./game/NeuralLabyrinth/NeuralLabyrinth";
+import NeuralGamble from "./game/NeuralGamble/NeuralGamble";
+import AshteKashte from "./game/AshteKashte/AshteKashte";
+import NeuralBoxes from "./game/NeuralBoxes/NeuralBoxes";
 
 /* =========================================================
    GAMES DATA
@@ -109,6 +112,36 @@ const games = [
     color: "#8b5cf6",
     path: "/neural-mind/labyrinth",
     icon: "⌖",
+  },
+  {
+    number: "09",
+    title: "Neural Gamble",
+    description:
+      "Risk your neural credits, master skill challenges and decide when to cash out.",
+    difficulty: "HARD",
+    color: "#ff7900",
+    path: "/neural-mind/neural-gamble",
+    icon: "◉",
+  },
+  {
+    number: "10",
+    title: "Ashte Kashte",
+    description:
+      "Play the traditional Indian board game with cowrie throws, tokens, captures and home.",
+    difficulty: "TRADITIONAL",
+    color: "#d99b52",
+    path: "/ashte-kashte",
+    icon: "♟",
+  },
+  {
+    number: "11",
+    title: "Neural Boxes",
+    description:
+      "Push every box onto its target while solving increasingly difficult puzzle levels.",
+    difficulty: "PUZZLE",
+    color: "#ff8b35",
+    path: "/neural-boxes",
+    icon: "▣",
   },
 ];
 
@@ -398,6 +431,27 @@ function App() {
           <Route
             path="/neural-mind/labyrinth"
             element={<NeuralLabyrinth />}
+          />
+
+          {/* NEURAL GAMBLE */}
+
+          <Route
+            path="/neural-mind/neural-gamble"
+            element={<NeuralGamble />}
+          />
+
+          {/* ASHTE KASHte */}
+
+          <Route
+            path="/ashte-kashte"
+            element={<AshteKashte />}
+          />
+
+          {/* NEURAL BOXES */}
+
+          <Route
+            path="/neural-boxes"
+            element={<NeuralBoxes />}
           />
 
           {/* PROFILE */}

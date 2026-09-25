@@ -1,3 +1,8 @@
+/* =========================================================
+   NEURAL REFLEX TEST
+   Dancing Neural Character Edition
+========================================================= */
+
 .reflex-page {
   width: 100%;
   max-width: 1180px;
@@ -6,9 +11,10 @@
   color: #f5f7ff;
 }
 
-/* =========================
+
+/* =========================================================
    HEADER
-========================= */
+========================================================= */
 
 .reflex-header {
   display: grid;
@@ -20,7 +26,6 @@
 .reflex-back,
 .reflex-reset {
   width: fit-content;
-
   display: flex;
   align-items: center;
   gap: 8px;
@@ -45,16 +50,25 @@
 
 .reflex-back:hover {
   color: #35baff;
-  border-color: rgba(53, 186, 255, 0.2);
+  border-color: rgba(53, 186, 255, 0.25);
+  transform: translateY(-1px);
 }
 
 .reflex-reset {
   justify-self: end;
-
   color: #35baff;
-
   border-color: rgba(53, 186, 255, 0.2);
 }
+
+.reflex-reset:hover {
+  background: rgba(53, 186, 255, 0.06);
+  box-shadow: 0 0 20px rgba(53, 186, 255, 0.08);
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
 
 .reflex-brand {
   display: flex;
@@ -75,7 +89,6 @@
   color: #35baff;
 
   background: rgba(53, 186, 255, 0.08);
-
   border: 1px solid rgba(53, 186, 255, 0.16);
 
   box-shadow:
@@ -87,7 +100,6 @@
 
   font-size: 8px;
   font-weight: 900;
-
   letter-spacing: 2px;
 }
 
@@ -96,11 +108,13 @@
 
   font-size: 24px;
   font-weight: 900;
+  letter-spacing: -0.5px;
 }
 
-/* =========================
-   INFO
-========================= */
+
+/* =========================================================
+   INTRO
+========================================================= */
 
 .reflex-info {
   display: flex;
@@ -118,7 +132,7 @@
   background:
     radial-gradient(
       circle at 85% 50%,
-      rgba(53, 186, 255, 0.06),
+      rgba(53, 186, 255, 0.07),
       transparent 35%
     ),
     rgba(9, 13, 23, 0.75);
@@ -129,7 +143,6 @@
 
   font-size: 9px;
   font-weight: 900;
-
   letter-spacing: 2px;
 }
 
@@ -178,7 +191,6 @@
 
   font-size: 8px;
   font-weight: 800;
-
   letter-spacing: 1.2px;
 }
 
@@ -186,13 +198,13 @@
   color: #35baff;
 
   font-size: 12px;
-
   letter-spacing: 1px;
 }
 
-/* =========================
+
+/* =========================================================
    RULES
-========================= */
+========================================================= */
 
 .reflex-rules {
   margin-top: 18px;
@@ -216,7 +228,6 @@
 
   font-size: 10px;
   font-weight: 900;
-
   letter-spacing: 1.5px;
 }
 
@@ -238,6 +249,13 @@
   border-radius: 9px;
 
   background: rgba(255, 255, 255, 0.018);
+
+  transition: 0.2s ease;
+}
+
+.reflex-rule:hover {
+  border-color: rgba(53, 186, 255, 0.14);
+  background: rgba(53, 186, 255, 0.025);
 }
 
 .reflex-rule span {
@@ -256,9 +274,10 @@
   line-height: 1.5;
 }
 
-/* =========================
+
+/* =========================================================
    STATS
-========================= */
+========================================================= */
 
 .reflex-stats {
   display: grid;
@@ -283,6 +302,13 @@
   border-radius: 12px;
 
   background: rgba(8, 12, 21, 0.8);
+
+  transition: 0.2s ease;
+}
+
+.reflex-stat:hover {
+  border-color: rgba(53, 186, 255, 0.13);
+  transform: translateY(-2px);
 }
 
 .reflex-stat span {
@@ -304,9 +330,10 @@
   font-size: 18px;
 }
 
-/* =========================
+
+/* =========================================================
    XP
-========================= */
+========================================================= */
 
 .reflex-xp {
   margin-top: 18px;
@@ -357,12 +384,13 @@
   transition: width 0.35s ease;
 }
 
-/* =========================
+
+/* =========================================================
    GAME PANEL
-========================= */
+========================================================= */
 
 .reflex-game-panel {
-  min-height: 480px;
+  min-height: 540px;
 
   display: flex;
   align-items: center;
@@ -371,14 +399,18 @@
   margin-top: 20px;
   padding: 35px;
 
+  overflow: hidden;
+
   border: 1px solid rgba(255, 255, 255, 0.065);
   border-radius: 20px;
+
+  position: relative;
 
   background:
     radial-gradient(
       circle at center,
-      rgba(53, 186, 255, 0.035),
-      transparent 48%
+      rgba(53, 186, 255, 0.045),
+      transparent 45%
     ),
     #080c14;
 
@@ -396,9 +428,26 @@
   background-size: 40px 40px;
 }
 
-/* =========================
-   START
-========================= */
+.reflex-game-panel::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(53, 186, 255, 0.08),
+      transparent 30%
+    );
+}
+
+
+/* =========================================================
+   START SCREEN
+========================================================= */
 
 .reflex-start {
   display: flex;
@@ -407,11 +456,14 @@
   align-items: center;
 
   text-align: center;
+
+  position: relative;
+  z-index: 2;
 }
 
 .reflex-start-icon {
-  width: 85px;
-  height: 85px;
+  width: 90px;
+  height: 90px;
 
   display: flex;
   align-items: center;
@@ -424,29 +476,41 @@
 
   color: #35baff;
 
-  background: rgba(53, 186, 255, 0.06);
+  background:
+    radial-gradient(
+      circle,
+      rgba(53, 186, 255, 0.14),
+      rgba(53, 186, 255, 0.025)
+    );
 
   box-shadow:
     0 0 35px rgba(53, 186, 255, 0.08);
+
+  animation: startPulse 2s ease-in-out infinite;
 }
 
 .reflex-start h3 {
   margin: 0;
 
   font-size: 23px;
+  letter-spacing: 1px;
 }
 
 .reflex-start p {
+  max-width: 400px;
+
   margin: 8px 0 22px;
 
   color: #69758a;
 
   font-size: 12px;
+  line-height: 1.7;
 }
 
-/* =========================
+
+/* =========================================================
    BUTTON
-========================= */
+========================================================= */
 
 .reflex-start-button {
   display: flex;
@@ -484,19 +548,32 @@
     0 0 35px rgba(53, 186, 255, 0.28);
 }
 
-/* =========================
+.reflex-start-button:active {
+  transform: translateY(0) scale(0.97);
+}
+
+
+/* =========================================================
    ACTIVE GAME
-========================= */
+========================================================= */
 
 .active-reflex {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
 
   display: flex;
   flex-direction: column;
 
   align-items: center;
+
+  position: relative;
+  z-index: 2;
 }
+
+
+/* =========================================================
+   ROUND HEADER
+========================================================= */
 
 .reflex-round {
   width: 100%;
@@ -504,7 +581,7 @@
   display: flex;
   justify-content: space-between;
 
-  margin-bottom: 25px;
+  margin-bottom: 8px;
 }
 
 .reflex-round span {
@@ -524,97 +601,607 @@
   letter-spacing: 1.5px;
 }
 
-/* =========================
-   SIGNAL
-========================= */
 
-.reflex-signal {
-  width: 245px;
-  height: 245px;
+/* =========================================================
+   NEURAL DANCER
+========================================================= */
+
+.neural-dancer {
+  width: 350px;
+  height: 390px;
+
+  position: relative;
 
   display: flex;
-  flex-direction: column;
-
   align-items: center;
   justify-content: center;
 
-  gap: 12px;
+  border: 0;
+  outline: none;
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+
+  cursor: pointer;
+
+  user-select: none;
+
+  transition:
+    transform 0.12s ease,
+    filter 0.15s ease;
+}
+
+
+/* AURA */
+
+.dancer-aura {
+  position: absolute;
+
+  width: 250px;
+  height: 250px;
+
   border-radius: 50%;
-
-  color: #5c687d;
 
   background:
     radial-gradient(
       circle,
-      #151c29,
-      #0c111b
+      rgba(53, 186, 255, 0.13),
+      transparent 68%
     );
 
-  cursor: pointer;
+  filter: blur(8px);
 
-  transition:
-    transform 0.12s ease,
-    background 0.12s ease,
-    color 0.12s ease,
-    box-shadow 0.12s ease;
+  opacity: 0.65;
+
+  animation: auraPulse 2.2s ease-in-out infinite;
 }
 
-.reflex-signal span {
-  font-size: 10px;
-  font-weight: 900;
 
-  letter-spacing: 2px;
+/* FLOOR SHADOW */
+
+.dancer-shadow {
+  position: absolute;
+
+  bottom: 25px;
+
+  width: 135px;
+  height: 22px;
+
+  border-radius: 50%;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  filter: blur(8px);
+
+  animation: shadowDance 0.48s ease-in-out infinite alternate;
 }
 
-.reflex-signal:hover {
-  transform: scale(1.02);
+
+/* CHARACTER */
+
+.dancer-character {
+  width: 160px;
+  height: 270px;
+
+  position: relative;
+
+  animation: dancerFloat 0.48s ease-in-out infinite alternate;
+
+  transform-origin: center bottom;
 }
 
-.reflex-signal.signal-waiting {
-  border-color: rgba(255, 255, 255, 0.1);
 
-  animation: reflexPulse 1.2s infinite;
-}
+/* HEAD */
 
-.reflex-signal.signal-active {
-  color: #06110c;
+.dancer-head {
+  position: absolute;
 
-  background: #55e3a0;
+  left: 50%;
+  top: 15px;
 
-  border-color: #55e3a0;
+  width: 94px;
+  height: 82px;
+
+  transform: translateX(-50%);
+
+  border-radius: 34px 34px 27px 27px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #18283a,
+      #0b121d
+    );
+
+  border: 2px solid rgba(53, 186, 255, 0.55);
 
   box-shadow:
-    0 0 35px rgba(85, 227, 160, 0.4),
-    0 0 90px rgba(85, 227, 160, 0.12);
-
-  transform: scale(1.04);
+    inset 0 0 20px rgba(53, 186, 255, 0.06),
+    0 0 22px rgba(53, 186, 255, 0.12);
 }
 
-.reflex-signal.signal-active:hover {
+
+/* HEAD ANTENNA */
+
+.dancer-head::before {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: -20px;
+
+  width: 3px;
+  height: 18px;
+
+  transform: translateX(-50%);
+
+  background: #35baff;
+
+  box-shadow:
+    0 0 10px #35baff;
+}
+
+.dancer-head::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: -27px;
+
+  width: 9px;
+  height: 9px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background: #35baff;
+
+  box-shadow:
+    0 0 15px #35baff,
+    0 0 30px rgba(53, 186, 255, 0.5);
+
+  animation: antennaBlink 1.2s infinite;
+}
+
+
+/* EYES */
+
+.dancer-eye {
+  position: absolute;
+
+  top: 31px;
+
+  width: 21px;
+  height: 8px;
+
+  border-radius: 8px;
+
+  background: #35baff;
+
+  box-shadow:
+    0 0 8px #35baff,
+    0 0 18px rgba(53, 186, 255, 0.7);
+
+  transition: 0.1s ease;
+}
+
+.dancer-eye.left {
+  left: 20px;
+}
+
+.dancer-eye.right {
+  right: 20px;
+}
+
+
+/* FACE */
+
+.dancer-face-line {
+  position: absolute;
+
+  left: 50%;
+  bottom: 17px;
+
+  width: 32px;
+  height: 4px;
+
+  transform: translateX(-50%);
+
+  border-radius: 4px;
+
+  background: rgba(53, 186, 255, 0.65);
+
+  box-shadow: 0 0 7px rgba(53, 186, 255, 0.4);
+}
+
+
+/* BODY */
+
+.dancer-body {
+  position: absolute;
+
+  left: 50%;
+  top: 94px;
+
+  width: 88px;
+  height: 105px;
+
+  transform: translateX(-50%);
+
+  border-radius: 24px 24px 20px 20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #17283b,
+      #09111c
+    );
+
+  border: 2px solid rgba(53, 186, 255, 0.5);
+
+  box-shadow:
+    inset 0 0 20px rgba(53, 186, 255, 0.05),
+    0 0 25px rgba(53, 186, 255, 0.08);
+}
+
+
+/* CORE */
+
+.dancer-core {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 48px;
+  height: 48px;
+
+  transform: translate(-50%, -50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      #35baff 0%,
+      #0d6fa1 28%,
+      #09131f 68%
+    );
+
+  border: 2px solid rgba(53, 186, 255, 0.7);
+
+  box-shadow:
+    0 0 15px rgba(53, 186, 255, 0.35),
+    inset 0 0 15px rgba(53, 186, 255, 0.25);
+
+  animation: corePulse 1.4s ease-in-out infinite;
+}
+
+.core-inner {
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #b9edff;
+
+  box-shadow:
+    0 0 10px #35baff,
+    0 0 25px #35baff;
+}
+
+
+/* =========================================================
+   ARMS
+========================================================= */
+
+.dancer-arm {
+  position: absolute;
+
+  top: 102px;
+
+  width: 23px;
+  height: 92px;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #18344b,
+      #0a1420
+    );
+
+  border: 2px solid rgba(53, 186, 255, 0.45);
+
+  transform-origin: top center;
+
+  box-shadow:
+    0 0 12px rgba(53, 186, 255, 0.08);
+}
+
+.dancer-arm span {
+  position: absolute;
+
+  bottom: -7px;
+  left: 50%;
+
+  width: 17px;
+  height: 17px;
+
+  transform: translateX(-50%);
+
+  border-radius: 50%;
+
+  background: #102638;
+
+  border: 2px solid rgba(53, 186, 255, 0.5);
+}
+
+.arm-left {
+  left: 23px;
+
+  transform: rotate(22deg);
+}
+
+.arm-right {
+  right: 23px;
+
+  transform: rotate(-22deg);
+}
+
+
+/* =========================================================
+   LEGS
+========================================================= */
+
+.dancer-leg {
+  position: absolute;
+
+  top: 190px;
+
+  width: 27px;
+  height: 82px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #16334b,
+      #08111b
+    );
+
+  border: 2px solid rgba(53, 186, 255, 0.42);
+
+  transform-origin: top center;
+}
+
+.dancer-leg span {
+  position: absolute;
+
+  bottom: -8px;
+  left: 50%;
+
+  width: 43px;
+  height: 16px;
+
+  transform: translateX(-50%);
+
+  border-radius: 12px;
+
+  background: #0a1622;
+
+  border: 2px solid rgba(53, 186, 255, 0.4);
+}
+
+.leg-left {
+  left: 48px;
+
+  transform: rotate(8deg);
+}
+
+.leg-right {
+  right: 48px;
+
+  transform: rotate(-8deg);
+}
+
+
+/* =========================================================
+   DANCE STATES
+========================================================= */
+
+.dance-left .dancer-character {
+  transform: rotate(-3deg) translateX(-5px);
+}
+
+.dance-left .arm-left {
+  transform: rotate(-38deg);
+}
+
+.dance-left .arm-right {
+  transform: rotate(-5deg);
+}
+
+.dance-left .leg-left {
+  transform: rotate(18deg);
+}
+
+.dance-left .leg-right {
+  transform: rotate(-17deg);
+}
+
+
+.dance-right .dancer-character {
+  transform: rotate(3deg) translateX(5px);
+}
+
+.dance-right .arm-left {
+  transform: rotate(5deg);
+}
+
+.dance-right .arm-right {
+  transform: rotate(38deg);
+}
+
+.dance-right .leg-left {
+  transform: rotate(17deg);
+}
+
+.dance-right .leg-right {
+  transform: rotate(-18deg);
+}
+
+
+/* =========================================================
+   FLASH STATE
+========================================================= */
+
+.neural-dancer.dancer-flash {
   transform: scale(1.08);
+
+  filter:
+    brightness(1.35)
+    drop-shadow(0 0 20px #35baff);
 }
 
-@keyframes reflexPulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 rgba(53, 186, 255, 0);
-  }
+.dancer-flash .dancer-aura {
+  opacity: 1;
 
-  50% {
-    box-shadow:
-      0 0 30px rgba(53, 186, 255, 0.12);
-  }
+  background:
+    radial-gradient(
+      circle,
+      rgba(110, 228, 255, 0.65),
+      rgba(53, 186, 255, 0.2) 35%,
+      transparent 70%
+    );
+
+  animation:
+    flashAura 0.18s ease-out infinite alternate;
 }
+
+.dancer-flash .dancer-head,
+.dancer-flash .dancer-body {
+  border-color: #7de4ff;
+
+  box-shadow:
+    0 0 20px rgba(53, 186, 255, 0.75),
+    0 0 55px rgba(53, 186, 255, 0.45),
+    inset 0 0 25px rgba(53, 186, 255, 0.18);
+}
+
+.dancer-flash .dancer-core {
+  background:
+    radial-gradient(
+      circle,
+      #ffffff 0%,
+      #8cecff 18%,
+      #35baff 38%,
+      #0c4d70 70%
+    );
+
+  border-color: #d8f8ff;
+
+  box-shadow:
+    0 0 20px #35baff,
+    0 0 45px #35baff,
+    0 0 90px rgba(53, 186, 255, 0.75);
+
+  animation: coreFlash 0.16s infinite alternate;
+}
+
+.dancer-flash .core-inner {
+  width: 18px;
+  height: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 12px #ffffff,
+    0 0 30px #35baff,
+    0 0 50px #35baff;
+}
+
+.dancer-flash .dancer-eye {
+  background: #ffffff;
+
+  box-shadow:
+    0 0 12px #ffffff,
+    0 0 28px #35baff;
+}
+
+.dancer-flash .dancer-status {
+  color: #ffffff;
+
+  border-color: rgba(125, 228, 255, 0.45);
+
+  background: rgba(53, 186, 255, 0.15);
+
+  box-shadow:
+    0 0 25px rgba(53, 186, 255, 0.3);
+}
+
+
+/* =========================================================
+   DANCER STATUS
+========================================================= */
+
+.dancer-status {
+  position: absolute;
+
+  bottom: 0;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  min-width: 175px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 9px 15px;
+
+  border: 1px solid rgba(53, 186, 255, 0.13);
+  border-radius: 30px;
+
+  color: #66758b;
+
+  background: rgba(5, 11, 18, 0.78);
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+
+  backdrop-filter: blur(10px);
+
+  transition: 0.15s ease;
+}
+
+.dancer-status svg {
+  color: #35baff;
+}
+
+
+/* =========================================================
+   LIVE MESSAGE
+========================================================= */
 
 .reflex-live-message {
   display: flex;
   align-items: center;
   gap: 8px;
 
-  margin-top: 22px;
+  margin-top: 14px;
 
   color: #748096;
 
@@ -622,6 +1209,8 @@
   font-weight: 800;
 
   letter-spacing: 1px;
+
+  transition: 0.15s ease;
 }
 
 .reflex-live-message span {
@@ -635,9 +1224,46 @@
   box-shadow: 0 0 9px #35baff;
 }
 
-/* =========================
+.reflex-live-message.message-flash {
+  color: #bcefff;
+}
+
+.reflex-live-message.message-flash span {
+  background: #ffffff;
+
+  box-shadow:
+    0 0 8px #ffffff,
+    0 0 16px #35baff;
+}
+
+
+/* =========================================================
+   REACTION HINT
+========================================================= */
+
+.reaction-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  margin-top: 12px;
+
+  color: #3f4d62;
+
+  font-size: 7px;
+  font-weight: 800;
+
+  letter-spacing: 1.3px;
+}
+
+.reaction-hint svg {
+  color: #35baff;
+}
+
+
+/* =========================================================
    GAME OVER
-========================= */
+========================================================= */
 
 .reflex-game-over {
   display: flex;
@@ -646,6 +1272,9 @@
   align-items: center;
 
   text-align: center;
+
+  position: relative;
+  z-index: 2;
 }
 
 .reflex-over-icon {
@@ -664,6 +1293,9 @@
   color: #35baff;
 
   background: rgba(53, 186, 255, 0.06);
+
+  box-shadow:
+    0 0 35px rgba(53, 186, 255, 0.08);
 }
 
 .reflex-game-over > span {
@@ -676,20 +1308,61 @@
 }
 
 .reflex-game-over h3 {
-  margin: 8px 0 20px;
+  margin: 8px 0 15px;
 
-  font-size: 30px;
+  font-size: 36px;
+  letter-spacing: -1px;
 }
 
-.reflex-over-stats {
-  display: flex;
 
-  gap: 30px;
+/* =========================================================
+   REACTION BADGE
+========================================================= */
+
+.reflex-reaction-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 
   margin-bottom: 24px;
+
+  padding: 8px 13px;
+
+  border: 1px solid rgba(53, 186, 255, 0.13);
+  border-radius: 20px;
+
+  color: #6d7d93;
+
+  background: rgba(53, 186, 255, 0.035);
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+}
+
+.reflex-reaction-badge svg {
+  color: #35baff;
+}
+
+
+/* =========================================================
+   GAME OVER STATS
+========================================================= */
+
+.reflex-over-stats {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 25px;
 }
 
 .reflex-over-stats div {
+  min-width: 80px;
+
   display: flex;
   flex-direction: column;
 
@@ -706,12 +1379,15 @@
 }
 
 .reflex-over-stats strong {
+  color: #f4f6fb;
+
   font-size: 19px;
 }
 
-/* =========================
+
+/* =========================================================
    FOOTER
-========================= */
+========================================================= */
 
 .reflex-footer {
   display: flex;
@@ -739,11 +1415,110 @@
   color: #35baff;
 }
 
-/* =========================
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes dancerFloat {
+  0% {
+    transform: translateY(4px) rotate(-2deg);
+  }
+
+  100% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+@keyframes shadowDance {
+  0% {
+    transform: scaleX(0.9);
+    opacity: 0.4;
+  }
+
+  100% {
+    transform: scaleX(1.08);
+    opacity: 0.65;
+  }
+}
+
+@keyframes auraPulse {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: scale(1.12);
+    opacity: 0.8;
+  }
+}
+
+@keyframes corePulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+@keyframes coreFlash {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    transform: translate(-50%, -50%) scale(1.25);
+  }
+}
+
+@keyframes flashAura {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.25);
+  }
+}
+
+@keyframes antennaBlink {
+  0%,
+  45%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50%,
+  70% {
+    opacity: 1;
+  }
+}
+
+@keyframes startPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 25px rgba(53, 186, 255, 0.06);
+  }
+
+  50% {
+    box-shadow:
+      0 0 45px rgba(53, 186, 255, 0.18);
+  }
+}
+
+
+/* =========================================================
    RESPONSIVE
-========================= */
+========================================================= */
 
 @media (max-width: 1000px) {
+
   .reflex-header {
     grid-template-columns: 1fr;
   }
@@ -767,7 +1542,9 @@
   }
 }
 
+
 @media (max-width: 650px) {
+
   .reflex-page {
     padding: 20px 14px 45px;
   }
@@ -775,6 +1552,10 @@
   .reflex-info {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .reflex-info h2 {
+    font-size: 25px;
   }
 
   .reflex-difficulty {
@@ -791,21 +1572,52 @@
   }
 
   .reflex-game-panel {
-    min-height: 400px;
-    padding: 20px;
+    min-height: 470px;
+    padding: 15px;
   }
 
-  .reflex-signal {
-    width: 190px;
-    height: 190px;
+  .neural-dancer {
+    width: 290px;
+    height: 350px;
+    transform: scale(0.9);
+  }
+
+  .neural-dancer.dancer-flash {
+    transform: scale(0.96);
   }
 
   .reflex-over-stats {
-    gap: 18px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
 
   .reflex-footer {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+
+@media (max-width: 400px) {
+
+  .reflex-brand h1 {
+    font-size: 20px;
+  }
+
+  .reflex-game-panel {
+    padding: 8px;
+  }
+
+  .neural-dancer {
+    transform: scale(0.78);
+    margin: -20px 0;
+  }
+
+  .neural-dancer.dancer-flash {
+    transform: scale(0.84);
+  }
+
+  .reflex-game-over h3 {
+    font-size: 30px;
   }
 }
