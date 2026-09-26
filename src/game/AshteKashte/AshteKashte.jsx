@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
 import {
   ArrowLeft,
   CircleHelp,
@@ -8,136 +14,79 @@ import {
   RotateCcw,
   Trophy,
   Users,
-  Zap,
 } from "lucide-react";
 
 import {
   PLAYERS,
   BOARD_SIZE,
-  OUTER_PATH,
+  BOARD_LAYOUT,
   HOME_POSITIONS,
-  HOME_ZONES,
-  INNER_PATHS,
   WIN_POSITION,
-  SAFE_CELLS,
+  ARROWS,
+  ROLL_TIME,
 } from "./boardConfig";
 
 import {
   GAME_STATUS,
   PIECE_STATUS,
   createGame,
+  startGame,
   rollCoins,
   getCurrentPlayer,
-  getLegalMove,
-  applyPieceMove,
-  getPieceAbsolutePath,
   getPiecePosition,
+  getLegalMove,
+  getLegalPieces,
+  applyPieceMove,
 } from "./gameLogic";
 
 import "./AshteKashte.css";
 
-/* ============================================================
-   HELPERS
-============================================================ */
-
-function createInitialGame(playerCount) {
-  return createGame(
-    PLAYERS.slice(0, playerCount)
-  );
-}
-
-function getCellKey(row, col) {
-  return `${row}-${col}`;
-}
-
-function isSamePosition(a, b) {
-  if (!a || !b) return false;
-
-  return (
-    a[0] === b[0] &&
-    a[1] === b[1]
-  );
-}
-
-function getPathIndex(row, col) {
-  return OUTER_PATH.findIndex(
-    ([r, c]) =>
-      r === row &&
-      c === col
-  );
-}
-
-function getHomePlayer(row, col) {
-  for (const [playerId, positions] of Object.entries(
-    HOME_POSITIONS
-  )) {
-    if (
-      positions.some(
-        ([r, c]) =>
-          r === row &&
-          c === col
-      )
-    ) {
-      return Number(playerId);
-    }
-  }
-
-  return null;
-}
-
-function getInnerPlayer(row, col) {
-  for (const [playerId, positions] of Object.entries(
-    INNER_PATHS
-  )) {
-    if (
-      positions.some(
-        ([r, c]) =>
-          r === row &&
-          c === col
-      )
-    ) {
-      return Number(playerId);
-    }
-  }
-
-  return null;
-}
-
-function getHomeZoneClass(row, col) {
-  for (const [playerId, zone] of Object.entries(
-    HOME_ZONES
-  )) {
-    if (
-      row >= zone.rowStart &&
-      row <= zone.rowEnd &&
-      col >= zone.colStart &&
-      col <= zone.colEnd
-    ) {
-      return `home-zone-${playerId}`;
-    }
-  }
-
-  return "";
-}
-
-function getPlayerColor(playerId) {
-  return (
-    PLAYERS[playerId]?.color ||
-    "#ffffff"
-  );
-}
-
-/* ============================================================
-   COMPONENT
-============================================================ */
+// ============================================================
+// COMPONENT
+// ============================================================
 
 function AshteKashte() {
-  const [playerCount, setPlayerCount] =
-    useState(4);
+  // ==========================================================
+  // SETUP
+  // ==========================================================
 
-  const [game, setGame] = useState(() =>
-    createInitialGame(4)
-  );
+  const [playerCount, setPlayerCount] =
+    useState(2);
+
+  const [setupPlayers, setSetupPlayers] =
+    useState(
+      PLAYERS.slice(0, 2).map(
+        (player) => ({
+          ...player,
+          name: player.name,
+          color: player.color,
+        })
+      )
+    );
+
+  const [game, setGame] =
+    useState(() =>
+      createGame(
+        PLAYERS.slice(0, 2)
+      )
+    );
+
+  // ==========================================================
+  // ROLL TIMER
+  // ==========================================================
+
+  const [rollTime, setRollTime] =
+    useState(ROLL_TIME);
+
+  const timerRef =
+    useRef(null);
+
+  const throwRef =
+    useRef(null);
+
+  // ==========================================================
+  // UI
+  // ==========================================================
 
   const [isThrowing, setIsThrowing] =
     useState(false);
@@ -151,11 +100,9 @@ function AshteKashte() {
   const [isFullscreen, setIsFullscreen] =
     useState(false);
 
-  const gameRef = useRef(null);
-
-  /* ==========================================================
-     BOARD CELLS
-  ========================================================== */
+  // ==========================================================
+  // BOARD CELLS
+  // ==========================================================
 
   const boardCells = useMemo(() => {
     const cells = [];
@@ -173,7 +120,6 @@ function AshteKashte() {
         cells.push({
           row,
           col,
-          key: getCellKey(row, col),
         });
       }
     }
@@ -181,74 +127,288 @@ function AshteKashte() {
     return cells;
   }, []);
 
-  /* ==========================================================
-     CURRENT PLAYER
-  ========================================================== */
+  // ==========================================================
+  // CURRENT PLAYER
+  // ==========================================================
 
   const currentPlayer =
     getCurrentPlayer(game);
 
-  /* ==========================================================
-     RESET
-  ========================================================== */
+  // ==========================================================
+  // SETUP PLAYER COUNT
+  // ==========================================================
 
-  function resetGame() {
+  function changePlayerCount(
+    count
+  ) {
+    setPlayerCount(count);
+
+    const newPlayers =
+      PLAYERS.slice(
+        0,
+        count
+      ).map(
+        (player) => ({
+          ...player,
+          name: player.name,
+          color: player.color,
+        })
+      );
+
+    setSetupPlayers(
+      newPlayers
+    );
+
     setGame(
-      createInitialGame(playerCount)
+      createGame(
+        newPlayers
+      )
     );
 
     setSelectedPieceId(null);
     setIsThrowing(false);
   }
 
-  /* ==========================================================
-     CHANGE PLAYER COUNT
-  ========================================================== */
+  // ==========================================================
+  // CHANGE NAME
+  // ==========================================================
 
-  function changePlayerCount(count) {
-    setPlayerCount(count);
-
-    setGame(
-      createInitialGame(count)
+  function changePlayerName(
+    playerId,
+    value
+  ) {
+    setSetupPlayers(
+      (previous) =>
+        previous.map(
+          (player) =>
+            player.id ===
+            playerId
+              ? {
+                  ...player,
+                  name:
+                    value ||
+                    `PLAYER ${
+                      playerId + 1
+                    }`,
+                }
+              : player
+        )
     );
-
-    setSelectedPieceId(null);
   }
 
-  /* ==========================================================
-     THROW COINS
-  ========================================================== */
+  // ==========================================================
+  // CHANGE COLOR
+  // ==========================================================
 
-  function handleThrow() {
+  function changePlayerColor(
+    playerId,
+    color
+  ) {
+    setSetupPlayers(
+      (previous) =>
+        previous.map(
+          (player) =>
+            player.id ===
+            playerId
+              ? {
+                  ...player,
+                  color,
+                }
+              : player
+        )
+    );
+  }
+
+  // ==========================================================
+  // START GAME
+  // ==========================================================
+
+  function handleStartGame() {
+    const players =
+      setupPlayers.map(
+        (player, index) => ({
+          ...player,
+
+          name:
+            player.name.trim() ||
+            `PLAYER ${
+              index + 1
+            }`,
+        })
+      );
+
+    setGame(
+      startGame(players)
+    );
+
+    setRollTime(ROLL_TIME);
+
+    setSelectedPieceId(null);
+    setIsThrowing(false);
+  }
+
+  // ==========================================================
+  // TIMER
+  //
+  // IMPORTANT:
+  // Timer runs ONLY before COWRY ROLL.
+  //
+  // Once player rolls:
+  // timer STOPS.
+  //
+  // Piece movement has NO timer.
+  // ==========================================================
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(
+        timerRef.current
+      );
+
+      timerRef.current = null;
+    }
+
     if (
-      isThrowing ||
-      game.hasRolled ||
-      game.status === GAME_STATUS.WON
+      game.status !==
+        GAME_STATUS.PLAYING ||
+      game.hasRolled
     ) {
       return;
     }
 
-    setSelectedPieceId(null);
+    setRollTime(ROLL_TIME);
+
+    timerRef.current =
+      window.setInterval(() => {
+        setRollTime(
+          (previous) => {
+            if (
+              previous <= 1
+            ) {
+              clearInterval(
+                timerRef.current
+              );
+
+              timerRef.current =
+                null;
+
+              setGame(
+                (current) => {
+                  if (
+                    current.status !==
+                    GAME_STATUS.PLAYING
+                  ) {
+                    return current;
+                  }
+
+                  const nextPlayer =
+                    (current.currentPlayer +
+                      1) %
+                    current.players
+                      .length;
+
+                  return {
+                    ...current,
+
+                    currentPlayer:
+                      nextPlayer,
+
+                    turnNumber:
+                      current.turnNumber +
+                      1,
+
+                    hasRolled: false,
+
+                    coins: [],
+
+                    score: 0,
+
+                    selectedPieceId:
+                      null,
+
+                    extraTurn: false,
+
+                    message:
+                      `${current.players[nextPlayer].name}` +
+                      " • ROLL COWRIES",
+                  };
+                }
+              );
+
+              setSelectedPieceId(null);
+              setIsThrowing(false);
+
+              return ROLL_TIME;
+            }
+
+            return previous - 1;
+          }
+        );
+      }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(
+          timerRef.current
+        );
+
+        timerRef.current =
+          null;
+      }
+    };
+  }, [
+    game.currentPlayer,
+    game.turnNumber,
+    game.status,
+    game.hasRolled,
+  ]);
+
+  // ==========================================================
+  // ROLL COWRIES
+  // ==========================================================
+
+  function handleRoll() {
+    if (
+      game.status !==
+        GAME_STATUS.PLAYING ||
+      game.hasRolled ||
+      isThrowing
+    ) {
+      return;
+    }
+
     setIsThrowing(true);
 
-    window.setTimeout(() => {
-      const result =
-        rollCoins(game);
+    throwRef.current =
+      window.setTimeout(() => {
+        setGame(
+          (current) =>
+            rollCoins(current)
+        );
 
-      setGame(result.game);
-      setIsThrowing(false);
-    }, 850);
+        setIsThrowing(false);
+      }, 600);
   }
 
-  /* ==========================================================
-     SELECT / MOVE PIECE
-  ========================================================== */
+  // ==========================================================
+  // PIECE CLICK
+  //
+  // NO TIMER HERE.
+  // ==========================================================
 
-  function handlePieceClick(piece) {
+  function handlePieceClick(
+    piece
+  ) {
     if (
-      game.status === GAME_STATUS.WON ||
+      game.status !==
+      GAME_STATUS.PLAYING
+    ) {
+      return;
+    }
+
+    if (
       piece.playerId !==
-        game.currentPlayer
+      game.currentPlayer
     ) {
       return;
     }
@@ -260,155 +420,111 @@ function AshteKashte() {
       );
 
     if (!legal.legal) {
-      setGame((previous) => ({
-        ...previous,
-        message: legal.reason,
-      }));
+      setGame(
+        (previous) => ({
+          ...previous,
+          message:
+            legal.reason,
+        })
+      );
 
       return;
     }
 
-    if (
-      selectedPieceId === piece.id
-    ) {
-      const result =
-        applyPieceMove(
-          game,
-          piece.id
-        );
-
-      if (result.success) {
-        setGame(result.game);
-        setSelectedPieceId(null);
-      }
-
-      return;
-    }
-
-    setSelectedPieceId(piece.id);
-  }
-
-  /* ==========================================================
-     CONFIRM SELECTED PIECE
-  ========================================================== */
-
-  function confirmSelectedPiece() {
-    if (!selectedPieceId) {
-      return;
-    }
+    setSelectedPieceId(
+      piece.id
+    );
 
     const result =
       applyPieceMove(
         game,
-        selectedPieceId
+        piece.id
       );
 
-    if (result.success) {
-      setGame(result.game);
-      setSelectedPieceId(null);
-    } else {
-      setGame((previous) => ({
-        ...previous,
-        message: result.reason,
-      }));
+    if (!result.success) {
+      setGame(
+        (previous) => ({
+          ...previous,
+          message:
+            result.message,
+        })
+      );
+
+      return;
     }
+
+    setGame(result.game);
+
+    setSelectedPieceId(null);
   }
 
-  /* ==========================================================
-     FULLSCREEN
-  ========================================================== */
+  // ==========================================================
+  // RESET
+  // ==========================================================
 
-  async function toggleFullscreen() {
-    try {
-      if (!document.fullscreenElement) {
-        await gameRef.current?.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (error) {
-      console.error(
-        "Fullscreen error:",
-        error
+  function resetGame() {
+    if (timerRef.current) {
+      clearInterval(
+        timerRef.current
       );
+
+      timerRef.current = null;
     }
+
+    if (throwRef.current) {
+      clearTimeout(
+        throwRef.current
+      );
+
+      throwRef.current = null;
+    }
+
+    setGame(
+      createGame(
+        setupPlayers
+      )
+    );
+
+    setRollTime(ROLL_TIME);
+
+    setSelectedPieceId(null);
+
+    setIsThrowing(false);
   }
 
-  /* ==========================================================
-     FULLSCREEN STATE
-  ========================================================== */
+  // ==========================================================
+  // HOME PIECES
+  // ==========================================================
 
-  useEffect(() => {
-    function handleFullscreenChange() {
-      setIsFullscreen(
-        Boolean(
-          document.fullscreenElement
-        )
+  function getHomePieces(
+    playerId
+  ) {
+    const player =
+      game.players.find(
+        (item) =>
+          item.id === playerId
       );
+
+    if (!player) {
+      return [];
     }
 
-    document.addEventListener(
-      "fullscreenchange",
-      handleFullscreenChange
+    return player.pieces.filter(
+      (piece) =>
+        piece.status ===
+        PIECE_STATUS.HOME
     );
+  }
 
-    return () => {
-      document.removeEventListener(
-        "fullscreenchange",
-        handleFullscreenChange
-      );
-    };
-  }, []);
+  // ==========================================================
+  // PIECES ON BOARD
+  // ==========================================================
 
-  /* ==========================================================
-     F KEY
-  ========================================================== */
-
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (
-        event.key.toLowerCase() === "f"
-      ) {
-        const target =
-          event.target;
-
-        if (
-          target instanceof HTMLInputElement ||
-          target instanceof HTMLTextAreaElement
-        ) {
-          return;
-        }
-
-        event.preventDefault();
-        toggleFullscreen();
-      }
-
-      if (
-        event.key === "Escape" &&
-        showRules
-      ) {
-        setShowRules(false);
-      }
-    }
-
-    window.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
-    return () => {
-      window.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-    };
-  }, [showRules]);
-
-  /* ==========================================================
-     PIECES AT CELL
-  ========================================================== */
-
-  function getPiecesAtCell(row, col) {
-    const pieces = [];
+  function getBoardPieces(
+    row,
+    col
+  ) {
+    const result = [];
 
     game.players.forEach(
       (player) => {
@@ -421,176 +537,442 @@ function AshteKashte() {
 
             if (
               position &&
-              isSamePosition(
-                position,
-                [row, col]
-              )
+              position[0] === row &&
+              position[1] === col
             ) {
-              pieces.push(piece);
+              result.push({
+                ...piece,
+                color:
+                  player.color,
+                name:
+                  player.name,
+              });
             }
           }
         );
       }
     );
 
-    return pieces;
+    return result;
   }
 
-  /* ==========================================================
-     PIECE NUMBER
-  ========================================================== */
+  // ==========================================================
+  // LEGAL PIECES
+  // ==========================================================
 
-  function getPieceNumber(piece) {
-    return piece.index + 1;
-  }
+  const legalPieces =
+    game.hasRolled
+      ? getLegalPieces(game)
+      : [];
 
-  /* ==========================================================
-     CAN SELECT
-  ========================================================== */
+  // ==========================================================
+  // RENDER SETUP SCREEN
+  // ==========================================================
 
-  function isPieceSelectable(piece) {
-    if (
-      piece.playerId !==
-      game.currentPlayer
-    ) {
-      return false;
-    }
-
-    if (!game.hasRolled) {
-      return false;
-    }
-
-    return getLegalMove(
-      game,
-      piece
-    ).legal;
-  }
-
-  /* ==========================================================
-     BOARD CELL CLASS
-  ========================================================== */
-
-  function getCellClasses(
-    row,
-    col
+  if (
+    game.status ===
+    GAME_STATUS.SETUP
   ) {
-    const classes = [
-      "ashte-cell",
-    ];
+    return (
+      <div className="ashte-page">
+        <div className="ashte-shell">
 
-    const pathIndex =
-      getPathIndex(row, col);
+          <header className="ashte-header">
 
-    const homePlayer =
-      getHomePlayer(row, col);
+            <button
+              className="ashte-back-button"
+              onClick={() =>
+                window.history.back()
+              }
+            >
+              <ArrowLeft size={17} />
+              <span>
+                ARCADE
+              </span>
+            </button>
 
-    const innerPlayer =
-      getInnerPlayer(row, col);
+            <div className="ashte-title">
 
-    const homeClass =
-      getHomeZoneClass(
-        row,
-        col
-      );
+              <div className="ashte-title-icon">
+                <Coins size={23} />
+              </div>
 
-    if (pathIndex !== -1) {
-      classes.push(
-        "ashte-path-cell"
-      );
-    }
+              <div>
+                <span>
+                  NEURAL ARCADE
+                </span>
 
-    if (
-      SAFE_CELLS.includes(
-        pathIndex
-      )
-    ) {
-      classes.push(
-        "ashte-safe-cell"
-      );
-    }
+                <h1>
+                  ASHTE KASHTE
+                </h1>
+              </div>
 
-    if (homePlayer !== null) {
-      classes.push(
-        "ashte-home-cell"
-      );
+            </div>
 
-      classes.push(
-        `player-${homePlayer}-home`
-      );
-    }
+            <div className="ashte-header-actions">
 
-    if (homeClass) {
-      classes.push(homeClass);
-    }
+              <button
+                className="ashte-header-button"
+                onClick={() =>
+                  setShowRules(
+                    true
+                  )
+                }
+              >
+                <CircleHelp
+                  size={18}
+                />
+                <span>
+                  RULES
+                </span>
+              </button>
 
-    if (innerPlayer !== null) {
-      classes.push(
-        "ashte-inner-cell"
-      );
+            </div>
 
-      classes.push(
-        `inner-player-${innerPlayer}`
-      );
-    }
+          </header>
 
-    if (
-      row === WIN_POSITION[0] &&
-      col === WIN_POSITION[1]
-    ) {
-      classes.push(
-        "ashte-win-cell"
-      );
-    }
+          <section className="ashte-setup">
 
-    return classes.join(" ");
+            <div className="ashte-setup-heading">
+              <span>
+                LOCAL MULTIPLAYER
+              </span>
+
+              <h2>
+                GAME SETUP
+              </h2>
+
+              <p>
+                Select players,
+                names and goti
+                colors before
+                starting the game.
+              </p>
+            </div>
+
+            {/* PLAYER COUNT */}
+
+            <div className="ashte-setup-count">
+
+              <div>
+                <span>
+                  NUMBER OF PLAYERS
+                </span>
+              </div>
+
+              <div className="ashte-player-counts">
+
+                {[2, 3, 4].map(
+                  (count) => (
+                    <button
+                      key={
+                        count
+                      }
+                      className={
+                        playerCount ===
+                        count
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() =>
+                        changePlayerCount(
+                          count
+                        )
+                      }
+                    >
+                      {count}
+                    </button>
+                  )
+                )}
+
+              </div>
+
+            </div>
+
+            {/* PLAYER CARDS */}
+
+            <div className="ashte-setup-players">
+
+              {setupPlayers.map(
+                (
+                  player,
+                  index
+                ) => (
+                  <div
+                    key={
+                      player.id
+                    }
+                    className="ashte-setup-player"
+                    style={{
+                      "--player-color":
+                        player.color,
+                    }}
+                  >
+
+                    <div className="ashte-setup-player-top">
+
+                      <div
+                        className="ashte-setup-avatar"
+                        style={{
+                          background:
+                            player.color,
+                        }}
+                      >
+                        P
+                        {index + 1}
+                      </div>
+
+                      <div>
+                        <small>
+                          PLAYER{" "}
+                          {index + 1}
+                        </small>
+
+                        <strong>
+                          PLAYER
+                        </strong>
+                      </div>
+
+                    </div>
+
+                    <label>
+                      PLAYER NAME
+
+                      <input
+                        value={
+                          player.name
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          changePlayerName(
+                            player.id,
+                            event
+                              .target
+                              .value
+                          )
+                        }
+                        placeholder={`Player ${
+                          index + 1
+                        }`}
+                      />
+                    </label>
+
+                    <label>
+                      GOTI COLOR
+
+                      <div className="ashte-color-row">
+
+                        <input
+                          type="color"
+                          value={
+                            player.color
+                          }
+                          onChange={(
+                            event
+                          ) =>
+                            changePlayerColor(
+                              player.id,
+                              event
+                                .target
+                                .value
+                            )
+                          }
+                        />
+
+                        <span
+                          style={{
+                            color:
+                              player.color,
+                          }}
+                        >
+                          {player.color}
+                        </span>
+
+                      </div>
+                    </label>
+
+                    {/* 4 HOME GOTI PREVIEW */}
+
+                    <div className="ashte-home-preview">
+
+                      <small>
+                        HOME • 4 GOTI
+                      </small>
+
+                      <div className="ashte-preview-pieces">
+
+                        {[0, 1, 2, 3].map(
+                          (piece) => (
+                            <span
+                              key={
+                                piece
+                              }
+                              style={{
+                                background:
+                                  player.color,
+                              }}
+                            >
+                              {piece + 1}
+                            </span>
+                          )
+                        )}
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                )
+              )}
+
+            </div>
+
+            <button
+              className="ashte-start-game"
+              onClick={
+                handleStartGame
+              }
+            >
+              START GAME
+            </button>
+
+          </section>
+
+          {/* RULES */}
+
+          {showRules && (
+            <div className="ashte-modal-backdrop">
+
+              <div className="ashte-rules-modal">
+
+                <button
+                  className="ashte-modal-close"
+                  onClick={() =>
+                    setShowRules(
+                      false
+                    )
+                  }
+                >
+                  ×
+                </button>
+
+                <span>
+                  ASHTE KASHTE
+                </span>
+
+                <h2>
+                  GAME RULES
+                </h2>
+
+                <div className="ashte-rules-grid">
+
+                  <div>
+                    <strong>
+                      01
+                    </strong>
+
+                    <h3>
+                      TURN
+                    </h3>
+
+                    <p>
+                      Players play
+                      one after
+                      another.
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      02
+                    </strong>
+
+                    <h3>
+                      ROLL TIMER
+                    </h3>
+
+                    <p>
+                      You get
+                      10 seconds
+                      only to
+                      roll the
+                      cowries.
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      03
+                    </strong>
+
+                    <h3>
+                      MOVE
+                    </h3>
+
+                    <p>
+                      After
+                      rolling,
+                      there is
+                      no timer
+                      for moving
+                      your goti.
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      04
+                    </strong>
+
+                    <h3>
+                      COWRIES
+                    </h3>
+
+                    <p>
+                      3B1W=1,
+                      2B2W=2,
+                      1B3W=3,
+                      4W=4,
+                      4B=8.
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      05
+                    </strong>
+
+                    <h3>
+                      WIN
+                    </h3>
+
+                    <p>
+                      Get all
+                      four gotis
+                      to the
+                      center X.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      </div>
+    );
   }
 
-  /* ==========================================================
-     PATH ARROW
-  ========================================================== */
-
-  function getPathArrow(index) {
-    if (index < 5) return "→";
-    if (index < 10) return "↓";
-    if (index < 15) return "←";
-    if (index < 20) return "↓";
-    if (index < 25) return "←";
-    if (index < 30) return "↑";
-    if (index < 35) return "→";
-    return "↑";
-  }
-
-  /* ==========================================================
-     PLAYER FINISHED
-  ========================================================== */
-
-  function getFinishedCount(player) {
-    return player.pieces.filter(
-      (piece) =>
-        piece.status ===
-        PIECE_STATUS.FINISHED
-    ).length;
-  }
-
-  /* ==========================================================
-     PLAYER HOME COUNT
-  ========================================================== */
-
-  function getHomeCount(player) {
-    return player.pieces.filter(
-      (piece) =>
-        piece.status ===
-        PIECE_STATUS.HOME
-    ).length;
-  }
-
-  /* ==========================================================
-     RENDER
-  ========================================================== */
+  // ==========================================================
+  // GAME SCREEN
+  // ==========================================================
 
   return (
     <div
-      ref={gameRef}
       className={[
         "ashte-page",
         isFullscreen
@@ -600,9 +982,7 @@ function AshteKashte() {
     >
       <div className="ashte-shell">
 
-        {/* ==================================================
-            HEADER
-        ================================================== */}
+        {/* HEADER */}
 
         <header className="ashte-header">
 
@@ -613,7 +993,9 @@ function AshteKashte() {
             }
           >
             <ArrowLeft size={17} />
-            <span>ARCADE</span>
+            <span>
+              ARCADE
+            </span>
           </button>
 
           <div className="ashte-title">
@@ -639,26 +1021,24 @@ function AshteKashte() {
             <button
               className="ashte-header-button"
               onClick={() =>
-                setShowRules(true)
+                setShowRules(
+                  true
+                )
               }
-              title="Rules"
             >
-              <CircleHelp
-                size={18}
-              />
-
-              <span>RULES</span>
+              <CircleHelp size={18} />
+              <span>
+                RULES
+              </span>
             </button>
 
             <button
               className="ashte-header-button"
-              onClick={
-                toggleFullscreen
-              }
-              title={
-                isFullscreen
-                  ? "Exit Fullscreen"
-                  : "Fullscreen"
+              onClick={() =>
+                setIsFullscreen(
+                  (value) =>
+                    !value
+                )
               }
             >
               {isFullscreen ? (
@@ -670,48 +1050,36 @@ function AshteKashte() {
                   size={18}
                 />
               )}
-
-              <span>
-                {isFullscreen
-                  ? "EXIT"
-                  : "FULLSCREEN"}
-              </span>
             </button>
 
           </div>
 
         </header>
 
-        {/* ==================================================
-            TOP INTRO
-        ================================================== */}
+        {/* INTRO */}
 
         <section className="ashte-intro">
 
           <div>
-            <span className="ashte-eyebrow">
-              TRADITIONAL BATTLEFIELD
+            <span>
+              LOCAL MULTIPLAYER
             </span>
 
             <h2>
-              CAST.
-              <span> MOVE.</span>
-              <br />
-              CONQUER.
+              PLAY
             </h2>
-
-            <p>
-              Throw four cowries, move your
-              pieces, capture opponents and
-              reach the WIN zone.
-            </p>
           </div>
 
-          <div className="ashte-active-card">
-
-            <span>
-              ACTIVE PLAYER
-            </span>
+          <div
+            className="ashte-active-card"
+            style={{
+              borderColor:
+                currentPlayer?.color,
+            }}
+          >
+            <small>
+              CURRENT PLAYER
+            </small>
 
             <strong
               style={{
@@ -722,20 +1090,44 @@ function AshteKashte() {
               {currentPlayer?.name}
             </strong>
 
-            <small>
-              TURN{" "}
-              {String(
-                game.turnNumber
-              ).padStart(2, "0")}
-            </small>
+            {/* ROLL TIMER ONLY */}
+
+            {!game.hasRolled && (
+              <div className="ashte-timer-line">
+
+                <span>
+                  ROLL TIME
+                </span>
+
+                <b
+                  className={[
+                    "ashte-turn-timer",
+                    rollTime <= 3
+                      ? "danger"
+                      : rollTime <= 5
+                      ? "warning"
+                      : "",
+                  ].join(
+                    " "
+                  )}
+                >
+                  {rollTime}
+                </b>
+
+              </div>
+            )}
+
+            {game.hasRolled && (
+              <div className="ashte-rolled-label">
+                ROLL COMPLETE
+              </div>
+            )}
 
           </div>
 
         </section>
 
-        {/* ==================================================
-            PLAYER SELECT
-        ================================================== */}
+        {/* PLAYER COUNT */}
 
         <section className="ashte-player-select">
 
@@ -746,32 +1138,29 @@ function AshteKashte() {
 
           <div className="ashte-player-counts">
 
-            {[2, 3, 4].map(
-              (count) => (
-                <button
-                  key={count}
-                  className={
-                    playerCount === count
+            {game.players.map(
+              (player) => (
+                <div
+                  key={
+                    player.id
+                  }
+                  className={[
+                    "ashte-mini-player",
+                    player.id ===
+                    game.currentPlayer
                       ? "active"
-                      : ""
-                  }
-                  onClick={() =>
-                    changePlayerCount(
-                      count
-                    )
-                  }
+                      : "",
+                  ].join(
+                    " "
+                  )}
+                  style={{
+                    "--player-color":
+                      player.color,
+                  }}
                 >
-                  <strong>
-                    {count}
-                  </strong>
-
-                  <span>
-                    PLAYER
-                    {count > 1
-                      ? "S"
-                      : ""}
-                  </span>
-                </button>
+                  <span />
+                  {player.name}
+                </div>
               )
             )}
 
@@ -779,15 +1168,11 @@ function AshteKashte() {
 
         </section>
 
-        {/* ==================================================
-            MAIN GAME
-        ================================================== */}
+        {/* MAIN */}
 
         <main className="ashte-game-layout">
 
-          {/* =================================================
-              BOARD
-          ================================================= */}
+          {/* BOARD */}
 
           <section className="ashte-board-card">
 
@@ -795,21 +1180,17 @@ function AshteKashte() {
 
               <div>
                 <span>
-                  ACTIVE BATTLEFIELD
+                  GAME BOARD
                 </span>
 
                 <strong>
-                  OUTER PATH
-                  {" • "}
-                  INNER PATH
-                  {" • "}
-                  WIN
+                  ASHTE KASHTE • 5×5
                 </strong>
               </div>
 
               <div className="ashte-live">
                 <span />
-                SYSTEM ONLINE
+                LIVE LOCAL GAME
               </div>
 
             </div>
@@ -819,8 +1200,8 @@ function AshteKashte() {
               <div
                 className="ashte-board"
                 style={{
-                  gridTemplateColumns: `repeat(${BOARD_SIZE}, 1fr)`,
-                  gridTemplateRows: `repeat(${BOARD_SIZE}, 1fr)`,
+                  gridTemplateColumns:
+                    `repeat(${BOARD_SIZE}, 1fr)`,
                 }}
               >
 
@@ -828,182 +1209,185 @@ function AshteKashte() {
                   ({
                     row,
                     col,
-                    key,
                   }) => {
+                    const type =
+                      BOARD_LAYOUT[
+                        row
+                      ][col];
 
-                    const pieces =
-                      getPiecesAtCell(
+                    const boardPieces =
+                      getBoardPieces(
                         row,
                         col
                       );
 
-                    const pathIndex =
-                      getPathIndex(
-                        row,
-                        col
+                    const homePlayer =
+                      Object.keys(
+                        HOME_POSITIONS
+                      ).find(
+                        (id) =>
+                          HOME_POSITIONS[
+                            id
+                          ][0] ===
+                            row &&
+                          HOME_POSITIONS[
+                            id
+                          ][1] ===
+                            col
                       );
 
-                    const isWin =
-                      row ===
-                        WIN_POSITION[0] &&
-                      col ===
-                        WIN_POSITION[1];
-
-                    const innerPlayer =
-                      getInnerPlayer(
-                        row,
-                        col
-                      );
+                    const homePieces =
+                      homePlayer !==
+                      undefined
+                        ? getHomePieces(
+                            Number(
+                              homePlayer
+                            )
+                          )
+                        : [];
 
                     return (
                       <div
-                        key={key}
-                        className={getCellClasses(
-                          row,
-                          col
+                        key={`${row}-${col}`}
+                        className={[
+                          "ashte-cell",
+                          `cell-${type}`,
+                        ].join(
+                          " "
                         )}
                       >
 
-                        {/* HOME LABEL */}
+                        {/* HOME X */}
 
-                        {getHomePlayer(
-                          row,
-                          col
-                        ) !== null &&
-                          pieces.length ===
-                            0 && (
-                            <span className="ashte-home-label">
-                              {
-                                PLAYERS[
-                                  getHomePlayer(
-                                    row,
-                                    col
-                                  )
-                                ].short
-                              }
-                            </span>
-                          )}
+                        {homePlayer !==
+                          undefined && (
+                          <>
+                            <div
+                              className="ashte-home-x"
+                              style={{
+                                color:
+                                  game
+                                    .players[
+                                      Number(
+                                        homePlayer
+                                      )
+                                    ]
+                                    ?.color,
+                              }}
+                            >
+                              X
+                            </div>
 
-                        {/* PATH ARROW */}
+                            {/* 4 HOME GOTIS */}
 
-                        {pathIndex !==
-                          -1 &&
-                          pieces.length ===
-                            0 && (
-                            <span className="ashte-path-arrow">
-                              {getPathArrow(
-                                pathIndex
+                            <div className="ashte-home-pieces">
+
+                              {homePieces.map(
+                                (
+                                  piece
+                                ) => (
+                                  <span
+                                    key={
+                                      piece.id
+                                    }
+                                    className="ashte-home-piece"
+                                    style={{
+                                      background:
+                                        game
+                                          .players[
+                                            Number(
+                                              homePlayer
+                                            )
+                                          ]
+                                          ?.color,
+                                    }}
+                                  >
+                                    {piece.index +
+                                      1}
+                                  </span>
+                                )
                               )}
-                            </span>
+
+                            </div>
+                          </>
+                        )}
+
+                        {/* CENTER */}
+
+                        {row ===
+                          WIN_POSITION[0] &&
+                          col ===
+                            WIN_POSITION[1] && (
+                            <div className="ashte-center-x">
+                              X
+                            </div>
                           )}
 
-                        {/* INNER PATH */}
+                        {/* ARROW */}
 
-                        {innerPlayer !==
-                          null &&
-                          pieces.length ===
-                            0 && (
-                            <span className="ashte-inner-mark">
-                              ◆
-                            </span>
-                          )}
-
-                        {/* WIN */}
-
-                        {isWin && (
-                          <div className="ashte-win-core">
-                            <Trophy
-                              size={22}
-                            />
-
-                            <span>
-                              WIN
-                            </span>
+                        {ARROWS[
+                          `${row}-${col}`
+                        ] && (
+                          <div className="ashte-arrow">
+                            {
+                              ARROWS[
+                                `${row}-${col}`
+                              ]
+                            }
                           </div>
                         )}
 
-                        {/* PIECES */}
+                        {/* ACTIVE BOARD GOTIS */}
 
-                        {pieces.map(
-                          (piece) => {
+                        {boardPieces.length >
+                          0 && (
+                          <div className="ashte-board-pieces">
 
-                            const selectable =
-                              isPieceSelectable(
+                            {boardPieces.map(
+                              (
                                 piece
-                              );
-
-                            const selected =
-                              selectedPieceId ===
-                              piece.id;
-
-                            return (
-                              <button
-                                key={
-                                  piece.id
-                                }
-                                className={[
-                                  "ashte-piece",
-                                  selectable
-                                    ? "selectable"
-                                    : "",
-                                  selected
-                                    ? "selected"
-                                    : "",
-                                ].join(
-                                  " "
-                                )}
-                                style={{
-                                  "--piece-color":
-                                    getPlayerColor(
-                                      piece.playerId
-                                    ),
-                                }}
-                                onClick={() =>
-                                  handlePieceClick(
-                                    piece
-                                  )
-                                }
-                                disabled={
-                                  !selectable
-                                }
-                                title={`${PLAYERS[piece.playerId].name} • Piece ${getPieceNumber(piece)}`}
-                              >
-                                <span>
-                                  {getPieceNumber(
-                                    piece
+                              ) => (
+                                <button
+                                  key={
+                                    piece.id
+                                  }
+                                  className={[
+                                    "ashte-piece",
+                                    piece.playerId ===
+                                    game.currentPlayer
+                                      ? "current-piece"
+                                      : "",
+                                    selectedPieceId ===
+                                    piece.id
+                                      ? "selected"
+                                      : "",
+                                  ].join(
+                                    " "
                                   )}
-                                </span>
-                              </button>
-                            );
-                          }
+                                  style={{
+                                    background:
+                                      piece.color,
+                                  }}
+                                  onClick={() =>
+                                    handlePieceClick(
+                                      piece
+                                    )
+                                  }
+                                >
+                                  {
+                                    piece.index
+                                  + 1}
+                                </button>
+                              )
+                            )}
+
+                          </div>
                         )}
 
                       </div>
                     );
                   }
                 )}
-
-                {/* =================================================
-                    CENTER WIN AREA
-                ================================================= */}
-
-                <div className="ashte-center-area">
-
-                  <div className="ashte-center-ring">
-
-                    <Trophy size={28} />
-
-                    <strong>
-                      WIN
-                    </strong>
-
-                    <span>
-                      NEURAL CORE
-                    </span>
-
-                  </div>
-
-                </div>
 
               </div>
 
@@ -1012,309 +1396,326 @@ function AshteKashte() {
             <div className="ashte-board-footer">
 
               <span>
-                SAFE CELLS
+                HOME = 4 GOTI
               </span>
 
-              <i />
-
               <span>
-                HOME ENTRY: 1 / 4 / 8
+                CENTER X = WIN
               </span>
 
-              <i />
-
               <span>
-                F = FULLSCREEN
+                10 SEC = ROLL ONLY
               </span>
 
             </div>
 
           </section>
 
-          {/* =================================================
-              SIDE PANEL
-          ================================================= */}
+          {/* SIDEBAR */}
 
           <aside className="ashte-sidebar">
 
-            {/* COIN THROW */}
+            {/* CURRENT PLAYER */}
 
-            <div className="ashte-side-card coin-panel">
+            <section className="ashte-panel current-player-panel">
 
-              <div className="ashte-card-title">
-
-                <Zap size={16} />
+              <div className="ashte-panel-heading">
 
                 <span>
-                  FOUR COWRIES
+                  YOUR TURN
                 </span>
+
+                <b
+                  style={{
+                    color:
+                      currentPlayer?.color,
+                  }}
+                >
+                  {
+                    currentPlayer?.short
+                  }
+                </b>
 
               </div>
 
-              <div className="ashte-coins">
+              <h3
+                style={{
+                  color:
+                    currentPlayer?.color,
+                }}
+              >
+                {
+                  currentPlayer?.name
+                }
+              </h3>
 
-                {[0, 1, 2, 3].map(
-                  (index) => {
+              {!game.hasRolled ? (
+                <div className="ashte-big-timer">
+                  {rollTime}
+                  <small>
+                    ROLL SEC
+                  </small>
+                </div>
+              ) : (
+                <div className="ashte-ready-text">
+                  ROLL COMPLETE
+                </div>
+              )}
 
-                    const coin =
-                      game.coins[index];
+              {/* FOUR CURRENT PLAYER PIECES */}
+
+              <div className="ashte-current-pieces">
+
+                {currentPlayer?.pieces.map(
+                  (piece) => {
+                    const legal =
+                      legalPieces.some(
+                        (item) =>
+                          item.id ===
+                          piece.id
+                      );
 
                     return (
-                      <div
-                        key={index}
+                      <button
+                        key={
+                          piece.id
+                        }
                         className={[
-                          "ashte-coin",
-                          coin ===
-                          "black"
-                            ? "black"
-                            : "white",
-                          isThrowing
-                            ? "flipping"
+                          "ashte-current-piece",
+                          legal
+                            ? "selectable"
+                            : "",
+                          selectedPieceId ===
+                          piece.id
+                            ? "selected"
                             : "",
                         ].join(
                           " "
                         )}
+                        disabled={
+                          !legal
+                        }
+                        onClick={() =>
+                          handlePieceClick(
+                            piece
+                          )
+                        }
                       >
-                        {coin ===
-                        "black"
-                          ? "B"
-                          : coin ===
-                              "white"
-                            ? "W"
-                            : "?"}
-                      </div>
+
+                        <span
+                          style={{
+                            background:
+                              currentPlayer.color,
+                          }}
+                        >
+                          {piece.index +
+                            1}
+                        </span>
+
+                        <div>
+                          <strong>
+                            GOTI{" "}
+                            {piece.index +
+                              1}
+                          </strong>
+
+                          <small>
+                            {
+                              piece.status
+                            }
+                          </small>
+                        </div>
+
+                        {legal && (
+                          <b>
+                            MOVE
+                          </b>
+                        )}
+
+                      </button>
                     );
                   }
                 )}
 
               </div>
 
-              <div className="ashte-score-result">
+            </section>
+
+            {/* COWRIES */}
+
+            <section className="ashte-panel">
+
+              <div className="ashte-panel-heading">
 
                 <span>
-                  THROW VALUE
+                  COWRIES
                 </span>
 
-                <strong>
-                  {game.score || "—"}
-                </strong>
+                <b>
+                  {game.score}
+                </b>
 
               </div>
 
-              <p className="ashte-message">
-                {isThrowing
-                  ? "CASTING FOUR COWRIES..."
-                  : game.message}
-              </p>
+              <div className="ashte-coins">
+
+                {game.coins.length ===
+                0 ? (
+                  <div className="ashte-no-coins">
+                    ROLL COWRIES
+                  </div>
+                ) : (
+                  game.coins.map(
+                    (
+                      coin,
+                      index
+                    ) => (
+                      <div
+                        key={
+                          index
+                        }
+                        className={[
+                          "ashte-coin",
+                          coin,
+                        ].join(
+                          " "
+                        )}
+                      >
+                        {coin ===
+                        "white"
+                          ? "W"
+                          : "B"}
+                      </div>
+                    )
+                  )
+                )}
+
+              </div>
 
               <button
                 className="ashte-throw-button"
-                onClick={
-                  handleThrow
-                }
                 disabled={
                   isThrowing ||
                   game.hasRolled ||
                   game.status ===
                     GAME_STATUS.WON
                 }
+                onClick={
+                  handleRoll
+                }
               >
-                <Coins size={18} />
-
                 {isThrowing
-                  ? "CASTING..."
+                  ? "ROLLING..."
                   : game.hasRolled
-                    ? "SELECT A PIECE"
-                    : "THROW COWRIES"}
+                  ? "SELECT GOTI"
+                  : "ROLL COWRIES"}
               </button>
 
-              {selectedPieceId && (
-                <button
-                  className="ashte-move-button"
-                  onClick={
-                    confirmSelectedPiece
-                  }
-                >
-                  MOVE SELECTED PIECE
-                </button>
-              )}
+              <p className="ashte-message">
+                {game.message}
+              </p>
 
-            </div>
-
-            {/* SCORING */}
-
-            <div className="ashte-side-card">
-
-              <div className="ashte-card-title">
-                COIN SCORING
-              </div>
-
-              <div className="ashte-score-list">
-
-                <div>
-                  <span>
-                    3 BLACK + 1 WHITE
-                  </span>
-                  <strong>1</strong>
-                </div>
-
-                <div>
-                  <span>
-                    2 BLACK + 2 WHITE
-                  </span>
-                  <strong>2</strong>
-                </div>
-
-                <div>
-                  <span>
-                    1 BLACK + 3 WHITE
-                  </span>
-                  <strong>3</strong>
-                </div>
-
-                <div>
-                  <span>
-                    4 WHITE
-                  </span>
-                  <strong>4</strong>
-                </div>
-
-                <div>
-                  <span>
-                    4 BLACK
-                  </span>
-                  <strong>8</strong>
-                </div>
-
-              </div>
-
-            </div>
+            </section>
 
             {/* PLAYERS */}
 
-            <div className="ashte-side-card">
+            <section className="ashte-panel">
 
-              <div className="ashte-card-title">
-                PLAYERS
+              <div className="ashte-panel-heading">
+                <span>
+                  PLAYERS
+                </span>
               </div>
 
-              <div className="ashte-player-list">
+              <div className="ashte-players">
 
                 {game.players.map(
-                  (player) => {
+                  (player) => (
+                    <div
+                      key={
+                        player.id
+                      }
+                      className={
+                        player.id ===
+                        game.currentPlayer
+                          ? "active"
+                          : ""
+                      }
+                    >
 
-                    const finished =
-                      getFinishedCount(
-                        player
-                      );
+                      <span
+                        className="player-dot"
+                        style={{
+                          background:
+                            player.color,
+                        }}
+                      />
 
-                    const home =
-                      getHomeCount(
-                        player
-                      );
+                      <div>
+                        <strong>
+                          {
+                            player.name
+                          }
+                        </strong>
 
-                    const active =
-                      player.id ===
-                      game.currentPlayer;
-
-                    return (
-                      <div
-                        key={
-                          player.id
-                        }
-                        className={[
-                          "ashte-player-row",
-                          active
-                            ? "active"
-                            : "",
-                        ].join(
-                          " "
-                        )}
-                      >
-
-                        <span
-                          className="ashte-player-dot"
-                          style={{
-                            background:
-                              player.color,
-                          }}
-                        />
-
-                        <div>
-                          <strong>
-                            {player.name}
-                          </strong>
-
-                          <small>
-                            {finished}/4
-                            FINISHED
-                            {" • "}
-                            {home}/4 HOME
-                          </small>
-                        </div>
-
-                        {active && (
-                          <Zap
-                            size={14}
-                          />
-                        )}
-
+                        <small>
+                          {
+                            player.finished
+                          }
+                          /4 FINISHED
+                        </small>
                       </div>
-                    );
-                  }
+
+                    </div>
+                  )
                 )}
 
               </div>
 
-            </div>
+            </section>
 
             {/* RESET */}
 
             <button
               className="ashte-reset-button"
-              onClick={resetGame}
+              onClick={
+                resetGame
+              }
             >
-              <RotateCcw size={16} />
-              RESET GAME
+              <RotateCcw
+                size={15}
+              />
+              BACK TO SETUP
             </button>
 
           </aside>
 
         </main>
 
-        {/* ==================================================
-            RULES MODAL
-        ================================================== */}
+        {/* RULES */}
 
         {showRules && (
-          <div
-            className="ashte-modal-backdrop"
-            onClick={() =>
-              setShowRules(false)
-            }
-          >
-            <div
-              className="ashte-rules-modal"
-              onClick={(event) =>
-                event.stopPropagation()
-              }
-            >
+          <div className="ashte-modal-backdrop">
+
+            <div className="ashte-rules-modal">
 
               <button
                 className="ashte-modal-close"
                 onClick={() =>
-                  setShowRules(false)
+                  setShowRules(
+                    false
+                  )
                 }
               >
                 ×
               </button>
 
-              <span className="ashte-eyebrow">
+              <span>
                 ASHTE KASHTE
               </span>
 
               <h2>
-                HOW TO PLAY
+                GAME RULES
               </h2>
 
               <div className="ashte-rules-grid">
@@ -1325,13 +1726,13 @@ function AshteKashte() {
                   </strong>
 
                   <h3>
-                    THROW
+                    SETUP
                   </h3>
 
                   <p>
-                    Throw four black/white
-                    cowries to determine
-                    your movement value.
+                    Select 2, 3 or
+                    4 players before
+                    starting.
                   </p>
                 </div>
 
@@ -1341,13 +1742,14 @@ function AshteKashte() {
                   </strong>
 
                   <h3>
-                    ENTER
+                    ROLL
                   </h3>
 
                   <p>
-                    A piece can leave HOME
-                    with a throw of
-                    1, 4 or 8.
+                    The player gets
+                    10 seconds only
+                    to roll the
+                    cowries.
                   </p>
                 </div>
 
@@ -1357,14 +1759,15 @@ function AshteKashte() {
                   </strong>
 
                   <h3>
-                    CAPTURE
+                    MOVE
                   </h3>
 
                   <p>
-                    Land on an opponent
-                    outside a safe cell
-                    to send that piece
-                    back home.
+                    After rolling,
+                    the timer stops.
+                    Take your time
+                    to select and
+                    move a goti.
                   </p>
                 </div>
 
@@ -1374,13 +1777,15 @@ function AshteKashte() {
                   </strong>
 
                   <h3>
-                    INNER SQUARE
+                    COWRIES
                   </h3>
 
                   <p>
-                    Capture an opponent
-                    before entering the
-                    restricted inner path.
+                    3B1W=1,
+                    2B2W=2,
+                    1B3W=3,
+                    4W=4,
+                    4B=8.
                   </p>
                 </div>
 
@@ -1394,21 +1799,20 @@ function AshteKashte() {
                   </h3>
 
                   <p>
-                    Move all four of your
-                    pieces through the
-                    final path to WIN.
+                    Bring all
+                    four gotis to
+                    the center X.
                   </p>
                 </div>
 
               </div>
 
             </div>
+
           </div>
         )}
 
-        {/* ==================================================
-            WIN MODAL
-        ================================================== */}
+        {/* WIN */}
 
         {game.status ===
           GAME_STATUS.WON && (
@@ -1421,24 +1825,27 @@ function AshteKashte() {
               </div>
 
               <span>
-                BATTLEFIELD COMPLETE
+                GAME COMPLETE
               </span>
 
               <h2>
-                {game.winner !== null
-                  ? PLAYERS[
-                      game.winner
-                    ]?.name
-                  : "WINNER"}
+                {
+                  game.players[
+                    game.winner
+                  ]?.name
+                }
               </h2>
 
               <p>
-                All four pieces reached
-                the WIN zone.
+                All four gotis
+                reached the
+                center X.
               </p>
 
               <button
-                onClick={resetGame}
+                onClick={
+                  resetGame
+                }
               >
                 PLAY AGAIN
               </button>

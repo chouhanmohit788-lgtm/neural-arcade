@@ -9,9 +9,14 @@ import {
   Target,
   Zap,
   Info,
+  Lightbulb,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 
 import "./LogicLock.css";
+
+const MAX_LEVEL = 20;
 
 const initialStats = {
   level: 1,
@@ -76,18 +81,84 @@ const QUESTIONS = [
     options: ["Triangle", "Square", "Circle", "Rectangle"],
     answer: "Circle",
     explanation: "Circle has no straight sides.",
+  },,
+  {
+    question: "If 5 machines make 5 items in 5 minutes, how long would 1 machine take to make 1 item?",
+    options: ["1 minute", "5 minutes", "10 minutes", "25 minutes"],
+    answer: "5 minutes",
+    explanation: "Each machine makes one item in 5 minutes.",
   },
+  {
+    question: "Find the missing number: 2, 5, 10, 17, 26, ?",
+    options: [35, 36, 37, 38],
+    answer: 37,
+    explanation: "Add consecutive odd numbers: +3, +5, +7, +9, +11.",
+  },
+  {
+    question: "If BOOK is coded as CPPL, how is GAME coded?",
+    options: ["HBNF", "HBMF", "FZLD", "HANE"],
+    answer: "HBNF",
+    explanation: "Every letter moves one position forward.",
+  },
+  {
+    question: "Which number is the odd one out?",
+    options: [16, 25, 36, 48],
+    answer: 48,
+    explanation: "16, 25 and 36 are perfect squares; 48 is not.",
+  },
+  {
+    question: "If NORTH becomes SOUTH after a 180° rotation, what happens to EAST?",
+    options: ["WEST", "NORTH", "SOUTH", "EAST"],
+    answer: "WEST",
+    explanation: "A 180° rotation reverses every direction.",
+  },
+  {
+    question: "Complete the pattern: 1, 4, 9, 16, 25, ?",
+    options: [30, 36, 40, 49],
+    answer: 36,
+    explanation: "These are consecutive square numbers.",
+  },
+  {
+    question: "Three boxes are labeled APPLES, ORANGES and MIXED, but every label is wrong. Which box should you pick from first?",
+    options: ["APPLES", "ORANGES", "MIXED", "Any box"],
+    answer: "MIXED",
+    explanation: "Because its label is wrong, the MIXED box cannot be mixed.",
+  },
+  {
+    question: "If 8 workers finish a task in 12 days, how many worker-days are needed?",
+    options: [20, 48, 96, 120],
+    answer: 96,
+    explanation: "8 × 12 = 96 worker-days.",
+  },
+  {
+    question: "What comes next: A, C, F, J, O, ?",
+    options: ["T", "U", "V", "W"],
+    answer: "U",
+    explanation: "The gaps increase: +2, +3, +4, +5, +6.",
+  },
+  {
+    question: "A room has 4 corners. One cat sits in each corner and each cat sees 3 cats. How many cats are there?",
+    options: [3, 4, 8, 12],
+    answer: 4,
+    explanation: "Each of the 4 cats can see the other 3.",
+  },
+  {
+    question: "If 12 is half of 24, what is one quarter of 40?",
+    options: [5, 8, 10, 12],
+    answer: 10,
+    explanation: "40 ÷ 4 = 10.",
+  }
 ];
 
 function getQuestionsForLevel(level) {
-  const shift =
-    (level - 1) % QUESTIONS.length;
-
-  return QUESTIONS.map((_, index) => {
-    return QUESTIONS[
-      (index + shift) % QUESTIONS.length
-    ];
+  const shift = (level - 1) % QUESTIONS.length;
+  const rotation = QUESTIONS.map((_, index) => {
+    return QUESTIONS[(index + shift) % QUESTIONS.length];
   });
+
+  // Higher levels increase the cognitive pressure by rotating
+  // the question order while keeping the same verified question bank.
+  return rotation;
 }
 
 export default function LogicLock() {
@@ -123,6 +194,15 @@ export default function LogicLock() {
 
   const [gameStarted, setGameStarted] =
     useState(false);
+
+  const [isFullscreen, setIsFullscreen] =
+    useState(false);
+
+  const [hintUsed, setHintUsed] =
+    useState(false);
+
+  const [hintText, setHintText] =
+    useState("");
   const [gameOver, setGameOver] =
     useState(false);
 
@@ -154,13 +234,15 @@ export default function LogicLock() {
         );
 
   const difficulty =
-    level <= 2
+    level <= 3
       ? "EASY"
-      : level <= 5
+      : level <= 7
         ? "MEDIUM"
-        : level <= 8
+        : level <= 12
           ? "HARD"
-          : "EXTREME";
+          : level <= 16
+            ? "EXTREME"
+            : "NEURAL OVERLOAD";
 
   const questionsForLevel =
     getQuestionsForLevel(level);
@@ -191,6 +273,67 @@ export default function LogicLock() {
     correct,
     attempts,
   ]);
+
+  /* =========================
+     FULLSCREEN + HINT
+  ========================= */
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Browser may block fullscreen.
+    }
+  }
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener(
+      "fullscreenchange",
+      handleFullscreenChange
+    );
+
+    return () =>
+      document.removeEventListener(
+        "fullscreenchange",
+        handleFullscreenChange
+      );
+  }, []);
+
+  function useHint() {
+    if (
+      !gameStarted ||
+      gameOver ||
+      showResult ||
+      !question ||
+      hintUsed
+    ) {
+      return;
+    }
+
+    setHintUsed(true);
+    setTimeLeft((prev) => Math.max(1, prev - 3));
+
+    const answer = String(question.answer);
+    const explanation = question.explanation;
+
+    setHintText(
+      `HINT: Think about "${answer.length > 4 ? answer.slice(0, 2) + "…" : answer}" // ${explanation}`
+    );
+
+    setMessage("HINT USED // -3 SECONDS");
+
+    setTimeout(() => {
+      setHintText("");
+    }, 4500);
+  }
 
   /* =========================
      TIMER
@@ -237,6 +380,8 @@ export default function LogicLock() {
     setQuestion(current);
     setSelectedAnswer(null);
     setShowResult(false);
+    setHintUsed(false);
+    setHintText("");
 
     setTimeLeft(
       Math.max(7, 16 - level)
@@ -320,8 +465,8 @@ export default function LogicLock() {
     const earnedXp =
       xp + 14 + newCombo * 2;
 
-    if (earnedXp >= 100) {
-      setLevel((prev) => prev + 1);
+    if (earnedXp >= 100 && level < MAX_LEVEL) {
+      setLevel((prev) => Math.min(prev + 1, MAX_LEVEL));
       setXp(earnedXp - 100);
 
       setMessage(
@@ -404,7 +549,7 @@ export default function LogicLock() {
   }
 
   return (
-    <div className="logic-page">
+    <div className={`logic-page ${isFullscreen ? "logic-fullscreen-mode" : ""}`}>
 
       {/* HEADER */}
 
@@ -431,13 +576,32 @@ export default function LogicLock() {
 
         </div>
 
-        <button
-          className="logic-reset"
-          onClick={resetGame}
-        >
-          <RotateCcw size={15} />
-          RESET
-        </button>
+        <div className="logic-header-actions">
+          <button
+            className="logic-reset"
+            onClick={resetGame}
+          >
+            <RotateCcw size={15} />
+            RESET
+          </button>
+
+          <button
+            className="logic-fullscreen"
+            onClick={toggleFullscreen}
+            title={
+              isFullscreen
+                ? "Exit fullscreen"
+                : "Enter fullscreen"
+            }
+          >
+            {isFullscreen ? (
+              <Minimize size={15} />
+            ) : (
+              <Maximize size={15} />
+            )}
+            {isFullscreen ? "EXIT" : "FULLSCREEN"}
+          </button>
+        </div>
 
       </header>
 
@@ -706,12 +870,32 @@ export default function LogicLock() {
 
               </div>
 
+              <div className="logic-action-row">
+                <button
+                  className="logic-hint-button"
+                  onClick={useHint}
+                  disabled={hintUsed}
+                  title="Use one hint for this question"
+                >
+                  <Lightbulb size={15} />
+                  {hintUsed ? "HINT USED" : "HINT"}
+                </button>
+
+                <span className="logic-hint-cost">
+                  -3 SEC
+                </span>
+              </div>
+
+              {hintText && (
+                <div className="logic-hint-box">
+                  <Lightbulb size={15} />
+                  <span>{hintText}</span>
+                </div>
+              )}
+
               <div className="logic-live-message">
-
                 <span />
-
                 {message}
-
               </div>
 
             </div>
@@ -779,7 +963,7 @@ export default function LogicLock() {
         <div>
           <Zap size={15} />
           <span>
-            COMBO x{combo}
+            LEVEL {level}/{MAX_LEVEL} // COMBO x{combo}
           </span>
         </div>
 

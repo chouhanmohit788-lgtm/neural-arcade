@@ -892,3 +892,161 @@
     gap: 10px;
   }
 }
+
+/* =========================
+   HEADER ACTIONS / FULLSCREEN
+========================= */
+
+.logic-header-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.logic-fullscreen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  border: 1px solid rgba(85, 210, 255, 0.16);
+  border-radius: 9px;
+  color: #73d9ff;
+  background: rgba(85, 210, 255, 0.035);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logic-fullscreen:hover {
+  color: #fff;
+  border-color: rgba(85, 210, 255, 0.38);
+  background: rgba(85, 210, 255, 0.08);
+  box-shadow: 0 0 22px rgba(85, 210, 255, 0.12);
+}
+
+.logic-fullscreen-mode {
+  max-width: none;
+  min-height: 100vh;
+  padding: 24px 40px 40px;
+}
+
+.logic-fullscreen-mode .logic-game-panel {
+  min-height: calc(100vh - 430px);
+}
+
+/* =========================
+   HINT SYSTEM
+========================= */
+
+.logic-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 17px;
+}
+
+.logic-hint-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 204, 51, 0.2);
+  border-radius: 8px;
+  color: #ffcc33;
+  background: rgba(255, 204, 51, 0.045);
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.logic-hint-button:hover:not(:disabled) {
+  color: #111008;
+  background: #ffcc33;
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(255, 204, 51, 0.2);
+}
+
+.logic-hint-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.logic-hint-cost {
+  color: #59667d;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.logic-hint-box {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 10px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255, 204, 51, 0.16);
+  border-radius: 9px;
+  color: #b7a86b;
+  background: rgba(255, 204, 51, 0.035);
+  font-size: 9px;
+  line-height: 1.55;
+  text-align: left;
+  animation: hintReveal 0.25s ease-out;
+}
+
+.logic-hint-box svg {
+  flex-shrink: 0;
+  color: #ffcc33;
+}
+
+@keyframes hintReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1000px) {
+  .logic-header-actions {
+    justify-self: center;
+  }
+
+  .logic-fullscreen-mode {
+    padding: 20px 24px 35px;
+  }
+}
+
+@media (max-width: 650px) {
+  .logic-header-actions {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .logic-fullscreen-mode {
+    padding: 14px 10px 25px;
+  }
+
+  .logic-fullscreen-mode .logic-game-panel {
+    min-height: 400px;
+  }
+}

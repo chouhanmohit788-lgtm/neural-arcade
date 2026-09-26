@@ -11,6 +11,8 @@ import {
   Lightbulb,
   LockKeyhole,
   CheckCircle2,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 
 import "./CircuitBreaker.css";
@@ -114,21 +116,49 @@ const GRID_LEVELS = [
     time: 110,
     maxMoves: 55,
     path: [
-      [5, 0],
-      [4, 0],
-      [3, 0],
-      [3, 1],
-      [3, 2],
-      [2, 2],
-      [1, 2],
-      [1, 3],
-      [1, 4],
-      [2, 4],
-      [3, 4],
-      [4, 4],
-      [4, 5],
-      [5, 5],
+      [5, 0], [4, 0], [3, 0], [3, 1], [3, 2], [2, 2], [1, 2],
+      [1, 3], [1, 4], [2, 4], [3, 4], [4, 4], [4, 5], [5, 5],
     ],
+  },
+  {
+    level: 6, rows: 6, cols: 6, time: 105, maxMoves: 52,
+    path: [[0,0],[0,1],[0,2],[1,2],[2,2],[2,3],[2,4],[3,4],[4,4],[4,5],[5,5]],
+  },
+  {
+    level: 7, rows: 6, cols: 6, time: 100, maxMoves: 50,
+    path: [[5,0],[4,0],[3,0],[3,1],[3,2],[3,3],[2,3],[1,3],[1,4],[1,5],[2,5],[3,5]],
+  },
+  {
+    level: 8, rows: 7, cols: 7, time: 120, maxMoves: 65,
+    path: [[0,0],[0,1],[0,2],[0,3],[1,3],[2,3],[2,4],[2,5],[3,5],[4,5],[4,6],[5,6],[6,6]],
+  },
+  {
+    level: 9, rows: 7, cols: 7, time: 115, maxMoves: 62,
+    path: [[6,0],[5,0],[4,0],[4,1],[4,2],[3,2],[2,2],[2,3],[2,4],[3,4],[4,4],[5,4],[5,5],[5,6]],
+  },
+  {
+    level: 10, rows: 7, cols: 7, time: 110, maxMoves: 60,
+    path: [[0,6],[1,6],[2,6],[2,5],[2,4],[3,4],[4,4],[4,3],[4,2],[5,2],[6,2],[6,1],[6,0]],
+  },
+  {
+    level: 11, rows: 7, cols: 7, time: 105, maxMoves: 58,
+    path: [[6,6],[5,6],[4,6],[4,5],[4,4],[3,4],[2,4],[2,3],[1,3],[0,3],[0,2],[0,1],[0,0]],
+  },
+  {
+    level: 12, rows: 8, cols: 8, time: 125, maxMoves: 72,
+    path: [[0,0],[0,1],[1,1],[2,1],[2,2],[2,3],[3,3],[4,3],[4,4],[4,5],[5,5],[6,5],[6,6],[7,6],[7,7]],
+  },
+  {
+    level: 13, rows: 8, cols: 8, time: 120, maxMoves: 70,
+    path: [[7,0],[6,0],[5,0],[5,1],[5,2],[4,2],[3,2],[3,3],[3,4],[2,4],[1,4],[1,5],[1,6],[2,6],[3,6],[4,6],[4,7]],
+  },
+  {
+    level: 14, rows: 8, cols: 8, time: 115, maxMoves: 68,
+    path: [[0,7],[0,6],[0,5],[1,5],[2,5],[2,4],[2,3],[3,3],[4,3],[5,3],[5,2],[5,1],[6,1],[7,1],[7,0]],
+  },
+  {
+    level: 15, rows: 8, cols: 8, time: 110, maxMoves: 66,
+    path: [[7,7],[6,7],[5,7],[5,6],[5,5],[4,5],[3,5],[3,4],[3,3],[2,3],[1,3],[1,2],[1,1],[0,1],[0,0]],
   },
 ];
 
@@ -541,6 +571,11 @@ export default function CircuitBreaker() {
       "CONNECT POWER TO THE NEURAL CORE"
     );
 
+  const [hintUsed, setHintUsed] = useState(false);
+  const [hintText, setHintText] = useState("");
+  const [hintTileIndex, setHintTileIndex] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   const currentLevel =
     GRID_LEVELS[
       Math.min(
@@ -633,6 +668,9 @@ export default function CircuitBreaker() {
     );
 
     setRoundComplete(false);
+    setHintUsed(false);
+    setHintText("");
+    setHintTileIndex(null);
 
     setGameComplete(false);
 
@@ -815,6 +853,9 @@ export default function CircuitBreaker() {
     setGameComplete(false);
 
     setRoundComplete(false);
+    setHintUsed(false);
+    setHintText("");
+    setHintTileIndex(null);
 
     setMoves(0);
 
@@ -826,6 +867,50 @@ export default function CircuitBreaker() {
       "READY TO POWER THE NEURAL CORE"
     );
   }
+
+  function useHint() {
+    if (!gameStarted || roundComplete || gameComplete || hintUsed) return;
+
+    // Give exactly ONE actionable hint: one tile + the direction it needs.
+    const candidates = board
+      .map((tile, index) => ({ tile, index }))
+      .filter(({ tile }) => tile.mask !== tile.solutionMask);
+
+    if (!candidates.length) return;
+
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    const turns = (pick.tile.rotation - 0 + 4) % 4;
+    const neededTurns = (4 - turns) % 4;
+    const instruction = neededTurns === 0
+      ? "leave this tile as it is"
+      : `rotate this tile ${neededTurns} time${neededTurns > 1 ? "s" : ""} clockwise`;
+
+    setHintUsed(true);
+    setHintTileIndex(pick.index);
+    setHintText(`HINT: Tile ${pick.tile.row + 1}, ${pick.tile.col + 1} — ${instruction}.`);
+    setTimeLeft((previous) => Math.max(1, previous - 5));
+    setMessage("HINT USED // -5 SECONDS");
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    }
+  }
+
+  useEffect(() => {
+    const handleFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", handleFullscreen);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreen);
+  }, []);
 
   function getTileLines(mask) {
     const lines = [];
@@ -892,13 +977,23 @@ export default function CircuitBreaker() {
 
         </div>
 
-        <button
-          className="circuit-reset"
-          onClick={resetGame}
-        >
-          <RotateCcw size={15} />
-          RESET
-        </button>
+        <div className="circuit-header-actions">
+          <button
+            className="circuit-reset"
+            onClick={resetGame}
+          >
+            <RotateCcw size={15} />
+            RESET
+          </button>
+          <button
+            className="circuit-fullscreen"
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+            {isFullscreen ? "EXIT" : "FULLSCREEN"}
+          </button>
+        </div>
 
       </header>
 
@@ -1174,6 +1269,7 @@ export default function CircuitBreaker() {
                       <button
                         key={tile.id}
                         className={`circuit-tile ${
+                          hintTileIndex === index ? "hint-tile" : ""} ${
                           isSource
                             ? "source-tile"
                             : ""
@@ -1237,15 +1333,27 @@ export default function CircuitBreaker() {
 
               </div>
 
-              <div className="circuit-hint">
-
-                <Lightbulb size={15} />
-
-                <span>
-                  CLICK A TILE TO ROTATE IT
-                </span>
-
+              <div className="circuit-hint-row">
+                <div className="circuit-hint">
+                  <Lightbulb size={15} />
+                  <span>ONE HINT REVEALS ONE TILE ONLY</span>
+                </div>
+                <button
+                  className="circuit-hint-button"
+                  onClick={useHint}
+                  disabled={hintUsed}
+                >
+                  <Lightbulb size={14} />
+                  {hintUsed ? "HINT USED" : "USE HINT"}
+                </button>
               </div>
+
+              {hintText && (
+                <div className="circuit-hint-message">
+                  <Lightbulb size={14} />
+                  <span>{hintText}</span>
+                </div>
+              )}
 
               <div className="circuit-live-message">
                 <span />
@@ -1351,7 +1459,7 @@ export default function CircuitBreaker() {
               <div>
                 <small>LEVEL</small>
                 <strong>
-                  05
+                  15
                 </strong>
               </div>
 
@@ -1402,7 +1510,7 @@ export default function CircuitBreaker() {
         <div>
           <LockKeyhole size={15} />
           <span>
-            LEVEL {level}/5
+            LEVEL {level}/{GRID_LEVELS.length}
           </span>
         </div>
 

@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 
 import MainLayout from "./components/layout/MainLayout";
@@ -27,6 +28,7 @@ import NeuralLabyrinth from "./game/NeuralLabyrinth/NeuralLabyrinth";
 import NeuralGamble from "./game/NeuralGamble/NeuralGamble";
 import AshteKashte from "./game/AshteKashte/AshteKashte";
 import NeuralBoxes from "./game/NeuralBoxes/NeuralBoxes";
+import NeuralDrive from "./game/NeuralDrive/NeuralDrive";
 
 /* =========================================================
    GAMES DATA
@@ -125,16 +127,6 @@ const games = [
   },
   {
     number: "10",
-    title: "Ashte Kashte",
-    description:
-      "Play the traditional Indian board game with cowrie throws, tokens, captures and home.",
-    difficulty: "TRADITIONAL",
-    color: "#d99b52",
-    path: "/ashte-kashte",
-    icon: "♟",
-  },
-  {
-    number: "11",
     title: "Neural Boxes",
     description:
       "Push every box onto its target while solving increasingly difficult puzzle levels.",
@@ -151,6 +143,22 @@ const games = [
 
 function Games() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const search =
+    searchParams.get("search")?.toLowerCase().trim() || "";
+
+  const filteredGames = games.filter((game) => {
+    if (!search) {
+      return true;
+    }
+
+    return (
+      game.title.toLowerCase().includes(search) ||
+      game.description.toLowerCase().includes(search) ||
+      game.difficulty.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <div
@@ -207,126 +215,212 @@ function Games() {
         </p>
       </section>
 
-      <section
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(245px, 1fr))",
-          gap: "18px",
-        }}
-      >
-        {games.map((game) => (
-          <article
-            key={game.path}
+      {search && (
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto 20px",
+            color: "#728096",
+            fontSize: "12px",
+          }}
+        >
+          Searching for:{" "}
+          <span
             style={{
-              minHeight: "275px",
-              padding: "22px",
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: "15px",
-              border: `1px solid ${game.color}22`,
-              background:
-                "linear-gradient(145deg, rgba(10,17,26,.96), rgba(5,9,15,.98))",
+              color: "#ff7900",
+              fontWeight: 800,
             }}
           >
-            <div
+            "{search}"
+          </span>
+
+          <span style={{ marginLeft: "10px" }}>
+            — {filteredGames.length} game
+            {filteredGames.length !== 1 ? "s" : ""} found
+          </span>
+        </div>
+      )}
+
+      {filteredGames.length > 0 ? (
+        <section
+          style={{
+            maxWidth: "1200px",
+            margin: "0 auto",
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(245px, 1fr))",
+            gap: "18px",
+          }}
+        >
+          {filteredGames.map((game) => (
+            <article
+              key={game.path}
               style={{
+                minHeight: "275px",
+                padding: "22px",
                 display: "flex",
-                justifyContent: "space-between",
-                marginBottom: "22px",
+                flexDirection: "column",
+                borderRadius: "15px",
+                border: `1px solid ${game.color}22`,
+                background:
+                  "linear-gradient(145deg, rgba(10,17,26,.96), rgba(5,9,15,.98))",
               }}
             >
               <div
                 style={{
-                  width: "48px",
-                  height: "48px",
-                  display: "grid",
-                  placeItems: "center",
-                  borderRadius: "12px",
-                  color: game.color,
-                  background: `${game.color}10`,
-                  border: `1px solid ${game.color}30`,
-                  fontSize: "24px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginBottom: "22px",
                 }}
               >
-                {game.icon}
+                <div
+                  style={{
+                    width: "48px",
+                    height: "48px",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: "12px",
+                    color: game.color,
+                    background: `${game.color}10`,
+                    border: `1px solid ${game.color}30`,
+                    fontSize: "24px",
+                  }}
+                >
+                  {game.icon}
+                </div>
+
+                <span
+                  style={{
+                    color: "#4e5c6f",
+                    fontSize: "9px",
+                    fontWeight: 900,
+                  }}
+                >
+                  {game.number}
+                </span>
               </div>
 
-              <span
+              <h2
                 style={{
-                  color: "#4e5c6f",
-                  fontSize: "9px",
-                  fontWeight: 900,
+                  margin: "0 0 9px",
+                  color: "#ffffff",
+                  fontSize: "20px",
                 }}
               >
-                {game.number}
-              </span>
-            </div>
+                {game.title}
+              </h2>
 
-            <h2
-              style={{
-                margin: "0 0 9px",
-                color: "#ffffff",
-                fontSize: "20px",
-              }}
-            >
-              {game.title}
-            </h2>
-
-            <p
-              style={{
-                margin: 0,
-                color: "#68778a",
-                fontSize: "11px",
-                lineHeight: 1.7,
-              }}
-            >
-              {game.description}
-            </p>
-
-            <div
-              style={{
-                marginTop: "auto",
-                paddingTop: "22px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <span
+              <p
                 style={{
-                  padding: "6px 9px",
-                  borderRadius: "6px",
-                  color: game.color,
-                  background: `${game.color}0d`,
-                  fontSize: "8px",
-                  fontWeight: 900,
+                  margin: 0,
+                  color: "#68778a",
+                  fontSize: "11px",
+                  lineHeight: 1.7,
                 }}
               >
-                {game.difficulty}
-              </span>
+                {game.description}
+              </p>
 
-              <button
-                onClick={() => navigate(game.path)}
+              <div
                 style={{
-                  padding: "9px 13px",
-                  border: "none",
-                  borderRadius: "7px",
-                  background: "#ff7900",
-                  color: "#080b10",
-                  fontSize: "9px",
-                  fontWeight: 900,
-                  cursor: "pointer",
+                  marginTop: "auto",
+                  paddingTop: "22px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
-                PLAY NOW →
-              </button>
-            </div>
-          </article>
-        ))}
-      </section>
+                <span
+                  style={{
+                    padding: "6px 9px",
+                    borderRadius: "6px",
+                    color: game.color,
+                    background: `${game.color}0d`,
+                    fontSize: "8px",
+                    fontWeight: 900,
+                  }}
+                >
+                  {game.difficulty}
+                </span>
+
+                <button
+                  onClick={() => navigate(game.path)}
+                  style={{
+                    padding: "9px 13px",
+                    border: "none",
+                    borderRadius: "7px",
+                    background: "#ff7900",
+                    color: "#080b10",
+                    fontSize: "9px",
+                    fontWeight: 900,
+                    cursor: "pointer",
+                  }}
+                >
+                  PLAY NOW →
+                </button>
+              </div>
+            </article>
+          ))}
+        </section>
+      ) : (
+        <div
+          style={{
+            maxWidth: "1200px",
+            margin: "60px auto",
+            textAlign: "center",
+            padding: "60px 20px",
+            borderRadius: "15px",
+            border: "1px solid rgba(255,121,0,.15)",
+            background:
+              "linear-gradient(145deg, rgba(10,17,26,.96), rgba(5,9,15,.98))",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "42px",
+              marginBottom: "15px",
+            }}
+          >
+            🔍
+          </div>
+
+          <h2
+            style={{
+              margin: "0 0 10px",
+              color: "#ffffff",
+            }}
+          >
+            NO GAME FOUND
+          </h2>
+
+          <p
+            style={{
+              margin: 0,
+              color: "#68778a",
+              fontSize: "13px",
+            }}
+          >
+            Try searching for Memory, Logic, Circuit,
+            Maze or another game.
+          </p>
+
+          <button
+            onClick={() => navigate("/games")}
+            style={{
+              marginTop: "22px",
+              padding: "10px 18px",
+              border: "none",
+              borderRadius: "7px",
+              background: "#ff7900",
+              color: "#080b10",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            SHOW ALL GAMES
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -452,6 +546,13 @@ function App() {
           <Route
             path="/neural-boxes"
             element={<NeuralBoxes />}
+          />
+
+          {/* NEURAL DRIVE */}
+
+          <Route
+            path="/neural-drive"
+            element={<NeuralDrive />}
           />
 
           {/* PROFILE */}

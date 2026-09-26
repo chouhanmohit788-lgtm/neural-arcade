@@ -1,96 +1,143 @@
 // ============================================================
-// ASHTE KASHTE - GAME LOGIC
+// ASHTE KASHTE
+// GAME LOGIC
 // ============================================================
 
 import {
   COIN_VALUES,
   HOME_ENTRY_VALUES,
-  HOME_POSITIONS,
-  INNER_PATHS,
-  OUTER_PATH,
-  PLAYER_START_INDEX,
+  PLAYERS,
+  PIECES_PER_PLAYER,
   REQUIRED_FINISHED_PIECES,
-  SAFE_CELLS,
-  getAbsolutePathIndex,
 } from "./boardConfig";
 
 // ============================================================
-// CONSTANTS
+// PIECE STATUS
 // ============================================================
 
 export const PIECE_STATUS = {
-  HOME: "home",
-  OUTER: "outer",
-  INNER: "inner",
-  FINISHED: "finished",
-};
-
-export const GAME_STATUS = {
-  READY: "ready",
-  PLAYING: "playing",
-  WON: "won",
+  HOME: "HOME",
+  ACTIVE: "ACTIVE",
+  FINISHED: "FINISHED",
 };
 
 // ============================================================
-// CREATE COINS
+// GAME STATUS
+// ============================================================
+
+export const GAME_STATUS = {
+  SETUP: "SETUP",
+  PLAYING: "PLAYING",
+  WON: "WON",
+};
+
+// ============================================================
+// ROUTES
 //
-// Returns exactly four coins.
-// black / white
+// Each player has a route around the cross.
+// The center is the final destination.
+//
+// This is kept separate so movement logic can be
+// changed later without changing the UI.
+// ============================================================
+
+const PLAYER_ROUTES = {
+  0: [
+    [4, 2],
+    [3, 2],
+    [2, 2],
+  ],
+
+  1: [
+    [2, 0],
+    [2, 1],
+    [2, 2],
+  ],
+
+  2: [
+    [0, 2],
+    [1, 2],
+    [2, 2],
+  ],
+
+  3: [
+    [2, 4],
+    [2, 3],
+    [2, 2],
+  ],
+};
+
+// ============================================================
+// CREATE COWRIES
 // ============================================================
 
 export function createCoinThrow() {
   return Array.from(
     { length: 4 },
-    () => (Math.random() < 0.5 ? "black" : "white")
+    () =>
+      Math.random() < 0.5
+        ? "black"
+        : "white"
   );
 }
 
 // ============================================================
-// CALCULATE COIN SCORE
-//
-// 3 Black + 1 White = 1
-// 2 Black + 2 White = 2
-// 1 Black + 3 White = 3
-// 4 White          = 4
-// 4 Black          = 8
+// SCORE
 // ============================================================
 
-export function calculateCoinScore(coins = []) {
+export function calculateCoinScore(
+  coins = []
+) {
   if (coins.length !== 4) {
     return 0;
   }
 
-  const blackCount = coins.filter(
-    (coin) => coin === "black"
-  ).length;
+  const black =
+    coins.filter(
+      (coin) =>
+        coin === "black"
+    ).length;
 
-  const whiteCount = coins.filter(
-    (coin) => coin === "white"
-  ).length;
+  const white =
+    coins.filter(
+      (coin) =>
+        coin === "white"
+    ).length;
 
-  const combination = `${blackCount}B${whiteCount}W`;
-
-  return COIN_VALUES[combination] ?? 0;
+  return (
+    COIN_VALUES[
+      `${black}B${white}W`
+    ] ?? 0
+  );
 }
 
 // ============================================================
-// COIN RESULT LABEL
+// COMBINATION
 // ============================================================
 
-export function getCoinCombination(coins = []) {
-  const blackCount = coins.filter(
-    (coin) => coin === "black"
-  ).length;
+export function getCoinCombination(
+  coins = []
+) {
+  const black =
+    coins.filter(
+      (coin) =>
+        coin === "black"
+    ).length;
 
-  const whiteCount = coins.filter(
-    (coin) => coin === "white"
-  ).length;
+  const white =
+    coins.filter(
+      (coin) =>
+        coin === "white"
+    ).length;
 
   return {
-    black: blackCount,
-    white: whiteCount,
-    label: `${blackCount} BLACK + ${whiteCount} WHITE`,
-    score: calculateCoinScore(coins),
+    black,
+    white,
+    score:
+      calculateCoinScore(coins),
+    label:
+      `${black} BLACK + ` +
+      `${white} WHITE`,
   };
 }
 
@@ -98,21 +145,23 @@ export function getCoinCombination(coins = []) {
 // CREATE PIECE
 // ============================================================
 
-export function createPiece(playerId, pieceIndex) {
+export function createPiece(
+  playerId,
+  index
+) {
   return {
-    id: `${playerId}-${pieceIndex}`,
+    id:
+      `${playerId}-${index}`,
+
     playerId,
-    index: pieceIndex,
 
-    status: PIECE_STATUS.HOME,
+    index,
 
-    // Position on outer path.
-    pathIndex: -1,
+    status:
+      PIECE_STATUS.HOME,
 
-    // Position on player's private inner path.
-    innerIndex: -1,
+    progress: -1,
 
-    // Number of opponent captures made by this piece.
     captures: 0,
   };
 }
@@ -121,17 +170,36 @@ export function createPiece(playerId, pieceIndex) {
 // CREATE PLAYER
 // ============================================================
 
-export function createPlayer(player, pieceCount = 4) {
+export function createPlayer(
+  player,
+  customName,
+  customColor
+) {
   return {
     ...player,
 
+    name:
+      customName ||
+      player.name,
+
+    color:
+      customColor ||
+      player.color,
+
     pieces: Array.from(
-      { length: pieceCount },
+      {
+        length:
+          PIECES_PER_PLAYER,
+      },
       (_, index) =>
-        createPiece(player.id, index)
+        createPiece(
+          player.id,
+          index
+        )
     ),
 
     captured: 0,
+
     finished: 0,
   };
 }
@@ -140,17 +208,28 @@ export function createPlayer(player, pieceCount = 4) {
 // CREATE GAME
 // ============================================================
 
-export function createGame(players) {
+export function createGame(
+  playerConfigs = PLAYERS.slice(0, 4)
+) {
+  const players =
+    playerConfigs.map(
+      (player) =>
+        createPlayer(
+          player,
+          player.name,
+          player.color
+        )
+    );
+
   return {
-    status: GAME_STATUS.READY,
+    status:
+      GAME_STATUS.SETUP,
 
     currentPlayer: 0,
 
     turnNumber: 1,
 
-    players: players.map((player) =>
-      createPlayer(player)
-    ),
+    players,
 
     coins: [],
 
@@ -162,28 +241,62 @@ export function createGame(players) {
 
     winner: null,
 
-    message: "THROW THE FOUR COINS",
+    message:
+      "SETUP YOUR GAME",
+
+    consecutiveEight: 0,
+
+    extraTurn: false,
   };
 }
 
 // ============================================================
-// GET PLAYER
+// START GAME
 // ============================================================
 
-export function getPlayer(game, playerId) {
-  return game.players.find(
-    (player) => player.id === playerId
-  );
+export function startGame(
+  playerConfigs
+) {
+  const game =
+    createGame(
+      playerConfigs
+    );
+
+  return {
+    ...game,
+
+    status:
+      GAME_STATUS.PLAYING,
+
+    currentPlayer: 0,
+
+    message:
+      `${game.players[0].name}` +
+      " • ROLL COWRIES",
+
+    hasRolled: false,
+
+    coins: [],
+
+    score: 0,
+
+    consecutiveEight: 0,
+
+    extraTurn: false,
+  };
 }
 
 // ============================================================
-// GET CURRENT PLAYER
+// CURRENT PLAYER
 // ============================================================
 
-export function getCurrentPlayer(game) {
-  return getPlayer(
-    game,
-    game.currentPlayer
+export function getCurrentPlayer(
+  game
+) {
+  return (
+    game.players[
+      game.currentPlayer
+    ] || null
   );
 }
 
@@ -191,710 +304,635 @@ export function getCurrentPlayer(game) {
 // GET PIECE
 // ============================================================
 
-export function getPiece(
+export function getPieceById(
   game,
-  playerId,
   pieceId
 ) {
-  const player = getPlayer(
-    game,
-    playerId
-  );
-
-  if (!player) {
-    return null;
-  }
-
-  return player.pieces.find(
-    (piece) => piece.id === pieceId
-  );
-}
-
-// ============================================================
-// CAN PIECE LEAVE HOME?
-//
-// According to the supplied rules:
-// 1, 4 or 8 allows entry.
-// ============================================================
-
-export function canEnterFromHome(score) {
-  return HOME_ENTRY_VALUES.includes(score);
-}
-
-// ============================================================
-// GET ABSOLUTE OUTER POSITION
-// ============================================================
-
-export function getPieceAbsolutePath(piece) {
-  if (
-    !piece ||
-    piece.status !== PIECE_STATUS.OUTER
+  for (
+    const player of game.players
   ) {
-    return -1;
-  }
+    const piece =
+      player.pieces.find(
+        (item) =>
+          item.id === pieceId
+      );
 
-  return getAbsolutePathIndex(
-    piece.playerId,
-    piece.pathIndex
-  );
-}
-
-// ============================================================
-// GET PIECE BOARD POSITION
-// ============================================================
-
-export function getPiecePosition(piece) {
-  if (!piece) {
-    return null;
-  }
-
-  if (piece.status === PIECE_STATUS.OUTER) {
-    const absoluteIndex =
-      getPieceAbsolutePath(piece);
-
-    return OUTER_PATH[absoluteIndex] ?? null;
-  }
-
-  if (piece.status === PIECE_STATUS.INNER) {
-    return (
-      INNER_PATHS[piece.playerId]?.[
-        piece.innerIndex
-      ] ?? null
-    );
-  }
-
-  if (piece.status === PIECE_STATUS.HOME) {
-    return (
-      HOME_POSITIONS[piece.playerId]?.[
-        piece.index
-      ] ?? null
-    );
+    if (piece) {
+      return piece;
+    }
   }
 
   return null;
 }
 
 // ============================================================
-// IS SAFE POSITION?
+// GET PIECE POSITION
 // ============================================================
 
-export function isSafePosition(
-  absolutePathIndex
+export function getPiecePosition(
+  piece
 ) {
-  return SAFE_CELLS.includes(
-    absolutePathIndex
-  );
-}
-
-// ============================================================
-// COUNT PIECES ON OUTER POSITION
-// ============================================================
-
-export function getPiecesAtOuterPosition(
-  game,
-  absolutePathIndex
-) {
-  const result = [];
-
-  game.players.forEach((player) => {
-    player.pieces.forEach((piece) => {
-      if (
-        piece.status === PIECE_STATUS.OUTER &&
-        getPieceAbsolutePath(piece) ===
-          absolutePathIndex
-      ) {
-        result.push(piece);
-      }
-    });
-  });
-
-  return result;
-}
-
-// ============================================================
-// CHECK IF PLAYER HAS CAPTURED AN OPPONENT
-//
-// Required before entering inner square.
-// ============================================================
-
-export function hasCapturedOpponent(player) {
-  return Boolean(
-    player && player.captured > 0
-  );
-}
-
-// ============================================================
-// INNER PATH ACCESS
-//
-// A piece must have captured an opponent before
-// it is allowed to enter its inner path.
-// ============================================================
-
-export function canEnterInnerPath(
-  player,
-  piece,
-  score
-) {
-  if (!player || !piece) {
-    return false;
+  if (!piece) {
+    return null;
   }
-
-  if (piece.status !== PIECE_STATUS.OUTER) {
-    return false;
-  }
-
-  if (!hasCapturedOpponent(player)) {
-    return false;
-  }
-
-  const remainingOuter =
-    OUTER_PATH.length - 1 - piece.pathIndex;
-
-  return score >= remainingOuter;
-}
-
-// ============================================================
-// CALCULATE OUTER MOVEMENT
-// ============================================================
-
-export function calculateOuterMove(
-  piece,
-  score
-) {
-  const newIndex =
-    piece.pathIndex + score;
-
-  if (newIndex < OUTER_PATH.length) {
-    return {
-      type: "outer",
-      pathIndex: newIndex,
-      innerIndex: -1,
-      status: PIECE_STATUS.OUTER,
-    };
-  }
-
-  const overflow =
-    newIndex - OUTER_PATH.length;
-
-  return {
-    type: "inner",
-    pathIndex:
-      OUTER_PATH.length - 1,
-    innerIndex: overflow,
-    status: PIECE_STATUS.INNER,
-  };
-}
-
-// ============================================================
-// CALCULATE INNER MOVEMENT
-// ============================================================
-
-export function calculateInnerMove(
-  piece,
-  score
-) {
-  const innerPath =
-    INNER_PATHS[piece.playerId] || [];
-
-  const newIndex =
-    piece.innerIndex + score;
 
   if (
-    newIndex >= innerPath.length
+    piece.status ===
+    PIECE_STATUS.HOME
   ) {
-    return {
-      type: "finished",
-      pathIndex: OUTER_PATH.length - 1,
-      innerIndex: innerPath.length,
-      status: PIECE_STATUS.FINISHED,
-    };
+    return null;
   }
 
-  return {
-    type: "inner",
-    pathIndex: piece.pathIndex,
-    innerIndex: newIndex,
-    status: PIECE_STATUS.INNER,
-  };
+  if (
+    piece.status ===
+    PIECE_STATUS.FINISHED
+  ) {
+    return [2, 2];
+  }
+
+  const route =
+    PLAYER_ROUTES[
+      piece.playerId
+    ];
+
+  if (!route) {
+    return null;
+  }
+
+  return (
+    route[piece.progress] ||
+    route[
+      route.length - 1
+    ]
+  );
 }
 
 // ============================================================
-// GET LEGAL MOVE
+// CAN OPEN
+// ============================================================
+
+export function canOpenPiece(
+  piece,
+  score
+) {
+  return (
+    piece.status ===
+      PIECE_STATUS.HOME &&
+    HOME_ENTRY_VALUES.includes(
+      score
+    )
+  );
+}
+
+// ============================================================
+// CAN MOVE
+// ============================================================
+
+export function canPieceMove(
+  game,
+  piece
+) {
+  if (!piece) {
+    return false;
+  }
+
+  if (
+    game.status !==
+    GAME_STATUS.PLAYING
+  ) {
+    return false;
+  }
+
+  if (
+    piece.playerId !==
+    game.currentPlayer
+  ) {
+    return false;
+  }
+
+  if (!game.hasRolled) {
+    return false;
+  }
+
+  if (
+    piece.status ===
+    PIECE_STATUS.FINISHED
+  ) {
+    return false;
+  }
+
+  if (
+    piece.status ===
+    PIECE_STATUS.HOME
+  ) {
+    return canOpenPiece(
+      piece,
+      game.score
+    );
+  }
+
+  const route =
+    PLAYER_ROUTES[
+      piece.playerId
+    ];
+
+  const newProgress =
+    piece.progress +
+    game.score;
+
+  return (
+    newProgress <
+    route.length
+  );
+}
+
+// ============================================================
+// LEGAL MOVE
 // ============================================================
 
 export function getLegalMove(
   game,
   piece
 ) {
-  if (!game || !piece) {
+  if (
+    game.status !==
+    GAME_STATUS.PLAYING
+  ) {
     return {
       legal: false,
-      reason: "INVALID PIECE",
+      reason:
+        "GAME HAS NOT STARTED",
     };
   }
 
-  if (game.status === GAME_STATUS.WON) {
+  if (
+    piece.playerId !==
+    game.currentPlayer
+  ) {
     return {
       legal: false,
-      reason: "GAME ALREADY WON",
-    };
-  }
-
-  if (piece.playerId !== game.currentPlayer) {
-    return {
-      legal: false,
-      reason: "NOT YOUR TURN",
+      reason:
+        "WAIT FOR YOUR TURN",
     };
   }
 
   if (!game.hasRolled) {
     return {
       legal: false,
-      reason: "THROW THE COINS FIRST",
+      reason:
+        "ROLL THE COWRIES FIRST",
     };
   }
 
-  if (piece.status === PIECE_STATUS.FINISHED) {
+  if (
+    piece.status ===
+    PIECE_STATUS.FINISHED
+  ) {
     return {
       legal: false,
-      reason: "PIECE ALREADY FINISHED",
+      reason:
+        "THIS PIECE IS FINISHED",
     };
   }
 
-  const score = game.score;
-
-  // ----------------------------------------------------------
-  // HOME
-  // ----------------------------------------------------------
-
-  if (piece.status === PIECE_STATUS.HOME) {
-    if (!canEnterFromHome(score)) {
-      return {
-        legal: false,
-        reason: "HOME REQUIRES 1, 4 OR 8",
-      };
-    }
-
-    return {
-      legal: true,
-      type: "enter",
-      pathIndex: 0,
-      innerIndex: -1,
-      status: PIECE_STATUS.OUTER,
-    };
-  }
-
-  // ----------------------------------------------------------
-  // OUTER
-  // ----------------------------------------------------------
-
-  if (piece.status === PIECE_STATUS.OUTER) {
-    const player =
-      getPlayer(game, piece.playerId);
-
-    const move =
-      calculateOuterMove(
-        piece,
-        score
-      );
-
-    // --------------------------------------------------------
-    // ENTERING INNER SQUARE
-    // --------------------------------------------------------
-
-    if (move.type === "inner") {
-      if (
-        !canEnterInnerPath(
-          player,
-          piece,
-          score
-        )
-      ) {
-        return {
-          legal: false,
-          reason:
-            "CAPTURE AN OPPONENT BEFORE ENTERING THE INNER SQUARE",
-        };
-      }
-    }
-
-    // Prevent overshooting the final WIN route.
+  if (
+    piece.status ===
+    PIECE_STATUS.HOME
+  ) {
     if (
-      move.type === "inner" &&
-      move.innerIndex >=
-        (INNER_PATHS[piece.playerId]
-          ?.length ?? 0)
+      !HOME_ENTRY_VALUES.includes(
+        game.score
+      )
     ) {
       return {
-        legal: true,
-        type: "finish",
-        ...move,
+        legal: false,
+        reason:
+          "THIS THROW CANNOT OPEN A PIECE",
       };
     }
 
     return {
       legal: true,
-      ...move,
+      opening: true,
+      distance: 1,
     };
   }
 
-  // ----------------------------------------------------------
-  // INNER
-  // ----------------------------------------------------------
+  const route =
+    PLAYER_ROUTES[
+      piece.playerId
+    ];
 
-  if (piece.status === PIECE_STATUS.INNER) {
-    const move =
-      calculateInnerMove(
-        piece,
-        score
-      );
+  const newProgress =
+    piece.progress +
+    game.score;
 
+  if (
+    newProgress >=
+    route.length
+  ) {
     return {
-      legal: true,
-      ...move,
+      legal: false,
+      reason:
+        "MOVE CANNOT PASS THE WIN POINT",
     };
   }
 
   return {
-    legal: false,
-    reason: "UNKNOWN PIECE STATE",
+    legal: true,
+    opening: false,
+    distance:
+      game.score,
   };
 }
 
 // ============================================================
-// APPLY PIECE MOVE
+// CAPTURE
+// ============================================================
+
+function performCapture(
+  players,
+  movingPiece
+) {
+  const position =
+    getPiecePosition(
+      movingPiece
+    );
+
+  if (!position) {
+    return {
+      players,
+      captured: false,
+    };
+  }
+
+  // Home/start cells are safe.
+  const safe =
+    [
+      [4, 2],
+      [2, 0],
+      [0, 2],
+      [2, 4],
+    ].some(
+      ([r, c]) =>
+        r === position[0] &&
+        c === position[1]
+    );
+
+  if (safe) {
+    return {
+      players,
+      captured: false,
+    };
+  }
+
+  let captured = false;
+
+  const updated =
+    players.map(
+      (player) => {
+        if (
+          player.id ===
+          movingPiece.playerId
+        ) {
+          return player;
+        }
+
+        const pieces =
+          player.pieces.map(
+            (piece) => {
+              const otherPosition =
+                getPiecePosition(
+                  piece
+                );
+
+              if (
+                otherPosition &&
+                otherPosition[0] ===
+                  position[0] &&
+                otherPosition[1] ===
+                  position[1]
+              ) {
+                captured = true;
+
+                return {
+                  ...piece,
+
+                  status:
+                    PIECE_STATUS.HOME,
+
+                  progress: -1,
+                };
+              }
+
+              return piece;
+            }
+          );
+
+        return {
+          ...player,
+
+          pieces,
+
+          captured:
+            captured
+              ? player.captured + 1
+              : player.captured,
+        };
+      }
+    );
+
+  return {
+    players: updated,
+    captured,
+  };
+}
+
+// ============================================================
+// APPLY MOVE
 // ============================================================
 
 export function applyPieceMove(
   game,
   pieceId
 ) {
-  const currentPlayer =
-    getCurrentPlayer(game);
-
-  if (!currentPlayer) {
-    return {
-      game,
-      success: false,
-      reason: "PLAYER NOT FOUND",
-    };
-  }
-
   const piece =
-    currentPlayer.pieces.find(
-      (item) => item.id === pieceId
+    getPieceById(
+      game,
+      pieceId
     );
 
   if (!piece) {
     return {
-      game,
       success: false,
-      reason: "PIECE NOT FOUND",
+      game,
+      message:
+        "PIECE NOT FOUND",
     };
   }
 
   const legal =
-    getLegalMove(game, piece);
+    getLegalMove(
+      game,
+      piece
+    );
 
   if (!legal.legal) {
     return {
-      game,
       success: false,
-      reason: legal.reason,
+      game,
+      message:
+        legal.reason,
     };
   }
 
-  const updatedPiece = {
-    ...piece,
-
-    status: legal.status,
-
-    pathIndex:
-      legal.pathIndex ?? piece.pathIndex,
-
-    innerIndex:
-      legal.innerIndex ?? piece.innerIndex,
-  };
-
-  let nextPlayers =
-    game.players.map((player) => {
-      if (
-        player.id !== currentPlayer.id
-      ) {
-        return player;
-      }
-
-      const nextPieces =
-        player.pieces.map(
-          (item) =>
-            item.id === pieceId
-              ? updatedPiece
-              : item
-        );
-
-      return {
+  let players =
+    game.players.map(
+      (player) => ({
         ...player,
-        pieces: nextPieces,
-        finished: nextPieces.filter(
-          (item) =>
-            item.status ===
-            PIECE_STATUS.FINISHED
-        ).length,
+
+        pieces:
+          player.pieces.map(
+            (item) =>
+              item.id ===
+              piece.id
+                ? { ...item }
+                : item
+          ),
+      })
+    );
+
+  let movedPiece;
+
+  // ----------------------------------------------------------
+  // OPEN HOME PIECE
+  // ----------------------------------------------------------
+
+  if (
+    piece.status ===
+    PIECE_STATUS.HOME
+  ) {
+    movedPiece = {
+      ...piece,
+
+      status:
+        PIECE_STATUS.ACTIVE,
+
+      progress: 0,
+    };
+  }
+
+  // ----------------------------------------------------------
+  // NORMAL MOVE
+  // ----------------------------------------------------------
+
+  else {
+    const route =
+      PLAYER_ROUTES[
+        piece.playerId
+      ];
+
+    const newProgress =
+      piece.progress +
+      game.score;
+
+    if (
+      newProgress ===
+      route.length - 1
+    ) {
+      movedPiece = {
+        ...piece,
+
+        status:
+          PIECE_STATUS.FINISHED,
+
+        progress:
+          newProgress,
       };
-    });
+    } else {
+      movedPiece = {
+        ...piece,
+
+        status:
+          PIECE_STATUS.ACTIVE,
+
+        progress:
+          newProgress,
+      };
+    }
+  }
+
+  players =
+    players.map(
+      (player) => ({
+        ...player,
+
+        pieces:
+          player.pieces.map(
+            (item) =>
+              item.id ===
+              piece.id
+                ? movedPiece
+                : item
+          ),
+      })
+    );
 
   // ----------------------------------------------------------
   // CAPTURE
   // ----------------------------------------------------------
 
-  let captureCount = 0;
-
-  if (
-    updatedPiece.status ===
-    PIECE_STATUS.OUTER
-  ) {
-    const absoluteIndex =
-      getPieceAbsolutePath(
-        updatedPiece
-      );
-
-    if (
-      !isSafePosition(
-        absoluteIndex
-      )
-    ) {
-      nextPlayers =
-        nextPlayers.map((player) => {
-          if (
-            player.id ===
-            currentPlayer.id
-          ) {
-            return player;
-          }
-
-          let capturedByPlayer = 0;
-
-          const nextPieces =
-            player.pieces.map(
-              (enemyPiece) => {
-                if (
-                  enemyPiece.status ===
-                    PIECE_STATUS.OUTER &&
-                  getPieceAbsolutePath(
-                    enemyPiece
-                  ) === absoluteIndex
-                ) {
-                  capturedByPlayer += 1;
-                  captureCount += 1;
-
-                  return {
-                    ...enemyPiece,
-                    status:
-                      PIECE_STATUS.HOME,
-                    pathIndex: -1,
-                    innerIndex: -1,
-                  };
-                }
-
-                return enemyPiece;
-              }
-            );
-
-          return {
-            ...player,
-            pieces: nextPieces,
-          };
-        });
-
-      if (captureCount > 0) {
-        nextPlayers =
-          nextPlayers.map((player) => {
-            if (
-              player.id ===
-              currentPlayer.id
-            ) {
-              return {
-                ...player,
-                captured:
-                  player.captured +
-                  captureCount,
-
-                pieces:
-                  player.pieces.map(
-                    (item) =>
-                      item.id === pieceId
-                        ? {
-                            ...item,
-                            captures:
-                              item.captures +
-                              captureCount,
-                          }
-                        : item
-                  ),
-              };
-            }
-
-            return player;
-          });
-      }
-    }
-  }
-
-  // ----------------------------------------------------------
-  // WIN CHECK
-  // ----------------------------------------------------------
-
-  const updatedCurrentPlayer =
-    nextPlayers.find(
-      (player) =>
-        player.id === currentPlayer.id
+  const capture =
+    performCapture(
+      players,
+      movedPiece
     );
 
-  const finished =
-    updatedCurrentPlayer?.pieces.filter(
-      (item) =>
-        item.status ===
-        PIECE_STATUS.FINISHED
-    ).length ?? 0;
+  players =
+    capture.players;
+
+  // ----------------------------------------------------------
+  // FINISHED COUNT
+  // ----------------------------------------------------------
+
+  players =
+    players.map(
+      (player) => ({
+        ...player,
+
+        finished:
+          player.pieces.filter(
+            (item) =>
+              item.status ===
+              PIECE_STATUS.FINISHED
+          ).length,
+      })
+    );
+
+  // ----------------------------------------------------------
+  // WIN
+  // ----------------------------------------------------------
+
+  const currentPlayer =
+    players[
+      game.currentPlayer
+    ];
 
   if (
-    finished >=
+    currentPlayer.finished >=
     REQUIRED_FINISHED_PIECES
   ) {
     return {
+      success: true,
+
       game: {
         ...game,
-        players: nextPlayers,
-        hasRolled: false,
-        selectedPieceId: null,
-        status: GAME_STATUS.WON,
-        winner: currentPlayer.id,
-        message: `${currentPlayer.name} REACHED WIN`,
-      },
 
-      success: true,
-      captureCount,
-      won: true,
+        players,
+
+        status:
+          GAME_STATUS.WON,
+
+        winner:
+          game.currentPlayer,
+
+        hasRolled: false,
+
+        coins: [],
+
+        score: 0,
+
+        selectedPieceId:
+          pieceId,
+
+        message:
+          `${currentPlayer.name}` +
+          " • WINNER",
+      },
     };
   }
 
   // ----------------------------------------------------------
-  // NEXT TURN
+  // EXTRA TURN
+  // ----------------------------------------------------------
+
+  if (
+    game.score === 4 ||
+    game.score === 8
+  ) {
+    return {
+      success: true,
+
+      game: {
+        ...game,
+
+        players,
+
+        hasRolled: false,
+
+        coins: [],
+
+        score: 0,
+
+        selectedPieceId:
+          null,
+
+        extraTurn: true,
+
+        message:
+          `${currentPlayer.name}` +
+          " • EXTRA TURN • ROLL",
+      },
+    };
+  }
+
+  // ----------------------------------------------------------
+  // NEXT PLAYER
   // ----------------------------------------------------------
 
   const nextPlayer =
     (game.currentPlayer + 1) %
-    game.players.length;
-
-  const nextGame = {
-    ...game,
-
-    players: nextPlayers,
-
-    currentPlayer: nextPlayer,
-
-    turnNumber:
-      game.turnNumber + 1,
-
-    hasRolled: false,
-
-    selectedPieceId: null,
-
-    status: GAME_STATUS.PLAYING,
-
-    message:
-      `${nextPlayers[nextPlayer].name} • YOUR TURN`,
-  };
+    players.length;
 
   return {
-    game: nextGame,
     success: true,
-    captureCount,
-    won: false,
-  };
-}
 
-// ============================================================
-// ROLL COINS
-// ============================================================
-
-export function rollCoins(game) {
-  if (!game) {
-    return {
-      game,
-      coins: [],
-      score: 0,
-      success: false,
-    };
-  }
-
-  if (
-    game.status === GAME_STATUS.WON
-  ) {
-    return {
-      game,
-      coins: [],
-      score: 0,
-      success: false,
-    };
-  }
-
-  if (game.hasRolled) {
-    return {
-      game,
-      coins: game.coins,
-      score: game.score,
-      success: false,
-    };
-  }
-
-  const coins =
-    createCoinThrow();
-
-  const score =
-    calculateCoinScore(coins);
-
-  const combination =
-    getCoinCombination(coins);
-
-  return {
     game: {
       ...game,
 
-      coins,
+      players,
 
-      score,
+      currentPlayer:
+        nextPlayer,
 
-      hasRolled: true,
+      turnNumber:
+        game.turnNumber + 1,
 
-      status:
-        GAME_STATUS.PLAYING,
+      hasRolled: false,
 
-      selectedPieceId: null,
+      coins: [],
+
+      score: 0,
+
+      selectedPieceId:
+        null,
+
+      extraTurn: false,
 
       message:
-        `${combination.label} • ${score} POINT${
-          score === 1 ? "" : "S"
-        }`,
+        `${players[nextPlayer].name}` +
+        " • ROLL COWRIES",
     },
-
-    coins,
-
-    score,
-
-    success: true,
   };
 }
 
 // ============================================================
-// GET LEGAL PIECES
+// LEGAL PIECES
 // ============================================================
 
-export function getLegalPieces(game) {
-  if (!game || !game.hasRolled) {
-    return [];
-  }
-
+export function getLegalPieces(
+  game
+) {
   const player =
     getCurrentPlayer(game);
 
@@ -904,183 +942,162 @@ export function getLegalPieces(game) {
 
   return player.pieces.filter(
     (piece) =>
-      getLegalMove(
+      canPieceMove(
         game,
         piece
-      ).legal
-  );
-}
-
-// ============================================================
-// HAS ANY LEGAL MOVE?
-// ============================================================
-
-export function hasLegalMove(game) {
-  return getLegalPieces(game).length > 0;
-}
-
-// ============================================================
-// CAPTURE CHECK
-// ============================================================
-
-export function canCaptureAt(
-  game,
-  playerId,
-  absolutePathIndex
-) {
-  if (
-    isSafePosition(
-      absolutePathIndex
-    )
-  ) {
-    return false;
-  }
-
-  return game.players.some(
-    (player) =>
-      player.id !== playerId &&
-      player.pieces.some(
-        (piece) =>
-          piece.status ===
-            PIECE_STATUS.OUTER &&
-          getPieceAbsolutePath(
-            piece
-          ) === absolutePathIndex
       )
   );
 }
 
 // ============================================================
-// RESET PIECE
+// ROLL COWRIES
 // ============================================================
 
-export function sendPieceHome(piece) {
-  return {
-    ...piece,
-
-    status:
-      PIECE_STATUS.HOME,
-
-    pathIndex: -1,
-
-    innerIndex: -1,
-  };
-}
-
-// ============================================================
-// FINISHED PIECES
-// ============================================================
-
-export function getFinishedCount(
-  player
-) {
-  return (
-    player?.pieces.filter(
-      (piece) =>
-        piece.status ===
-        PIECE_STATUS.FINISHED
-    ).length ?? 0
-  );
-}
-
-// ============================================================
-// HOME PIECES
-// ============================================================
-
-export function getHomeCount(
-  player
-) {
-  return (
-    player?.pieces.filter(
-      (piece) =>
-        piece.status ===
-        PIECE_STATUS.HOME
-    ).length ?? 0
-  );
-}
-
-// ============================================================
-// ACTIVE PIECES
-// ============================================================
-
-export function getActiveCount(
-  player
-) {
-  return (
-    player?.pieces.filter(
-      (piece) =>
-        piece.status !==
-          PIECE_STATUS.HOME &&
-        piece.status !==
-          PIECE_STATUS.FINISHED
-    ).length ?? 0
-  );
-}
-
-// ============================================================
-// GAME WINNER
-// ============================================================
-
-export function getWinner(game) {
+export function rollCoins(game) {
   if (
-    game?.winner === null ||
-    game?.winner === undefined
+    game.status !==
+    GAME_STATUS.PLAYING
   ) {
-    return null;
+    return game;
   }
 
-  return getPlayer(
-    game,
-    game.winner
-  );
-}
+  if (game.hasRolled) {
+    return game;
+  }
 
-// ============================================================
-// DEFAULT EXPORT
-// ============================================================
+  const coins =
+    createCoinThrow();
+
+  const score =
+    calculateCoinScore(
+      coins
+    );
+
+  const blackCount =
+    coins.filter(
+      (coin) =>
+        coin === "black"
+    ).length;
+
+  let consecutiveEight =
+    game.consecutiveEight;
+
+  if (
+    blackCount === 4
+  ) {
+    consecutiveEight += 1;
+  } else {
+    consecutiveEight = 0;
+  }
+
+  // ----------------------------------------------------------
+  // THREE CONSECUTIVE 8s
+  // ----------------------------------------------------------
+
+  if (
+    consecutiveEight >= 3
+  ) {
+    const next =
+      (game.currentPlayer + 1) %
+      game.players.length;
+
+    return {
+      ...game,
+
+      coins,
+
+      score: 8,
+
+      hasRolled: false,
+
+      currentPlayer: next,
+
+      turnNumber:
+        game.turnNumber + 1,
+
+      consecutiveEight: 0,
+
+      extraTurn: false,
+
+      message:
+        `${game.players[game.currentPlayer].name}` +
+        " • THREE 8s • TURN LOST",
+    };
+  }
+
+  const updated = {
+    ...game,
+
+    coins,
+
+    score,
+
+    hasRolled: true,
+
+    consecutiveEight,
+
+    message:
+      `${game.players[game.currentPlayer].name}` +
+      " • SELECT PIECE",
+  };
+
+  // ----------------------------------------------------------
+  // CHECK LEGAL PIECES
+  // ----------------------------------------------------------
+
+  const legalPieces =
+    getLegalPieces(
+      updated
+    );
+
+  // No possible move:
+  // immediately pass turn.
+  if (
+    legalPieces.length === 0
+  ) {
+    const next =
+      (game.currentPlayer + 1) %
+      game.players.length;
+
+    return {
+      ...updated,
+
+      hasRolled: false,
+
+      coins: [],
+
+      score: 0,
+
+      currentPlayer: next,
+
+      turnNumber:
+        game.turnNumber + 1,
+
+      message:
+        `${game.players[next].name}` +
+        " • ROLL COWRIES",
+    };
+  }
+
+  return updated;
+}
 
 export default {
   PIECE_STATUS,
   GAME_STATUS,
-
   createCoinThrow,
   calculateCoinScore,
   getCoinCombination,
-
   createPiece,
   createPlayer,
   createGame,
-
-  getPlayer,
+  startGame,
   getCurrentPlayer,
-  getPiece,
-
-  canEnterFromHome,
-  getPieceAbsolutePath,
+  getPieceById,
   getPiecePosition,
-
-  isSafePosition,
-  getPiecesAtOuterPosition,
-
-  hasCapturedOpponent,
-  canEnterInnerPath,
-
-  calculateOuterMove,
-  calculateInnerMove,
-
+  canPieceMove,
   getLegalMove,
   applyPieceMove,
-  rollCoins,
-
   getLegalPieces,
-  hasLegalMove,
-
-  canCaptureAt,
-  sendPieceHome,
-
-  getFinishedCount,
-  getHomeCount,
-  getActiveCount,
-
-  getWinner,
+  rollCoins,
 };

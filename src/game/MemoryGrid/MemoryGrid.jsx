@@ -12,6 +12,8 @@ import {
   Timer,
   Flame,
   Crosshair,
+  Maximize,
+  Minimize,
 } from "lucide-react";
 
 import "./MemoryGrid.css";
@@ -213,6 +215,9 @@ export default function MemoryGrid() {
     useState(false);
 
   const [gameOver, setGameOver] =
+    useState(false);
+
+  const [isFullscreen, setIsFullscreen] =
     useState(false);
 
   const [round, setRound] = useState(1);
@@ -665,6 +670,28 @@ export default function MemoryGrid() {
   }
 
   /* =========================================================
+     FULLSCREEN
+  ========================================================= */
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.();
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  /* =========================================================
      RENDER
   ========================================================= */
 
@@ -703,13 +730,24 @@ export default function MemoryGrid() {
 
         </div>
 
-        <button
-          className="memory-reset"
-          onClick={resetGame}
-        >
-          <RotateCcw size={15} />
-          RESET
-        </button>
+        <div className="memory-header-actions">
+          <button
+            className="memory-fullscreen"
+            onClick={toggleFullscreen}
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize size={15} /> : <Maximize size={15} />}
+            {isFullscreen ? "EXIT" : "FULLSCREEN"}
+          </button>
+
+          <button
+            className="memory-reset"
+            onClick={resetGame}
+          >
+            <RotateCcw size={15} />
+            RESET
+          </button>
+        </div>
 
       </header>
 

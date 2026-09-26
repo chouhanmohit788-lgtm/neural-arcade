@@ -1,17 +1,19 @@
 // ============================================================
-// ASHTE KASHTE - BOARD CONFIGURATION
-// 7 x 7 TRADITIONAL BOARD
+// ASHTE KASHTE / CHOWKA BARA
+// BOARD CONFIGURATION
 // ============================================================
 
-// ------------------------------------------------------------
-// BOARD SIZE
-// ------------------------------------------------------------
+export const BOARD_SIZE = 5;
 
-export const BOARD_SIZE = 7;
+export const PIECES_PER_PLAYER = 4;
 
-// ------------------------------------------------------------
+export const ROLL_TIME = 10;
+
+export const REQUIRED_FINISHED_PIECES = 4;
+
+// ============================================================
 // PLAYERS
-// ------------------------------------------------------------
+// ============================================================
 
 export const PLAYERS = [
   {
@@ -19,390 +21,314 @@ export const PLAYERS = [
     name: "PLAYER 1",
     short: "P1",
     color: "#D9A441",
-    startIndex: 0,
-    homeZone: "bottom",
+    home: [4, 2],
   },
+
   {
     id: 1,
     name: "PLAYER 2",
     short: "P2",
     color: "#D95C4F",
-    startIndex: 6,
-    homeZone: "left",
+    home: [2, 0],
   },
+
   {
     id: 2,
     name: "PLAYER 3",
     short: "P3",
     color: "#4E91D9",
-    startIndex: 12,
-    homeZone: "top",
+    home: [0, 2],
   },
+
   {
     id: 3,
     name: "PLAYER 4",
     short: "P4",
     color: "#58A86A",
-    startIndex: 18,
-    homeZone: "right",
+    home: [2, 4],
   },
 ];
 
 // ============================================================
-// OUTER CIRCUIT
-//
-// Traditional 7 x 7 Ashte Kashte outer route.
-// 24 cells around the outside ring.
-//
-// Coordinates are [row, column].
-//
-// Movement:
-// bottom → left → top → right → bottom
+// BOARD LAYOUT
 // ============================================================
 
-export const OUTER_PATH = [
-  // 1 → 4
-  [6, 3],
-  [6, 4],
-  [6, 5],
-  [6, 6],
+export const BOARD_LAYOUT = [
+  [
+    "empty",
+    "empty",
+    "home-top",
+    "empty",
+    "empty",
+  ],
 
-  // 5 → 10
-  [5, 6],
-  [4, 6],
-  [3, 6],
-  [2, 6],
-  [1, 6],
-  [0, 6],
+  [
+    "empty",
+    "arrow-right",
+    "path",
+    "arrow-down",
+    "empty",
+  ],
 
-  // 11 → 16
-  [0, 5],
-  [0, 4],
-  [0, 3],
-  [0, 2],
-  [0, 1],
-  [0, 0],
+  [
+    "home-left",
+    "path",
+    "center",
+    "path",
+    "home-right",
+  ],
 
-  // 17 → 22
-  [1, 0],
-  [2, 0],
-  [3, 0],
-  [4, 0],
-  [5, 0],
-  [6, 0],
+  [
+    "empty",
+    "arrow-up",
+    "path",
+    "arrow-left",
+    "empty",
+  ],
 
-  // 23 → 24
-  [6, 1],
-  [6, 2],
+  [
+    "empty",
+    "empty",
+    "home-bottom",
+    "empty",
+    "empty",
+  ],
 ];
-
-// ============================================================
-// PLAYER START POSITIONS
-//
-// Four outer-center starting/resting squares.
-//
-// P1 = bottom center
-// P2 = left center
-// P3 = top center
-// P4 = right center
-// ============================================================
-
-export const PLAYER_START_INDEX = {
-  0: 0,
-  1: 6,
-  2: 12,
-  3: 18,
-};
 
 // ============================================================
 // HOME POSITIONS
-//
-// Four pieces are displayed around each player's castle.
-// These are outside the playable route.
 // ============================================================
 
 export const HOME_POSITIONS = {
-  // PLAYER 1 - BOTTOM
-  0: [
-    [6, 2],
-    [6, 3],
-    [6, 4],
-    [6, 5],
-  ],
+  0: [4, 2], // Player 1 - Bottom
+  1: [2, 0], // Player 2 - Left
+  2: [0, 2], // Player 3 - Top
+  3: [2, 4], // Player 4 - Right
+};
 
-  // PLAYER 2 - LEFT
-  1: [
+// ============================================================
+// WIN / CENTER
+// ============================================================
+
+export const WIN_POSITION = [2, 2];
+
+// ============================================================
+// ARROWS
+// ============================================================
+
+export const ARROWS = {
+  "1-1": "→",
+  "1-3": "↓",
+  "3-1": "↑",
+  "3-3": "←",
+};
+
+// ============================================================
+// OUTER ROUTE
+//
+// IMPORTANT:
+//
+// Every player starts from the RIGHT SIDE of their HOME.
+//
+// Then moves anti-clockwise around the outer route.
+//
+// The LAST outer square is the LEFT SIDE of HOME.
+//
+// From there:
+//   - if player has captured -> inner path
+//   - if player has NOT captured -> keep circling outer route
+//
+// Home itself is NOT included as a movement square.
+// ============================================================
+
+export const OUTER_PATHS = {
+  // ----------------------------------------------------------
+  // PLAYER 1 - BOTTOM
+  //
+  // Home: [4,2]
+  // Right of home: [4,3]
+  // Left of home:  [4,1]
+  // ----------------------------------------------------------
+
+  0: [
+    [4, 3],
+    [4, 4],
+
+    [3, 4],
+    [2, 4],
+    [1, 4],
+    [0, 4],
+
+    [0, 3],
+    [0, 2],
+    [0, 1],
+    [0, 0],
+
+    [1, 0],
     [2, 0],
     [3, 0],
     [4, 0],
-    [5, 0],
+    [4, 1],
   ],
 
-  // PLAYER 3 - TOP
-  2: [
-    [0, 2],
-    [0, 3],
+  // ----------------------------------------------------------
+  // PLAYER 2 - LEFT
+  //
+  // Home: [2,0]
+  // Right of home from player's direction: [3,0]
+  // Left of home: [1,0]
+  // ----------------------------------------------------------
+
+  1: [
+    [3, 0],
+    [4, 0],
+
+    [4, 1],
+    [4, 2],
+    [4, 3],
+    [4, 4],
+
+    [3, 4],
+    [2, 4],
+    [1, 4],
     [0, 4],
-    [0, 5],
+
+    [0, 3],
+    [0, 2],
+    [0, 1],
+    [0, 0],
+    [1, 0],
   ],
 
+  // ----------------------------------------------------------
+  // PLAYER 3 - TOP
+  //
+  // Home: [0,2]
+  // Right of home from player's direction: [0,1]
+  // Left of home: [0,3]
+  // ----------------------------------------------------------
+
+  2: [
+    [0, 1],
+    [0, 0],
+
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [4, 0],
+
+    [4, 1],
+    [4, 2],
+    [4, 3],
+    [4, 4],
+
+    [3, 4],
+    [2, 4],
+    [1, 4],
+    [0, 4],
+    [0, 3],
+  ],
+
+  // ----------------------------------------------------------
   // PLAYER 4 - RIGHT
+  //
+  // Home: [2,4]
+  // Right of home from player's direction: [1,4]
+  // Left of home: [3,4]
+  // ----------------------------------------------------------
+
   3: [
-    [2, 6],
-    [3, 6],
-    [4, 6],
-    [5, 6],
+    [1, 4],
+    [0, 4],
+
+    [0, 3],
+    [0, 2],
+    [0, 1],
+    [0, 0],
+
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [4, 0],
+
+    [4, 1],
+    [4, 2],
+    [4, 3],
+    [4, 4],
+    [3, 4],
   ],
 };
 
 // ============================================================
-// HOME / CASTLE ZONES
-// ============================================================
-
-export const HOME_ZONES = {
-  0: {
-    rowStart: 5,
-    rowEnd: 6,
-    colStart: 2,
-    colEnd: 5,
-  },
-
-  1: {
-    rowStart: 2,
-    rowEnd: 5,
-    colStart: 0,
-    colEnd: 1,
-  },
-
-  2: {
-    rowStart: 0,
-    rowEnd: 1,
-    colStart: 2,
-    colEnd: 5,
-  },
-
-  3: {
-    rowStart: 2,
-    rowEnd: 5,
-    colStart: 5,
-    colEnd: 6,
-  },
-};
-
-// ============================================================
-// SAFE / RESTING CELLS
+// INNER PATH
 //
-// The four outer-center squares are resting/start squares.
-// Pieces on these cells cannot be captured.
-// ============================================================
-
-export const SAFE_CELLS = [
-  0,  // bottom
-  6,  // right
-  12, // top
-  18, // left
-];
-
-// ============================================================
-// PLAYER APPROACH POINTS
+// After a player has captured at least one opponent:
 //
-// These are the points where each player's route moves
-// from the outer circuit toward the inner spiral.
+// left side of home
+//       ↓
+// inner entry
+//       ↓
+// inner path
+//       ↓
+// center
 //
-// Exact movement behaviour will be handled in gameLogic.js.
-// ============================================================
-
-export const APPROACH_POINTS = {
-  0: 23,
-  1: 5,
-  2: 11,
-  3: 17,
-};
-
-// ============================================================
-// INNER SPIRAL
-//
-// Traditional board contains concentric inward route cells.
-// These coordinates describe the route from the outer ring
-// toward the centre.
-//
-// Centre = [3,3]
-// ============================================================
-
-export const INNER_SPIRAL = [
-  // Ring 2
-  [5, 1],
-  [4, 1],
-  [3, 1],
-  [2, 1],
-  [1, 1],
-
-  [1, 2],
-  [1, 3],
-  [1, 4],
-  [1, 5],
-
-  [2, 5],
-  [3, 5],
-  [4, 5],
-  [5, 5],
-
-  [5, 4],
-  [5, 3],
-  [5, 2],
-
-  // Ring 3
-  [4, 2],
-  [3, 2],
-  [2, 2],
-
-  [2, 3],
-  [2, 4],
-
-  [3, 4],
-  [4, 4],
-  [4, 3],
-
-  // FINAL
-  [3, 3],
-];
-
-// ============================================================
-// PLAYER INNER PATHS
-//
-// Kept separately because gameLogic uses player-specific paths.
-// These will be refined together with the movement logic.
+// Inner direction is clockwise.
 // ============================================================
 
 export const INNER_PATHS = {
+  // Player 1 - Bottom
   0: [
-    [5, 1],
-    [4, 1],
     [3, 1],
     [2, 1],
-    [1, 1],
-    [1, 2],
-    [1, 3],
-    [1, 4],
-    [1, 5],
-    [2, 5],
-    [3, 5],
-    [4, 5],
-    [5, 5],
-    [5, 4],
-    [5, 3],
-    [5, 2],
-    [4, 2],
-    [3, 2],
     [2, 2],
-    [2, 3],
-    [2, 4],
-    [3, 4],
-    [4, 4],
-    [4, 3],
-    [3, 3],
   ],
 
+  // Player 2 - Left
   1: [
-    [5, 1],
-    [4, 1],
-    [3, 1],
-    [2, 1],
     [1, 1],
-    [1, 2],
-    [1, 3],
-    [1, 4],
-    [1, 5],
-    [2, 5],
-    [3, 5],
-    [4, 5],
-    [5, 5],
-    [5, 4],
-    [5, 3],
-    [5, 2],
-    [4, 2],
-    [3, 2],
+    [2, 1],
     [2, 2],
-    [2, 3],
-    [2, 4],
-    [3, 4],
-    [4, 4],
-    [4, 3],
-    [3, 3],
   ],
 
+  // Player 3 - Top
   2: [
-    [5, 1],
-    [4, 1],
-    [3, 1],
-    [2, 1],
-    [1, 1],
-    [1, 2],
     [1, 3],
-    [1, 4],
-    [1, 5],
-    [2, 5],
-    [3, 5],
-    [4, 5],
-    [5, 5],
-    [5, 4],
-    [5, 3],
-    [5, 2],
-    [4, 2],
-    [3, 2],
-    [2, 2],
     [2, 3],
-    [2, 4],
-    [3, 4],
-    [4, 4],
-    [4, 3],
-    [3, 3],
+    [2, 2],
   ],
 
+  // Player 4 - Right
   3: [
-    [5, 1],
-    [4, 1],
-    [3, 1],
-    [2, 1],
-    [1, 1],
-    [1, 2],
-    [1, 3],
-    [1, 4],
-    [1, 5],
-    [2, 5],
-    [3, 5],
-    [4, 5],
-    [5, 5],
-    [5, 4],
-    [5, 3],
-    [5, 2],
-    [4, 2],
-    [3, 2],
-    [2, 2],
-    [2, 3],
-    [2, 4],
-    [3, 4],
-    [4, 4],
-    [4, 3],
     [3, 3],
+    [2, 3],
+    [2, 2],
   ],
 };
 
 // ============================================================
-// WIN / CENTRE
+// SAFE CELLS
+//
+// Home X positions + center are safe.
 // ============================================================
 
-export const WIN_POSITION = [3, 3];
-
-export const INNER_SQUARE = {
-  rowStart: 2,
-  rowEnd: 4,
-  colStart: 2,
-  colEnd: 4,
-};
+export const SAFE_CELLS = [
+  [4, 2],
+  [2, 0],
+  [0, 2],
+  [2, 4],
+  [2, 2],
+];
 
 // ============================================================
-// COIN THROW RULES
+// COWRY VALUES
+//
+// User's game rules:
+//
+// 3 Black + 1 White = 1
+// 2 Black + 2 White = 2
+// 1 Black + 3 White = 3
+// 4 White          = 4
+// 4 Black          = 8
 // ============================================================
 
 export const COIN_VALUES = {
@@ -415,124 +341,98 @@ export const COIN_VALUES = {
 
 // ============================================================
 // HOME ENTRY VALUES
+//
+// User rule:
+// 1W + 3B opens a home piece.
+// 4W / 4B can also open a new piece,
+// but the newly opened piece moves only 1 step.
 // ============================================================
 
-export const HOME_ENTRY_VALUES = [1, 4, 8];
+export const HOME_ENTRY_VALUES = [
+  1,
+  4,
+  8,
+];
 
 // ============================================================
-// PIECES
+// HELPERS
 // ============================================================
 
-export const PIECES_PER_PLAYER = 4;
-
-// ============================================================
-// PATH LENGTHS
-// ============================================================
-
-export const OUTER_PATH_LENGTH = OUTER_PATH.length;
-
-export const INNER_PATH_LENGTH = INNER_SPIRAL.length;
-
-// ============================================================
-// WIN REQUIREMENT
-// ============================================================
-
-export const REQUIRED_FINISHED_PIECES = 4;
-
-// ============================================================
-// CELL TYPES
-// ============================================================
-
-export const CELL_TYPES = {
-  EMPTY: "empty",
-  PATH: "path",
-  SAFE: "safe",
-  HOME: "home",
-  INNER: "inner",
-  WIN: "win",
-};
-
-// ============================================================
-// HELPER
-// ABSOLUTE OUTER PATH INDEX
-// ============================================================
-
-export function getAbsolutePathIndex(
-  playerId,
-  relativeIndex
-) {
-  const start =
-    PLAYER_START_INDEX[playerId] ?? 0;
+export function isSameCell(a, b) {
+  if (!a || !b) {
+    return false;
+  }
 
   return (
-    start + relativeIndex
-  ) % OUTER_PATH.length;
-}
-
-// ============================================================
-// HELPER
-// GET OUTER PATH COORDINATE
-// ============================================================
-
-export function getPathCoordinate(
-  playerId,
-  relativeIndex
-) {
-  const absoluteIndex =
-    getAbsolutePathIndex(
-      playerId,
-      relativeIndex
-    );
-
-  return OUTER_PATH[absoluteIndex];
-}
-
-// ============================================================
-// HELPER
-// SAFE PATH CELL
-// ============================================================
-
-export function isSafePathIndex(
-  absoluteIndex
-) {
-  return SAFE_CELLS.includes(
-    absoluteIndex
+    a[0] === b[0] &&
+    a[1] === b[1]
   );
 }
 
-// ============================================================
-// HELPER
-// FIND OUTER PATH INDEX
-// ============================================================
-
-export function findPathIndex(
-  row,
-  col
-) {
-  return OUTER_PATH.findIndex(
-    ([pathRow, pathCol]) =>
-      pathRow === row &&
-      pathCol === col
+export function getPlayer(playerId) {
+  return (
+    PLAYERS.find(
+      (player) =>
+        player.id === playerId
+    ) || null
   );
 }
 
-// ============================================================
-// HELPER
-// FIND INNER PATH INDEX
-// ============================================================
+export function getHomePosition(
+  playerId
+) {
+  return (
+    HOME_POSITIONS[playerId] ||
+    null
+  );
+}
 
-export function findInnerPathIndex(
-  playerId,
+export function getOuterPath(
+  playerId
+) {
+  return (
+    OUTER_PATHS[playerId] ||
+    []
+  );
+}
+
+export function getInnerPath(
+  playerId
+) {
+  return (
+    INNER_PATHS[playerId] ||
+    []
+  );
+}
+
+export function isSafeCell(
   row,
   col
 ) {
-  const path =
-    INNER_PATHS[playerId] || [];
+  return SAFE_CELLS.some(
+    ([r, c]) =>
+      r === row &&
+      c === col
+  );
+}
 
-  return path.findIndex(
-    ([pathRow, pathCol]) =>
-      pathRow === row &&
-      pathCol === col
+export function isWinPosition(
+  row,
+  col
+) {
+  return (
+    row === WIN_POSITION[0] &&
+    col === WIN_POSITION[1]
+  );
+}
+
+export function getArrow(
+  row,
+  col
+) {
+  return (
+    ARROWS[`${row}-${col}`] ||
+    null
   );
 }
 
@@ -542,27 +442,30 @@ export function findInnerPathIndex(
 
 export default {
   BOARD_SIZE,
+  PIECES_PER_PLAYER,
+  ROLL_TIME,
+  REQUIRED_FINISHED_PIECES,
+
   PLAYERS,
-  OUTER_PATH,
-  PLAYER_START_INDEX,
+
+  BOARD_LAYOUT,
   HOME_POSITIONS,
-  HOME_ZONES,
-  SAFE_CELLS,
-  APPROACH_POINTS,
-  INNER_SPIRAL,
-  INNER_PATHS,
   WIN_POSITION,
-  INNER_SQUARE,
+  ARROWS,
+
+  OUTER_PATHS,
+  INNER_PATHS,
+  SAFE_CELLS,
+
   COIN_VALUES,
   HOME_ENTRY_VALUES,
-  PIECES_PER_PLAYER,
-  OUTER_PATH_LENGTH,
-  INNER_PATH_LENGTH,
-  REQUIRED_FINISHED_PIECES,
-  CELL_TYPES,
-  getAbsolutePathIndex,
-  getPathCoordinate,
-  isSafePathIndex,
-  findPathIndex,
-  findInnerPathIndex,
+
+  isSameCell,
+  getPlayer,
+  getHomePosition,
+  getOuterPath,
+  getInnerPath,
+  isSafeCell,
+  isWinPosition,
+  getArrow,
 };

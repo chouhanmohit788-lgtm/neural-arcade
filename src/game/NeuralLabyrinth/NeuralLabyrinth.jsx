@@ -21,6 +21,16 @@ const LEVELS = [
   { level: 3, size: 9, time: 80 },
   { level: 4, size: 10, time: 75 },
   { level: 5, size: 11, time: 70 },
+  { level: 6, size: 12, time: 68 },
+  { level: 7, size: 12, time: 64 },
+  { level: 8, size: 13, time: 62 },
+  { level: 9, size: 13, time: 58 },
+  { level: 10, size: 14, time: 56 },
+  { level: 11, size: 14, time: 52 },
+  { level: 12, size: 15, time: 50 },
+  { level: 13, size: 15, time: 47 },
+  { level: 14, size: 16, time: 44 },
+  { level: 15, size: 16, time: 42 },
 ];
 
 const START = { row: 0, col: 0 };
@@ -146,6 +156,9 @@ export default function NeuralLabyrinth() {
     "Find the exit. The maze will not show you the path."
   );
   const [stats, setStats] = useState(getInitialStats);
+  const [hintUsed, setHintUsed] = useState(false);
+  const [hintCell, setHintCell] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const progress = useMemo(() => {
     const distance =
@@ -209,6 +222,8 @@ export default function NeuralLabyrinth() {
     setTimeLeft(currentLevel.time);
     setGameOver(false);
     setLevelComplete(false);
+    setHintUsed(false);
+    setHintCell(null);
     setGameStarted(true);
     setMessage("ESCAPE THE LABYRINTH // REACH THE NEURAL CORE.");
   }
@@ -309,11 +324,74 @@ export default function NeuralLabyrinth() {
     setTimeLeft(next.time);
     setGameOver(false);
     setLevelComplete(false);
+    setHintUsed(false);
+    setHintCell(null);
     setGameStarted(true);
     setMessage(
       `LEVEL ${next.level} // FIND THE NEURAL CORE.`
     );
   }
+
+  function useHint() {
+    if (!gameStarted || gameOver || levelComplete || hintUsed) return;
+
+    const queue = [{ row: player.row, col: player.col, path: [] }];
+    const visited = new Set([`${player.row}-${player.col}`]);
+    let nextCell = null;
+
+    while (queue.length) {
+      const current = queue.shift();
+
+      if (current.row === exit.row && current.col === exit.col) {
+        nextCell = current.path[0] || null;
+        break;
+      }
+
+      for (const direction of MOVES) {
+        if (!canMove(current.row, current.col, direction.dr, direction.dc)) continue;
+
+        const row = current.row + direction.dr;
+        const col = current.col + direction.dc;
+        const key = `${row}-${col}`;
+
+        if (visited.has(key)) continue;
+        visited.add(key);
+        queue.push({ row, col, path: [...current.path, { row, col }] });
+      }
+    }
+
+    if (!nextCell) {
+      setMessage("HINT UNAVAILABLE // FIND ANOTHER ROUTE.");
+      return;
+    }
+
+    setHintUsed(true);
+    setHintCell(nextCell);
+    setTimeLeft((previous) => Math.max(1, previous - 5));
+    setMessage("HINT // NEXT SAFE CELL REVEALED // -5 SEC");
+
+    setTimeout(() => setHintCell(null), 3500);
+  }
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Browser fullscreen can be unavailable in some environments.
+    }
+  }
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   function resetStats() {
     const fresh = {
@@ -333,6 +411,8 @@ export default function NeuralLabyrinth() {
     setTimeLeft(LEVELS[0].time);
     setGameOver(false);
     setLevelComplete(false);
+    setHintUsed(false);
+    setHintCell(null);
     setGameStarted(true);
     setMessage("LEVEL 1 // FIND THE NEURAL CORE.");
   }
@@ -340,7 +420,7 @@ export default function NeuralLabyrinth() {
   const cellIndex = (row, col) => row * mazeSize + col;
 
   return (
-    <div className="labyrinth-page">
+    <div className={`labyrinth-page ${gameStarted ? "labyrinth-playing" : ""} ${isFullscreen ? "labyrinth-fullscreen" : ""}`}>
       <header className="labyrinth-header">
         <button
           className="labyrinth-back"
@@ -361,13 +441,21 @@ export default function NeuralLabyrinth() {
           </div>
         </div>
 
-        <button
-          className="labyrinth-reset"
-          onClick={resetStats}
-        >
-          <RotateCcw size={15} />
-          RESET
-        </button>
+        <div className="labyrinth-header-actions">
+          <button
+            className="labyrinth-fullscreen-button"
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? "EXIT FULLSCREEN" : "FULLSCREEN"}
+          </button>
+          <button
+            className="labyrinth-reset"
+            onClick={resetStats}
+          >
+            <RotateCcw size={15} />
+            RESET
+          </button>
+        </div>
       </header>
 
       <main className="labyrinth-content">
@@ -400,7 +488,7 @@ export default function NeuralLabyrinth() {
         <section className="labyrinth-stats">
           <div>
             <span>LEVEL</span>
-            <strong>{currentLevel.level}/5</strong>
+            <strong>{currentLevel.level}/{LEVELS.length}</strong>
           </div>
 
           <div>
@@ -519,22 +607,18 @@ export default function NeuralLabyrinth() {
                           isPlayer ? "maze-player" : ""
                         } ${isStart ? "maze-start" : ""} ${
                           isExit ? "maze-exit" : ""
+                        } ${
+                          hintCell &&
+                          hintCell.row === rowIndex &&
+                          hintCell.col === colIndex
+                            ? "maze-hint-cell"
+                            : ""
                         }`}
-                        style={{
-                          borderTopColor: cell.top
-                            ? undefined
-                            : "transparent",
-                          borderRightColor: cell.right
-                            ? undefined
-                            : "transparent",
-                          borderBottomColor: cell.bottom
-                            ? undefined
-                            : "transparent",
-                          borderLeftColor: cell.left
-                            ? undefined
-                            : "transparent",
-                        }}
                       >
+                        {cell.top && <span className="maze-wall maze-wall-top" />}
+                        {cell.right && <span className="maze-wall maze-wall-right" />}
+                        {cell.bottom && <span className="maze-wall maze-wall-bottom" />}
+                        {cell.left && <span className="maze-wall maze-wall-left" />}
                         {isStart && (
                           <div className="maze-start-marker">
                             <span>START</span>
@@ -542,14 +626,23 @@ export default function NeuralLabyrinth() {
                         )}
 
                         {isExit && (
-                          <div className="maze-exit-marker">
-                            <DoorOpen
-                              className="exit-icon"
-                              size={18}
-                            />
-                            <span>CORE</span>
+                          <div
+                            className="maze-exit-marker"
+                            aria-label="End point - Neural Core"
+                          >
+                            <div className="exit-core-ring">
+                              <DoorOpen className="exit-icon" size={22} />
+                            </div>
+                            <span>END</span>
+                            <small>CORE</small>
                           </div>
                         )}
+
+                        {hintCell &&
+                          hintCell.row === rowIndex &&
+                          hintCell.col === colIndex && (
+                            <div className="maze-hint-marker">NEXT</div>
+                          )}
 
                         {isPlayer && (
                           <div className="player-core">
@@ -560,6 +653,17 @@ export default function NeuralLabyrinth() {
                     );
                   })
                 )}
+              </div>
+
+              <div className="labyrinth-action-row">
+                <button
+                  className="labyrinth-hint-button"
+                  onClick={useHint}
+                  disabled={hintUsed}
+                >
+                  <Compass size={15} />
+                  {hintUsed ? "HINT USED" : "HINT // 1 CELL"}
+                </button>
               </div>
 
               <div className="labyrinth-controls">
@@ -629,7 +733,7 @@ export default function NeuralLabyrinth() {
 
                 <div>
                   <small>LEVEL</small>
-                  <strong>{currentLevel.level}/5</strong>
+                  <strong>{currentLevel.level}/{LEVELS.length}</strong>
                 </div>
               </div>
 
@@ -698,7 +802,7 @@ export default function NeuralLabyrinth() {
 
           <div>
             <DoorOpen size={14} />
-            <span>CORE STATUS: LOCKED</span>
+            <span>LEVEL {currentLevel.level}/{LEVELS.length} // CORE LOCKED</span>
           </div>
         </footer>
       </main>

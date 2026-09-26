@@ -1,13 +1,12 @@
 import { NavLink } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Gamepad2,
   Brain,
-  User,
   Trophy,
   Settings,
   Zap,
-  Menu,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -29,11 +28,6 @@ const menuItems = [
     icon: Brain,
   },
   {
-    label: "Profile",
-    path: "/profile",
-    icon: User,
-  },
-  {
     label: "Achievements",
     path: "/achievements",
     icon: Trophy,
@@ -45,20 +39,11 @@ const menuItems = [
   },
 ];
 
-export default function Sidebar({
-  isOpen,
-  onToggle,
-}) {
+export default function Sidebar() {
   return (
-    <aside
-      className={`sidebar ${
-        isOpen ? "open" : "closed"
-      }`}
-    >
+    <aside className="sidebar">
 
-      {/* =====================================
-          BRAND + TOGGLE
-      ====================================== */}
+      {/* BRAND */}
 
       <div className="sidebar-brand">
 
@@ -74,82 +59,73 @@ export default function Sidebar({
           <span>ARCADE</span>
         </div>
 
-        {/* ONLY ONE MENU BUTTON */}
-
-        <button
-          className="sidebar-toggle"
-          onClick={onToggle}
-          aria-label="Toggle sidebar"
-        >
-          <Menu size={20} />
-        </button>
-
       </div>
 
+      {/* MENU */}
 
-      {/* =====================================
-          MENU
-      ====================================== */}
+      <nav className="sidebar-nav">
 
-      {isOpen && (
-        <nav className="sidebar-nav">
+        <div className="sidebar-label">
+          MAIN MENU
+        </div>
 
-          <div className="sidebar-label">
-            MAIN MENU
-          </div>
+        {menuItems.map((item) => {
 
-          {menuItems.map((item) => {
-            const Icon = item.icon;
+          const Icon = item.icon;
 
-            return (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                end={item.path === "/"}
-                className={({ isActive }) =>
-                  `sidebar-link ${
-                    isActive ? "active" : ""
-                  }`
-                }
-              >
-                <Icon
-                  size={18}
-                  strokeWidth={1.9}
-                />
+          return (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === "/"}
+              className={({ isActive }) =>
+                `sidebar-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+            >
 
-                <span>{item.label}</span>
-              </NavLink>
-            );
-          })}
+              <Icon
+                size={18}
+                strokeWidth={1.9}
+              />
 
-        </nav>
-      )}
+              <span>
+                {item.label}
+              </span>
 
+            </NavLink>
+          );
 
-      {/* =====================================
-          SYSTEM STATUS
-      ====================================== */}
+        })}
 
-      {isOpen && (
-        <div className="sidebar-bottom">
+      </nav>
 
-          <div className="neural-status">
+      {/* BOTTOM STATUS */}
 
-            <span className="status-dot" />
+      <div className="sidebar-bottom">
 
-            <div className="status-text">
-              <span>SYSTEM</span>
-              <strong>ONLINE</strong>
-            </div>
+        <div className="neural-status">
 
-          </div>
+          <span className="status-dot" />
 
-          <div className="sidebar-version">
-            NEURAL ARCADE v1.0
+          <div className="status-text">
+
+            <span>SYSTEM</span>
+
+            <strong>
+              ONLINE
+            </strong>
+
           </div>
 
         </div>
-      )}
+
+        <div className="sidebar-version">
+          NEURAL ARCADE v1.0
+        </div>
+
+      </div>
 
     </aside>
   );
